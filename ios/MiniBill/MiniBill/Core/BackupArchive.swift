@@ -166,7 +166,7 @@ public enum BackupCodec {
     }
 
     fileprivate static func cents(amount: String) -> Int64? {
-        try? EntryValidator.amountCents(from: amount)
+        try? EntryValidator.amountCents(from: amount, decimalSeparator: ".")
     }
 
     private static func iso8601String(from date: Date) -> String {

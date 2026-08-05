@@ -67,12 +67,14 @@ public struct MonthlySummary: Equatable, Sendable, Identifiable {
 
 public enum EntryValidationError: Error, Equatable, LocalizedError {
     case invalidAmount
+    case amountTooLarge
     case emptyProjectName
     case noteTooLong
 
     public var errorDescription: String? {
         switch self {
         case .invalidAmount: return "Amount must be greater than zero with at most two decimal places."
+        case .amountTooLarge: return "Amount exceeds MiniBill's per-entry limit."
         case .emptyProjectName: return "Project name is required."
         case .noteTooLong: return "Note must be 200 characters or fewer."
         }
@@ -80,9 +82,23 @@ public enum EntryValidationError: Error, Equatable, LocalizedError {
 }
 
 public enum EntryValidator {
-    public static func amountCents(from input: String) throws -> Int64 {
+    /// A single entry is capped at CNY 99,999,999.99. This keeps the UI and
+    /// aggregate calculations inside the product's small-business scope.
+    public static let maximumAmountCents: Int64 = 9_999_999_999
+
+    public static func amountCents(
+        from input: String,
+        decimalSeparator: String = Locale.current.decimalSeparator ?? "."
+    ) throws -> Int64 {
         let value = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        let pieces = value.split(separator: ".", omittingEmptySubsequences: false)
+        let separator = decimalSeparator.isEmpty ? "." : decimalSeparator
+        if separator != ".", value.contains(separator), value.contains(".") {
+            throw EntryValidationError.invalidAmount
+        }
+        let canonical = separator == "."
+            ? value
+            : value.replacingOccurrences(of: separator, with: ".")
+        let pieces = canonical.split(separator: ".", omittingEmptySubsequences: false)
         guard pieces.count <= 2,
               let wholeText = pieces.first,
               !wholeText.isEmpty,
@@ -103,15 +119,74 @@ public enum EntryValidator {
         }
         let cents = whole * 100 + fraction
         guard cents > 0 else { throw EntryValidationError.invalidAmount }
+        guard cents <= maximumAmountCents else { throw EntryValidationError.amountTooLarge }
         return cents
+    }
+
+    public static func amountText(
+        cents: Int64,
+        decimalSeparator: String = Locale.current.decimalSeparator ?? "."
+    ) -> String {
+        let separator = decimalSeparator.isEmpty ? "." : decimalSeparator
+        let fraction = String(format: "%02lld", cents % 100)
+        return "\(cents / 100)\(separator)\(fraction)"
     }
 
     public static func validate(amountCents: Int64, projectName: String, note: String?) throws {
         guard amountCents > 0 else { throw EntryValidationError.invalidAmount }
+        guard amountCents <= maximumAmountCents else { throw EntryValidationError.amountTooLarge }
         guard !ProjectNameNormalizer.normalizedKey(projectName).isEmpty else {
             throw EntryValidationError.emptyProjectName
         }
         guard (note?.count ?? 0) <= 200 else { throw EntryValidationError.noteTooLong }
+    }
+}
+
+public struct EntryDraft: Equatable, Sendable {
+    public var kind: LedgerKind
+    public var amountText: String
+    public var projectName: String
+    public var note: String
+    public var occurredAt: Date
+
+    private let id: UUID
+    private let createdAt: Date
+
+    public init(
+        record: LedgerRecord,
+        decimalSeparator: String = Locale.current.decimalSeparator ?? "."
+    ) {
+        id = record.id
+        createdAt = record.createdAt
+        kind = record.kind
+        amountText = EntryValidator.amountText(cents: record.amountCents, decimalSeparator: decimalSeparator)
+        projectName = record.projectName
+        note = record.note ?? ""
+        occurredAt = record.occurredAt
+    }
+
+    public func validatedRecord(
+        updatedAt: Date = Date(),
+        decimalSeparator: String = Locale.current.decimalSeparator ?? "."
+    ) throws -> LedgerRecord {
+        let cents = try EntryValidator.amountCents(from: amountText, decimalSeparator: decimalSeparator)
+        let trimmedProject = projectName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        try EntryValidator.validate(
+            amountCents: cents,
+            projectName: trimmedProject,
+            note: trimmedNote.isEmpty ? nil : trimmedNote
+        )
+        return LedgerRecord(
+            id: id,
+            kind: kind,
+            amountCents: cents,
+            projectName: trimmedProject,
+            note: trimmedNote.isEmpty ? nil : trimmedNote,
+            occurredAt: occurredAt,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        )
     }
 }
 

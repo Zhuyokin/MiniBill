@@ -19,7 +19,10 @@ public enum ProjectSuggestionService {
             let key = ProjectNameNormalizer.normalizedKey(record.projectName)
             guard !key.isEmpty else { continue }
             if let existing = newestByKey[key] {
-                if record.occurredAt > existing.occurredAt || (record.occurredAt == existing.occurredAt && record.id.uuidString < existing.id.uuidString) {
+                let isNewer = record.occurredAt > existing.occurredAt
+                let winsTie = record.occurredAt == existing.occurredAt
+                    && record.id.uuidString < existing.id.uuidString
+                if isNewer || winsTie {
                     newestByKey[key] = record
                 }
             } else {
@@ -27,14 +30,23 @@ public enum ProjectSuggestionService {
             }
         }
 
-        return newestByKey
-            .map { (key: $0.key, record: $0.value) }
-            .sorted {
-                $0.record.occurredAt == $1.record.occurredAt
-                    ? $0.key < $1.key
-                    : $0.record.occurredAt > $1.record.occurredAt
+        var ranked: [(key: String, record: LedgerRecord)] = []
+        ranked.reserveCapacity(newestByKey.count)
+        for (key, record) in newestByKey {
+            ranked.append((key: key, record: record))
+        }
+        ranked.sort { left, right in
+            if left.record.occurredAt == right.record.occurredAt {
+                return left.key < right.key
             }
-            .prefix(limit)
-            .map { $0.record.projectName.trimmingCharacters(in: .whitespacesAndNewlines) }
+            return left.record.occurredAt > right.record.occurredAt
+        }
+
+        var result: [String] = []
+        result.reserveCapacity(min(limit, ranked.count))
+        for item in ranked.prefix(limit) {
+            result.append(item.record.projectName.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+        return result
     }
 }

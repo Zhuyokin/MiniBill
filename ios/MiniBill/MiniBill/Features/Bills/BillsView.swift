@@ -8,6 +8,7 @@ struct BillsView: View {
     let onOpenStatistics: (Date) -> Void
     @State private var editingEntry: LedgerEntry?
     @State private var pendingDelete: LedgerEntry?
+    @State private var deletionError: String?
 
     private var records: [LedgerRecord] { entries.map(LedgerEntryMapper.record) }
     private var summary: MonthlySummary {
@@ -20,47 +21,47 @@ struct BillsView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
-                    Button { onOpenStatistics(Date()) } label: {
-                        MonthlySummaryCard(summary: summary)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityHint("Opens monthly statistics")
+            List {
+                Button { onOpenStatistics(Date()) } label: {
+                    MonthlySummaryCard(summary: summary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Opens monthly statistics")
+                .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
 
-                    if entries.isEmpty {
-                        ContentUnavailableView("No entries yet", systemImage: "tray", description: Text("Tap Add Entry to record income or expense."))
-                            .frame(maxWidth: .infinity, minHeight: 240)
-                    } else {
-                        ForEach(groupedDays, id: \.0) { day, items in
-                            Section {
-                                VStack(spacing: 0) {
-                                    ForEach(items) { entry in
-                                        Button { editingEntry = entry } label: {
-                                            LedgerRow(entry: entry)
-                                        }
-                                        .buttonStyle(.plain)
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                            Button(role: .destructive) { pendingDelete = entry } label: {
-                                                Label("Delete", systemImage: "trash")
-                                            }
-                                        }
-                                        if entry.id != items.last?.id { Divider().padding(.leading, 60) }
+                if entries.isEmpty {
+                    ContentUnavailableView("No entries yet", systemImage: "tray", description: Text("Tap Add Entry to record income or expense."))
+                        .frame(maxWidth: .infinity, minHeight: 240)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                } else {
+                    ForEach(groupedDays, id: \.0) { day, items in
+                        Section {
+                            ForEach(items) { entry in
+                                Button { editingEntry = entry } label: {
+                                    LedgerRow(entry: entry)
+                                }
+                                .buttonStyle(.plain)
+                                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                                .listRowBackground(AppTheme.surface)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) { pendingDelete = entry } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
                                 }
-                                .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 16))
-                            } header: {
-                                Text(Calendar.current.isDateInToday(day) ? String(localized: "Today") : day.formatted(date: .abbreviated, time: .omitted))
-                                    .font(.headline)
                             }
+                        } header: {
+                            Text(Calendar.current.isDateInToday(day) ? String(localized: "Today") : day.formatted(date: .abbreviated, time: .omitted))
+                                .font(.headline)
                         }
                     }
                 }
-                .padding(16)
-                .padding(.bottom, 72)
-                .frame(maxWidth: 680)
-                .frame(maxWidth: .infinity)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .contentMargins(.bottom, 72, for: .scrollContent)
 
             Button { showQuickEntry = true } label: {
                 Image(systemName: "plus")
@@ -87,11 +88,25 @@ struct BillsView: View {
             Button("Delete", role: .destructive) {
                 guard let entry = pendingDelete else { return }
                 modelContext.delete(entry)
-                try? modelContext.save()
-                pendingDelete = nil
+                do {
+                    try modelContext.save()
+                    pendingDelete = nil
+                } catch {
+                    modelContext.rollback()
+                    pendingDelete = nil
+                    deletionError = String(localized: "Delete failed. The entry was not changed.")
+                }
             }
         } message: {
             Text("Deleting it also updates statistics.")
+        }
+        .alert("Could not delete entry", isPresented: Binding(
+            get: { deletionError != nil },
+            set: { if !$0 { deletionError = nil } }
+        )) {
+            Button("OK", role: .cancel) { deletionError = nil }
+        } message: {
+            Text(deletionError ?? "")
         }
     }
 }

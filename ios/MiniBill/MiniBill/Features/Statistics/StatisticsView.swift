@@ -41,8 +41,20 @@ struct StatisticsView: View {
                 .padding(16)
                 .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 16))
 
-                ProjectRankingView(title: "Income Projects", totals: summary.incomeProjects, tint: AppTheme.brand)
-                ProjectRankingView(title: "Expense Projects", totals: summary.expenseProjects, tint: AppTheme.ink)
+                ProjectRankingView(
+                    title: "Income Projects",
+                    totals: summary.incomeProjects,
+                    tint: AppTheme.brand,
+                    month: summary.month,
+                    kind: .income
+                )
+                ProjectRankingView(
+                    title: "Expense Projects",
+                    totals: summary.expenseProjects,
+                    tint: AppTheme.ink,
+                    month: summary.month,
+                    kind: .expense
+                )
             }
             .padding(16)
             .frame(maxWidth: 680)
@@ -75,18 +87,25 @@ private struct DailyNetChart: View {
                 let maximum = max(values.map { abs($0.netCents) }.max() ?? 1, 1)
                 HStack(alignment: .center, spacing: 4) {
                     ForEach(values) { item in
-                        VStack(spacing: 3) {
-                            Spacer(minLength: 0)
-                            Capsule()
-                                .fill(item.netCents >= 0 ? AppTheme.brand : AppTheme.ink)
-                                .frame(height: max(4, CGFloat(abs(item.netCents)) / CGFloat(maximum) * (proxy.size.height - 24)))
-                            Text(item.date.formatted(.dateTime.day()))
-                                .font(.system(size: 9))
-                                .foregroundStyle(AppTheme.muted)
+                        NavigationLink {
+                            FilteredEntriesView(selection: .day(item.date))
+                        } label: {
+                            VStack(spacing: 3) {
+                                Spacer(minLength: 0)
+                                Capsule()
+                                    .fill(item.netCents >= 0 ? AppTheme.brand : AppTheme.ink)
+                                    .frame(height: max(4, CGFloat(abs(item.netCents)) / CGFloat(maximum) * (proxy.size.height - 24)))
+                                Text(item.date.formatted(.dateTime.day()))
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(AppTheme.muted)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .contentShape(Rectangle())
                         }
-                        .frame(maxWidth: .infinity)
+                        .buttonStyle(.plain)
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel("\(item.date.formatted(date: .abbreviated, time: .omitted)), \(AppFormat.money(item.netCents, signed: true))")
+                        .accessibilityHint("Shows entries for this day")
                     }
                 }
             }

@@ -22,7 +22,7 @@ enum AppFormat {
     }
 
     static func amountInput(_ cents: Int64) -> String {
-        String(format: "%lld.%02lld", cents / 100, cents % 100)
+        EntryValidator.amountText(cents: cents)
     }
 
     static func month(_ date: Date) -> String {

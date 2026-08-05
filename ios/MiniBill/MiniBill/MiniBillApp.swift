@@ -1,5 +1,22 @@
 import SwiftUI
 import SwiftData
+import OSLog
+import UIKit
+
+private let reminderLogger = Logger(
+    subsystem: Bundle.main.bundleIdentifier ?? "MiniBill",
+    category: "Reminders"
+)
+
+private func reconcileReminderPreferences(reason: String) async {
+    do {
+        try await ReminderService.shared.reconcileFromPreferences()
+    } catch {
+        reminderLogger.error(
+            "Reminder reconciliation failed after \(reason, privacy: .public): \(error.localizedDescription, privacy: .public)"
+        )
+    }
+}
 
 @main
 struct MiniBillApp: App {
@@ -13,7 +30,7 @@ struct MiniBillApp: App {
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active, launch.container != nil else { return }
-            Task { await ReminderService.shared.reconcileFromPreferences() }
+            Task { await reconcileReminderPreferences(reason: "scene activation") }
         }
     }
 }
@@ -31,7 +48,7 @@ private struct LaunchHostView: View {
                     AppRootView()
                         .modelContainer(container)
                         .environmentObject(router)
-                        .task { await ReminderService.shared.reconcileFromPreferences() }
+                        .task { await reconcileReminderPreferences(reason: "app launch") }
                 } else {
                     LaunchFailureView(onRetry: launch.openPersistentLedger)
                 }
@@ -51,6 +68,14 @@ private struct LaunchHostView: View {
                 withAnimation(.easeOut(duration: 0.22)) { isShowingSplash = false }
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
+            guard launch.container != nil else { return }
+            Task { await reconcileReminderPreferences(reason: "significant time change") }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .NSSystemTimeZoneDidChange)) { _ in
+            guard launch.container != nil else { return }
+            Task { await reconcileReminderPreferences(reason: "system time-zone change") }
+        }
     }
 }
 
@@ -65,7 +90,12 @@ final class LaunchCoordinator: ObservableObject {
     func openPersistentLedger() {
         do {
             let schema = Schema([LedgerEntry.self])
-            let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+            let configuration = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                groupContainer: .none,
+                cloudKitDatabase: .none
+            )
             container = try ModelContainer(for: schema, configurations: [configuration])
         } catch {
             container = nil

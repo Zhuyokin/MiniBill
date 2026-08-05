@@ -24,21 +24,12 @@ enum BackupService {
         RestorePreview(archive: try BackupCodec.decodeAndValidate(data), currentRecordCount: currentRecordCount)
     }
 
+    @MainActor
     static func replace(with archive: BackupArchive, in context: ModelContext) throws {
-        try BackupValidator.validate(archive)
-        do {
-            try context.transaction {
-                let current = try context.fetch(FetchDescriptor<LedgerEntry>())
-                current.forEach(context.delete)
-                archive.records.map(LedgerEntryMapper.entry).forEach(context.insert)
-                try context.save()
-                let count = try context.fetchCount(FetchDescriptor<LedgerEntry>())
-                guard count == archive.recordCount else { throw BackupValidationError.countMismatch }
-            }
-        } catch {
-            context.rollback()
-            throw error
+        if context.hasChanges {
+            try context.save()
         }
+        try LedgerRestoreStore.replace(with: archive, in: context.container)
     }
 
     static func filename(at date: Date = Date()) -> String {

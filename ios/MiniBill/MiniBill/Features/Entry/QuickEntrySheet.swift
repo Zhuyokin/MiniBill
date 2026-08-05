@@ -99,20 +99,29 @@ struct QuickEntrySheet: View {
 
     private func save() {
         validationMessage = nil
+        var insertedEntry: LedgerEntry?
         do {
             let cents = try EntryValidator.amountCents(from: amountText)
-            try EntryValidator.validate(amountCents: cents, projectName: projectName, note: note.isEmpty ? nil : note)
+            let trimmedProject = projectName.trimmingCharacters(in: .whitespacesAndNewlines)
+            let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+            try EntryValidator.validate(
+                amountCents: cents,
+                projectName: trimmedProject,
+                note: trimmedNote.isEmpty ? nil : trimmedNote
+            )
             isSaving = true
             let now = Date()
-            modelContext.insert(LedgerEntry(
+            let entry = LedgerEntry(
                 kindRawValue: kind.rawValue,
                 amountCents: cents,
-                projectName: projectName.trimmingCharacters(in: .whitespacesAndNewlines),
-                note: note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : note,
+                projectName: trimmedProject,
+                note: trimmedNote.isEmpty ? nil : trimmedNote,
                 occurredAt: occurredAt,
                 createdAt: now,
                 updatedAt: now
-            ))
+            )
+            insertedEntry = entry
+            modelContext.insert(entry)
             try modelContext.save()
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             dismiss()
@@ -120,10 +129,15 @@ struct QuickEntrySheet: View {
             isSaving = false
             switch error {
             case .invalidAmount: validationMessage = String(localized: "Enter an amount greater than zero with at most two decimal places.")
+            case .amountTooLarge: validationMessage = String(localized: "Amount cannot exceed ¥99,999,999.99.")
             case .emptyProjectName: validationMessage = String(localized: "Project name is required.")
             case .noteTooLong: validationMessage = String(localized: "Note must be 200 characters or fewer.")
             }
         } catch {
+            if let insertedEntry {
+                modelContext.delete(insertedEntry)
+            }
+            modelContext.rollback()
             isSaving = false
             validationMessage = String(localized: "Could not save. Your input is still here; try again.")
         }

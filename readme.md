@@ -1,13 +1,13 @@
 # MiniBill · App Store 审核与 ASO 提交资料
 
-> 本文是 iOS 17+、目标版本 1.0（Build 1）的候选商店文案，不代表当前并行开发中的 build 已具备所述功能。只有最终归档 build 逐项通过下方提交门禁后，才能把这些字段粘贴到 App Store Connect。所有长度均由文末脚本按 Unicode 代码点（字符）及 UTF-8 字节实测；App Store Connect 的关键词以 UTF-8 字节为准。
+> 本文是 iOS 17+、目标版本 1.0（Build 2）的候选商店文案。当前源码已实现所述功能并通过模拟器 Debug/Release 构建与核心回归；仍须用最终签名归档在真机逐项完成下方提交门禁，才能把这些字段粘贴到 App Store Connect。所有长度均由文末脚本按 Unicode 代码点（字符）及 UTF-8 字节实测；App Store Connect 的关键词以 UTF-8 字节为准。
 
 ## 提交前阻塞门禁 / Pre-submission blockers
 
 以下项目全部完成前，不得将本文标记为可提交，也不得把候选文案粘贴到 App Store Connect：
 
 1. 使用拟提交的最终归档 build，在支持的 iPhone、iPad 和 iOS 17+ 环境逐项验收本文所述的记账、按项目名称聚合、统计、分享、通知、备份与恢复、多语言、无登录以及纯本地数据边界。
-2. 部署 `app-privacy-support` 后，分别请求计划中的 Privacy Policy URL 和 Support URL；两者最终响应都必须是 HTTP 200。任何一个 URL 未部署、返回 4xx/5xx 或无法访问，均为提交阻塞项。
+2. Privacy Policy URL 与 Support URL 已部署，并于 2026-08-05 验证为 HTTP 200；提交前必须再次请求最终 URL。任何一个 URL 届时返回 4xx/5xx 或无法访问，均为提交阻塞项。
 3. 从 App Store Connect 的卖方资料或权利人书面信息确认版权主体，把唯一允许的人工模板 `<confirmed rights holder>` 替换为已确认的名称。
 4. 审计最终二进制以及所有链接的依赖和框架，再确认出口合规答案；当前文档中的 **Expected: No** 只基于目标 1.0 设计，不是对最终二进制的结论。
 
@@ -128,9 +128,9 @@ Review path:
 | Age rating | 4+. In the age-rating questionnaire, answer **No / None** for violence, sexual content, profanity, horror, medical-treatment content, gambling/contests, unrestricted web access, and publicly shared user-generated content. The app is a personal local ledger, not an investing, lending, gambling, or social service. |
 | Copyright | `2026 <confirmed rights holder>` — mandatory human field. Confirm the legal rights holder from App Store Connect seller information or written ownership records, then replace the bracketed template before submission; do not infer it from the bundle identifier. |
 | Bundle ID | `com.masdey.minibill` |
-| Version / build | 1.0 / 1 |
-| Privacy Policy URL | Planned URL: <https://app-privacy-support.pages.dev/MiniBill/privacy/>. **Submission blocker:** after deploying `app-privacy-support`, verify the final response is HTTP 200 before entering this URL in App Store Connect. |
-| Support URL | Planned URL: <https://app-privacy-support.pages.dev/MiniBill/support/>. **Submission blocker:** after deploying `app-privacy-support`, verify the final response is HTTP 200 before entering this URL in App Store Connect. |
+| Version / build | 1.0 / 2 |
+| Privacy Policy URL | <https://app-privacy-support.pages.dev/MiniBill/privacy/> — deployed and verified HTTP 200 on 2026-08-05; recheck immediately before submission. |
+| Support URL | <https://app-privacy-support.pages.dev/MiniBill/support/> — deployed and verified HTTP 200 on 2026-08-05; recheck immediately before submission. |
 | Marketing URL | Leave blank; no separate marketing site has been supplied. |
 | Sign-in / demo account | Not required. No account or sign-in functionality exists. |
 | Encryption export compliance | **Expected: No, based on the target 1.0 design only.** The design specifies no proprietary or non-exempt encryption, no ledger-data network transmission, and an unencrypted local backup file. Before submission, audit the final binary plus every linked dependency and framework; confirm or revise the App Store Connect answer from that evidence. |

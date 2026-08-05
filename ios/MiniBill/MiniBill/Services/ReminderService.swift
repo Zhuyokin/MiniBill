@@ -22,34 +22,54 @@ actor ReminderService {
         await center.notificationSettings().authorizationStatus
     }
 
-    func setDailyEnabled(_ enabled: Bool, hour: Int, minute: Int) async {
+    func setDailyEnabled(_ enabled: Bool, hour: Int, minute: Int) async throws {
         defaults.set(enabled, forKey: ReminderPreferenceKey.dailyEnabled)
         defaults.set(hour, forKey: ReminderPreferenceKey.dailyHour)
         defaults.set(minute, forKey: ReminderPreferenceKey.dailyMinute)
-        if enabled { _ = await requestPermissionIfNeeded() }
-        await reconcileFromPreferences()
+        if enabled {
+            do {
+                _ = try await requestPermissionIfNeeded()
+            } catch {
+                center.removePendingNotificationRequests(withIdentifiers: [Self.dailyIdentifier])
+                throw error
+            }
+        }
+        try await reconcileFromPreferences()
     }
 
-    func setMonthEndEnabled(_ enabled: Bool, hour: Int, minute: Int) async {
+    func setMonthEndEnabled(_ enabled: Bool, hour: Int, minute: Int) async throws {
         defaults.set(enabled, forKey: ReminderPreferenceKey.monthEndEnabled)
         defaults.set(hour, forKey: ReminderPreferenceKey.monthEndHour)
         defaults.set(minute, forKey: ReminderPreferenceKey.monthEndMinute)
-        if enabled { _ = await requestPermissionIfNeeded() }
-        await reconcileFromPreferences()
+        if enabled {
+            do {
+                _ = try await requestPermissionIfNeeded()
+            } catch {
+                await removeMonthEndRequests()
+                throw error
+            }
+        }
+        try await reconcileFromPreferences()
     }
 
-    func reconcileFromPreferences() async {
+    func reconcileFromPreferences() async throws {
         let status = await authorizationStatus()
-        guard status == .authorized || status == .provisional else {
+        guard canScheduleNotifications(status) else {
             center.removePendingNotificationRequests(withIdentifiers: [Self.dailyIdentifier])
             await removeMonthEndRequests()
             return
         }
 
+        var firstSchedulingError: Error?
+
         if defaults.bool(forKey: ReminderPreferenceKey.dailyEnabled) {
             let hour = storedInt(ReminderPreferenceKey.dailyHour, default: 20)
             let minute = storedInt(ReminderPreferenceKey.dailyMinute, default: 0)
-            await scheduleDaily(hour: hour, minute: minute)
+            do {
+                try await scheduleDaily(hour: hour, minute: minute)
+            } catch {
+                firstSchedulingError = error
+            }
         } else {
             center.removePendingNotificationRequests(withIdentifiers: [Self.dailyIdentifier])
         }
@@ -57,33 +77,50 @@ actor ReminderService {
         if defaults.bool(forKey: ReminderPreferenceKey.monthEndEnabled) {
             let hour = storedInt(ReminderPreferenceKey.monthEndHour, default: 21)
             let minute = storedInt(ReminderPreferenceKey.monthEndMinute, default: 0)
-            await scheduleMonthEnds(hour: hour, minute: minute)
+            do {
+                try await scheduleMonthEnds(hour: hour, minute: minute)
+            } catch {
+                if firstSchedulingError == nil {
+                    firstSchedulingError = error
+                }
+            }
         } else {
             await removeMonthEndRequests()
         }
+
+        if let firstSchedulingError {
+            throw firstSchedulingError
+        }
     }
 
-    private func requestPermissionIfNeeded() async -> Bool {
+    private func requestPermissionIfNeeded() async throws -> Bool {
         let status = await authorizationStatus()
         if status == .notDetermined {
-            return (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+            return try await center.requestAuthorization(options: [.alert, .sound, .badge])
         }
-        return status == .authorized || status == .provisional
+        return canScheduleNotifications(status)
     }
 
-    private func scheduleDaily(hour: Int, minute: Int) async {
-        center.removePendingNotificationRequests(withIdentifiers: [Self.dailyIdentifier])
+    private func scheduleDaily(hour: Int, minute: Int) async throws {
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Daily bookkeeping reminder")
         content.body = String(localized: "Take a moment to record today's income and expenses.")
         content.sound = .default
         content.userInfo = ["route": "quickEntry"]
         let trigger = UNCalendarNotificationTrigger(dateMatching: DateComponents(hour: hour, minute: minute), repeats: true)
-        try? await center.add(UNNotificationRequest(identifier: Self.dailyIdentifier, content: content, trigger: trigger))
+        let request = UNNotificationRequest(identifier: Self.dailyIdentifier, content: content, trigger: trigger)
+        let center = center
+
+        try await ReminderBatchScheduler.replace(
+            items: [request],
+            removeExisting: {
+                center.removePendingNotificationRequests(withIdentifiers: [Self.dailyIdentifier])
+            },
+            add: { try await center.add($0) }
+        )
     }
 
-    private func scheduleMonthEnds(hour: Int, minute: Int) async {
-        await removeMonthEndRequests()
+    private func scheduleMonthEnds(hour: Int, minute: Int) async throws {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = .current
         let now = Date()
@@ -97,7 +134,7 @@ actor ReminderService {
             .filter { $0 > now }
             .prefix(12)
 
-        for date in dates {
+        let requests = dates.map { date in
             let values = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
             let identifier = String(format: "%@%04d-%02d", Self.monthEndPrefix, values.year ?? 0, values.month ?? 0)
             let content = UNMutableNotificationContent()
@@ -106,8 +143,15 @@ actor ReminderService {
             content.sound = .default
             content.userInfo = ["route": "statistics"]
             let trigger = UNCalendarNotificationTrigger(dateMatching: values, repeats: false)
-            try? await center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
+            return UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         }
+        let center = center
+
+        try await ReminderBatchScheduler.replace(
+            items: requests,
+            removeExisting: { await self.removeMonthEndRequests() },
+            add: { try await center.add($0) }
+        )
     }
 
     private func removeMonthEndRequests() async {
@@ -119,5 +163,16 @@ actor ReminderService {
 
     private func storedInt(_ key: String, default fallback: Int) -> Int {
         defaults.object(forKey: key) == nil ? fallback : defaults.integer(forKey: key)
+    }
+
+    private func canScheduleNotifications(_ status: UNAuthorizationStatus) -> Bool {
+        switch status {
+        case .authorized, .provisional, .ephemeral:
+            true
+        case .notDetermined, .denied:
+            false
+        @unknown default:
+            false
+        }
     }
 }

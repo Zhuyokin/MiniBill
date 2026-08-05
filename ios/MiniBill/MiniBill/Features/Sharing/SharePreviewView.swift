@@ -37,6 +37,7 @@ struct SharePreviewView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } } }
             .task { render() }
+            .onDisappear(perform: removeTemporaryImage)
         }
     }
 
@@ -48,6 +49,7 @@ struct SharePreviewView: View {
     }
 
     private func render() {
+        removeTemporaryImage()
         do {
             fileURL = try ShareImageService.render(payload)
             errorMessage = nil
@@ -55,5 +57,11 @@ struct SharePreviewView: View {
             fileURL = nil
             errorMessage = String(localized: "Image generation failed. Try again.")
         }
+    }
+
+    private func removeTemporaryImage() {
+        guard let fileURL else { return }
+        try? FileManager.default.removeItem(at: fileURL)
+        self.fileURL = nil
     }
 }

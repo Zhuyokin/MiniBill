@@ -26,4 +26,37 @@ final class LedgerEntryMapperTests: XCTestCase {
 
         XCTAssertEqual(mapped, original)
     }
+
+    func testApplyUpdatesEveryMutableFieldWithoutChangingIdentity() throws {
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: LedgerEntry.self, configurations: configuration)
+        let context = ModelContext(container)
+        let originalID = UUID()
+        let entry = LedgerEntry(
+            id: originalID,
+            kindRawValue: LedgerKind.income.rawValue,
+            amountCents: 100,
+            projectName: "Old",
+            note: nil,
+            occurredAt: Date(timeIntervalSince1970: 10),
+            createdAt: Date(timeIntervalSince1970: 5),
+            updatedAt: Date(timeIntervalSince1970: 8)
+        )
+        context.insert(entry)
+        let replacement = LedgerRecord(
+            id: originalID,
+            kind: .expense,
+            amountCents: 250,
+            projectName: "New",
+            note: "note",
+            occurredAt: Date(timeIntervalSince1970: 20),
+            createdAt: Date(timeIntervalSince1970: 5),
+            updatedAt: Date(timeIntervalSince1970: 30)
+        )
+
+        LedgerEntryMapper.apply(replacement, to: entry)
+
+        XCTAssertEqual(entry.id, originalID)
+        XCTAssertEqual(LedgerEntryMapper.record(from: entry), replacement)
+    }
 }

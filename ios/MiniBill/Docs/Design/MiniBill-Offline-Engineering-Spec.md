@@ -45,7 +45,7 @@ ios/
 |---|---|---|
 | id | UUID | 稳定、不复用 |
 | kindRaw | String | `income` 或 `expense` |
-| amountMinor | Int64 | CNY 分，必须大于 0 |
+| amountMinor | Int64 | CNY 分，必须大于 0 且单笔不超过 9,999,999,999 分（¥99,999,999.99） |
 | itemName | String | 必填，保存用户原始展示值 |
 | note | String? | 可空，MVP 限长 200 字符 |
 | occurredAt | Date | 业务发生时间 |
@@ -144,7 +144,7 @@ Apple 的 `ImageRenderer` 可将 SwiftUI 视图导出为位图：[ImageRenderer]
 规则：
 
 - JSON 金额使用十进制定点字符串，不使用浮点数。
-- 日期使用 ISO 8601 UTC，显示时转换为设备时区。
+- 日期使用 ISO 8601 UTC 毫秒精度，显示时转换为设备时区；账单 UI 以分钟为用户输入精度。
 - 项目名称、备注和 UUID 无损保存。
 - 项目候选、统计缓存、语言、通知权限和排程不进入备份。
 - 备份未额外加密，导出页明确提示保存到可信位置。

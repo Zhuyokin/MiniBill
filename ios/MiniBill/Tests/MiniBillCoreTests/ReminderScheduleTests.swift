@@ -17,4 +17,69 @@ final class ReminderScheduleTests: XCTestCase {
         XCTAssertEqual(rollover.map { calendar.component(.year, from: $0) }, [2025, 2026])
         XCTAssertEqual(rollover.map { calendar.component(.day, from: $0) }, [31, 31])
     }
+
+    func testReplacingReminderBatchRemovesPartialRequestsWhenAddFails() async {
+        let recorder = ReminderBatchRecorder(failingIdentifier: "month-2")
+
+        do {
+            try await ReminderBatchScheduler.replace(
+                items: ["month-1", "month-2", "month-3"],
+                removeExisting: { await recorder.removeAll() },
+                add: { try await recorder.add($0) }
+            )
+            XCTFail("Expected the second notification request to fail")
+        } catch {
+            let snapshot = await recorder.snapshot()
+            XCTAssertEqual(snapshot.removalCount, 2)
+            XCTAssertEqual(snapshot.addedIdentifiers, [])
+            XCTAssertEqual(snapshot.addAttempts, ["month-1", "month-2"])
+        }
+    }
+
+    func testReplacingReminderBatchKeepsAllRequestsAfterSuccessfulAdds() async throws {
+        let recorder = ReminderBatchRecorder(failingIdentifier: nil)
+
+        try await ReminderBatchScheduler.replace(
+            items: ["daily"],
+            removeExisting: { await recorder.removeAll() },
+            add: { try await recorder.add($0) }
+        )
+
+        let snapshot = await recorder.snapshot()
+        XCTAssertEqual(snapshot.removalCount, 1)
+        XCTAssertEqual(snapshot.addedIdentifiers, ["daily"])
+        XCTAssertEqual(snapshot.addAttempts, ["daily"])
+    }
+}
+
+private enum ReminderBatchRecorderError: Error {
+    case rejected
+}
+
+private actor ReminderBatchRecorder {
+    private let failingIdentifier: String?
+    private var removalCount = 0
+    private var addedIdentifiers: [String] = []
+    private var addAttempts: [String] = []
+
+    init(failingIdentifier: String?) {
+        self.failingIdentifier = failingIdentifier
+    }
+
+    func removeAll() {
+        removalCount += 1
+        addedIdentifiers.removeAll()
+    }
+
+    func add(_ identifier: String) throws {
+        addAttempts.append(identifier)
+        if identifier == failingIdentifier {
+            throw ReminderBatchRecorderError.rejected
+        }
+        addedIdentifiers.append(identifier)
+    }
+
+    func snapshot() -> (removalCount: Int, addedIdentifiers: [String], addAttempts: [String]) {
+        (removalCount, addedIdentifiers, addAttempts)
+    }
 }

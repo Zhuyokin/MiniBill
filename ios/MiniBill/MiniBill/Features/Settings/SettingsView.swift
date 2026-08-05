@@ -5,6 +5,7 @@ import UIKit
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
 
     @AppStorage(ReminderPreferenceKey.dailyEnabled) private var dailyEnabled = false
@@ -20,6 +21,7 @@ struct SettingsView: View {
     @State private var showImporter = false
     @State private var restorePreview: RestorePreview?
     @State private var errorMessage: String?
+    @State private var reminderErrorMessage: String?
 
     var body: some View {
         Form {
@@ -42,6 +44,14 @@ struct SettingsView: View {
                             .font(.footnote)
                             .foregroundStyle(.red)
                         Button("Open System Settings") { openSystemSettings() }
+                    }
+                }
+                if let reminderErrorMessage {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(reminderErrorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                        Button("Try Again", action: retryReminderScheduling)
                     }
                 }
             } header: {
@@ -72,7 +82,17 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Me")
-        .task { authorizationStatus = await ReminderService.shared.authorizationStatus() }
+        .task { await refreshReminderSchedulingState() }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task { await refreshReminderSchedulingState() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
+            Task { await refreshReminderSchedulingState() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .NSSystemTimeZoneDidChange)) { _ in
+            Task { await refreshReminderSchedulingState() }
+        }
         .fileExporter(
             isPresented: $showExporter,
             document: exportedDocument,
@@ -99,20 +119,14 @@ struct SettingsView: View {
     private var dailyBinding: Binding<Bool> {
         Binding(get: { dailyEnabled }, set: { enabled in
             dailyEnabled = enabled
-            Task {
-                await ReminderService.shared.setDailyEnabled(enabled, hour: dailyHour, minute: dailyMinute)
-                authorizationStatus = await ReminderService.shared.authorizationStatus()
-            }
+            applyDailyPreference(enabled: enabled, hour: dailyHour, minute: dailyMinute)
         })
     }
 
     private var monthEndBinding: Binding<Bool> {
         Binding(get: { monthEndEnabled }, set: { enabled in
             monthEndEnabled = enabled
-            Task {
-                await ReminderService.shared.setMonthEndEnabled(enabled, hour: monthEndHour, minute: monthEndMinute)
-                authorizationStatus = await ReminderService.shared.authorizationStatus()
-            }
+            applyMonthEndPreference(enabled: enabled, hour: monthEndHour, minute: monthEndMinute)
         })
     }
 
@@ -130,11 +144,51 @@ struct SettingsView: View {
     }
 
     private func reconcileDaily() {
-        Task { await ReminderService.shared.setDailyEnabled(dailyEnabled, hour: dailyHour, minute: dailyMinute) }
+        applyDailyPreference(enabled: dailyEnabled, hour: dailyHour, minute: dailyMinute)
     }
 
     private func reconcileMonthEnd() {
-        Task { await ReminderService.shared.setMonthEndEnabled(monthEndEnabled, hour: monthEndHour, minute: monthEndMinute) }
+        applyMonthEndPreference(enabled: monthEndEnabled, hour: monthEndHour, minute: monthEndMinute)
+    }
+
+    private func applyDailyPreference(enabled: Bool, hour: Int, minute: Int) {
+        Task {
+            do {
+                try await ReminderService.shared.setDailyEnabled(enabled, hour: hour, minute: minute)
+                reminderErrorMessage = nil
+            } catch {
+                reminderErrorMessage = String(localized: "Could not schedule the reminder. Your preference was saved; try again.")
+            }
+            authorizationStatus = await ReminderService.shared.authorizationStatus()
+        }
+    }
+
+    private func applyMonthEndPreference(enabled: Bool, hour: Int, minute: Int) {
+        Task {
+            do {
+                try await ReminderService.shared.setMonthEndEnabled(enabled, hour: hour, minute: minute)
+                reminderErrorMessage = nil
+            } catch {
+                reminderErrorMessage = String(localized: "Could not schedule the reminder. Your preference was saved; try again.")
+            }
+            authorizationStatus = await ReminderService.shared.authorizationStatus()
+        }
+    }
+
+    private func retryReminderScheduling() {
+        Task {
+            await refreshReminderSchedulingState()
+        }
+    }
+
+    private func refreshReminderSchedulingState() async {
+        do {
+            try await ReminderService.shared.reconcileFromPreferences()
+            reminderErrorMessage = nil
+        } catch {
+            reminderErrorMessage = String(localized: "Could not schedule the reminder. Your preference was saved; try again.")
+        }
+        authorizationStatus = await ReminderService.shared.authorizationStatus()
     }
 
     private func prepareExport() {

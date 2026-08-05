@@ -30,4 +30,15 @@ public enum LedgerEntryMapper {
             updatedAt: entry.updatedAt
         )
     }
+
+    public static func apply(_ record: LedgerRecord, to entry: LedgerEntry) {
+        precondition(record.id == entry.id, "A ledger update cannot change its identifier.")
+        entry.kindRawValue = record.kind.rawValue
+        entry.amountCents = record.amountCents
+        entry.projectName = record.projectName
+        entry.note = record.note
+        entry.occurredAt = record.occurredAt
+        entry.createdAt = record.createdAt
+        entry.updatedAt = record.updatedAt
+    }
 }

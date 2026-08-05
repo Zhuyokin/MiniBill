@@ -1,0 +1,8 @@
+.DS_Store
+**/.DS_Store
+
+# Local Swift/Xcode build products
+ios/MiniBill/.build/
+ios/MiniBill/DerivedData/
+**/xcuserdata/
+*.xcuserstate

@@ -15,3 +15,24 @@ public enum ReminderSchedule {
         }
     }
 }
+
+/// Replaces one logical reminder channel as a unit. If any request cannot be
+/// added, the channel is cleared again so callers never leave a partial batch.
+public enum ReminderBatchScheduler {
+    public static func replace<Item>(
+        items: [Item],
+        removeExisting: () async -> Void,
+        add: (Item) async throws -> Void
+    ) async throws {
+        await removeExisting()
+
+        do {
+            for item in items {
+                try await add(item)
+            }
+        } catch {
+            await removeExisting()
+            throw error
+        }
+    }
+}
