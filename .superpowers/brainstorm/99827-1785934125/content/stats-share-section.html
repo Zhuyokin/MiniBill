@@ -1,0 +1,92 @@
+<style>
+  .lead { max-width:900px; margin-bottom:22px; }
+  .board { display:grid; grid-template-columns:320px minmax(270px,1fr) minmax(250px,.82fr); gap:24px; align-items:start; }
+  .phone { height:650px; border:7px solid #202020; border-radius:38px; overflow:hidden; background:#f5f5f5; color:#191919; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; box-shadow:0 18px 46px rgba(0,0,0,.10); }
+  .status { height:28px; padding:8px 18px 0; display:flex; justify-content:space-between; font-size:11px; font-weight:650; background:white; }
+  .nav { height:48px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; background:#fff; }
+  .nav strong { font-size:17px; }
+  .nav span { font-size:13px; color:#555; }
+  .scroll { padding:14px; }
+  .summary { background:#fff; border-radius:15px; padding:16px; }
+  .month { display:flex; justify-content:space-between; color:#777; font-size:11px; }
+  .net-label { color:#888; font-size:11px; margin-top:16px; }
+  .net { font-size:27px; font-weight:720; margin:4px 0 14px; }
+  .metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .metric { border-top:1px solid #eee; padding-top:10px; font-size:10px; color:#888; }
+  .metric b { display:block; color:#222; margin-top:3px; font-size:13px; }
+  .card { background:#fff; border-radius:15px; padding:15px; margin-top:12px; }
+  .title { display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:650; }
+  .title span { color:#999; font-size:10px; font-weight:450; }
+  .chart { height:94px; margin-top:15px; display:flex; align-items:end; gap:7px; border-bottom:1px solid #e9e9e9; }
+  .day { flex:1; height:var(--h); background:#d9f5e4; border-radius:4px 4px 0 0; position:relative; }
+  .day.on { background:#07c160; }
+  .rank { margin-top:13px; }
+  .rank-row { display:grid; grid-template-columns:58px 1fr 62px; gap:8px; align-items:center; padding:8px 0; font-size:11px; }
+  .track { height:6px; background:#ededed; border-radius:3px; overflow:hidden; }
+  .fill { height:100%; background:#07c160; border-radius:3px; width:var(--w); }
+  .rank-row b { text-align:right; font-size:10px; }
+  .sheet { background:#fff; border:1px solid #e6e6e6; border-radius:20px; padding:18px; }
+  .sheet h3 { margin:0 0 4px; }
+  .sheet > p { margin:0 0 14px; color:#777; font-size:12px; line-height:1.5; }
+  .share-card { aspect-ratio:3/4; background:#fff; border:1px solid #dedede; border-radius:4px; padding:24px; display:flex; flex-direction:column; color:#151515; box-shadow:0 10px 28px rgba(0,0,0,.06); }
+  .brand { display:flex; justify-content:space-between; align-items:center; }
+  .brand-left { display:flex; align-items:center; gap:8px; font-weight:720; font-size:15px; }
+  .logo { width:27px; height:27px; display:grid; place-items:center; border-radius:8px; color:white; background:#07c160; font-weight:760; }
+  .brand small { color:#888; font-size:9px; }
+  .share-title { margin-top:28px; font-size:12px; color:#777; }
+  .share-value { font-size:31px; font-weight:760; letter-spacing:-.5px; margin:6px 0 12px; }
+  .share-metrics { display:flex; gap:16px; font-size:9px; color:#888; }
+  .share-metrics b { display:block; color:#222; font-size:12px; margin-top:3px; }
+  .share-chart { height:108px; margin:28px 0 20px; display:flex; align-items:end; gap:7px; border-bottom:1px solid #ddd; }
+  .share-bar { flex:1; height:var(--h); background:#d9f5e4; border-radius:4px 4px 0 0; }
+  .share-bar.on { background:#07c160; }
+  .top-projects { border-top:1px solid #eee; padding-top:14px; }
+  .top-projects .line { display:flex; justify-content:space-between; padding:5px 0; font-size:10px; }
+  .share-foot { margin-top:auto; border-top:1px solid #eee; padding-top:12px; color:#929292; font-size:9px; display:flex; justify-content:space-between; }
+  .receipt-wrap { display:grid; gap:15px; }
+  .receipt { aspect-ratio:4/5; background:#fff; border:1px solid #ddd; border-radius:4px; padding:23px; display:flex; flex-direction:column; box-shadow:0 10px 28px rgba(0,0,0,.06); }
+  .receipt .type { display:inline-block; align-self:flex-start; color:#078f48; background:#e9f8ef; border-radius:12px; padding:4px 8px; font-size:9px; margin-top:22px; }
+  .receipt .project { font-size:23px; font-weight:720; margin-top:11px; }
+  .receipt .amount { font-size:35px; font-weight:760; margin-top:7px; }
+  .receipt .date { color:#888; font-size:10px; margin-top:12px; }
+  .privacy { background:#f6f6f6; border-radius:12px; padding:12px; color:#626262; font-size:11px; line-height:1.55; }
+  .approve { cursor:pointer; margin-top:14px; padding:12px; border-radius:12px; background:#07c160; color:#fff; text-align:center; font-size:13px; font-weight:650; }
+  .approve.selected { box-shadow:0 0 0 4px rgba(7,193,96,.18); }
+  @media (max-width:1050px) { .board { grid-template-columns:1fr; } .phone,.sheet { max-width:360px; width:100%; margin:auto; } }
+</style>
+
+<div class="lead">
+  <h2>第 3 节 · 项目统计与分享</h2>
+  <p class="subtitle">点击首页本月汇总进入统计；所有榜单直接从项目名称聚合。分享前先预览，收益与单笔流水各有一种固定模板。</p>
+</div>
+
+<div class="board">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>● ● ▰</span></div>
+    <div class="nav"><span>‹ 账单</span><strong>统计</strong><span>分享 ↗</span></div>
+    <div class="scroll">
+      <div class="summary"><div class="month"><span>2026 年 8 月⌄</span><span>28 笔</span></div><div class="net-label">净收益</div><div class="net">¥ 3,286.50</div><div class="metrics"><div class="metric">收入<b>¥ 8,420.00</b></div><div class="metric">支出<b>¥ 5,133.50</b></div></div></div>
+      <div class="card"><div class="title">每日净收益 <span>点击柱形查看当天流水</span></div><div class="chart"><div class="day" style="--h:38%"></div><div class="day" style="--h:66%"></div><div class="day" style="--h:46%"></div><div class="day on" style="--h:88%"></div><div class="day" style="--h:58%"></div><div class="day" style="--h:74%"></div><div class="day" style="--h:54%"></div></div></div>
+      <div class="card"><div class="title">收入项目排行 <span>全部 ›</span></div><div class="rank"><div class="rank-row"><span>冰粉</span><div class="track"><div class="fill" style="--w:92%"></div></div><b>¥3,860</b></div><div class="rank-row"><span>跑腿收入</span><div class="track"><div class="fill" style="--w:66%"></div></div><b>¥2,780</b></div><div class="rank-row"><span>手工制品</span><div class="track"><div class="fill" style="--w:42%"></div></div><b>¥1,780</b></div></div></div>
+      <div class="card"><div class="title">支出项目排行 <span>全部 ›</span></div><div class="rank"><div class="rank-row"><span>进货</span><div class="track"><div class="fill" style="--w:88%;background:#555"></div></div><b>¥2,640</b></div><div class="rank-row"><span>摊位费</span><div class="track"><div class="fill" style="--w:58%;background:#555"></div></div><b>¥1,760</b></div></div></div>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <h3>分享月度收益</h3><p>3:4 竖版图片，沿用参考工程的 ImageRenderer + ShareLink 结构。</p>
+    <div class="share-card">
+      <div class="brand"><div class="brand-left"><span class="logo">M</span>MiniBill</div><small>2026.08</small></div>
+      <div class="share-title">本月净收益</div><div class="share-value">¥ 3,286.50</div>
+      <div class="share-metrics"><span>收入<b>¥ 8,420</b></span><span>支出<b>¥ 5,133.50</b></span><span>流水<b>28 笔</b></span></div>
+      <div class="share-chart"><div class="share-bar" style="--h:42%"></div><div class="share-bar" style="--h:64%"></div><div class="share-bar on" style="--h:88%"></div><div class="share-bar" style="--h:56%"></div><div class="share-bar" style="--h:72%"></div><div class="share-bar" style="--h:61%"></div></div>
+      <div class="top-projects"><div class="line"><span>收入项目 TOP 1 · 冰粉</span><b>¥ 3,860</b></div><div class="line"><span>支出项目 TOP 1 · 进货</span><b>¥ 2,640</b></div></div>
+      <div class="share-foot"><span>本地离线账本</span><span>数据由用户自主记录</span></div>
+    </div>
+  </div>
+
+  <div class="receipt-wrap">
+    <div class="sheet"><h3>分享单笔流水</h3><p>从流水详情点击分享；不展示用户备注。</p><div class="receipt"><div class="brand"><div class="brand-left"><span class="logo">M</span>MiniBill</div><small>流水记录</small></div><span class="type">收入</span><div class="project">冰粉</div><div class="amount">+ ¥ 128.00</div><div class="date">2026 年 8 月 5 日 · 14:26</div><div class="share-foot"><span>本地离线账本</span><span>MiniBill</span></div></div></div>
+    <div class="privacy">隐私规则：默认不分享备注、备份信息或其他流水；分享图生成完全在设备本地完成。</div>
+    <div class="approve" data-choice="approve-stats-share" onclick="toggleSelect(this)">确认统计与分享设计</div>
+  </div>
+</div>
