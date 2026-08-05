@@ -1,0 +1,131 @@
+import SwiftUI
+import SwiftData
+import UIKit
+
+struct QuickEntrySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    let candidates: [String]
+
+    @State private var kind: LedgerKind = .income
+    @State private var amountText = ""
+    @State private var projectName = ""
+    @State private var note = ""
+    @State private var occurredAt = Date()
+    @State private var showOptional = false
+    @State private var validationMessage: String?
+    @State private var isSaving = false
+    @State private var showDiscardConfirmation = false
+    @FocusState private var amountFocused: Bool
+
+    private var hasInput: Bool {
+        !amountText.isEmpty || !projectName.isEmpty || !note.isEmpty
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Picker("Type", selection: $kind) {
+                    Text("Income").tag(LedgerKind.income)
+                    Text("Expense").tag(LedgerKind.expense)
+                }
+                .pickerStyle(.segmented)
+
+                Section("Amount") {
+                    TextField("0.00", text: $amountText)
+                        .keyboardType(.decimalPad)
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .focused($amountFocused)
+                        .accessibilityLabel("Amount")
+                }
+
+                Section("Project Name") {
+                    TextField("What was this for?", text: $projectName)
+                        .textInputAutocapitalization(.sentences)
+                    if !candidates.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(candidates, id: \.self) { candidate in
+                                    Button(candidate) { projectName = candidate }
+                                        .buttonStyle(.bordered)
+                                        .tint(AppTheme.brandDark)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                DisclosureGroup("Note and Date", isExpanded: $showOptional) {
+                    TextField("Optional note", text: $note, axis: .vertical)
+                        .lineLimit(2...4)
+                    DatePicker("Date", selection: $occurredAt)
+                }
+
+                if let validationMessage {
+                    Text(validationMessage)
+                        .foregroundStyle(.red)
+                        .font(.footnote)
+                }
+
+                Button(action: save) {
+                    HStack {
+                        Spacer()
+                        if isSaving { ProgressView().tint(.white) }
+                        Text(isSaving ? "Saving…" : "Save")
+                        Spacer()
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(AppTheme.brand)
+                .disabled(isSaving)
+            }
+            .navigationTitle("Add Entry")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        if hasInput { showDiscardConfirmation = true } else { dismiss() }
+                    }
+                }
+            }
+            .interactiveDismissDisabled(hasInput)
+            .confirmationDialog("Discard this entry?", isPresented: $showDiscardConfirmation) {
+                Button("Discard", role: .destructive) { dismiss() }
+            }
+            .onAppear { amountFocused = true }
+        }
+    }
+
+    private func save() {
+        validationMessage = nil
+        do {
+            let cents = try EntryValidator.amountCents(from: amountText)
+            try EntryValidator.validate(amountCents: cents, projectName: projectName, note: note.isEmpty ? nil : note)
+            isSaving = true
+            let now = Date()
+            modelContext.insert(LedgerEntry(
+                kindRawValue: kind.rawValue,
+                amountCents: cents,
+                projectName: projectName.trimmingCharacters(in: .whitespacesAndNewlines),
+                note: note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : note,
+                occurredAt: occurredAt,
+                createdAt: now,
+                updatedAt: now
+            ))
+            try modelContext.save()
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            dismiss()
+        } catch let error as EntryValidationError {
+            isSaving = false
+            switch error {
+            case .invalidAmount: validationMessage = String(localized: "Enter an amount greater than zero with at most two decimal places.")
+            case .emptyProjectName: validationMessage = String(localized: "Project name is required.")
+            case .noteTooLong: validationMessage = String(localized: "Note must be 200 characters or fewer.")
+            }
+        } catch {
+            isSaving = false
+            validationMessage = String(localized: "Could not save. Your input is still here; try again.")
+        }
+    }
+}
