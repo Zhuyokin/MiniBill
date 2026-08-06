@@ -13,19 +13,19 @@ struct MonthlyShareCard: View {
                 Text("Net Profit").font(.system(size: 26, weight: .medium)).foregroundStyle(.gray)
                 Text(AppFormat.money(payload.netCents, signed: true, locale: locale))
                     .font(.system(size: 76, weight: .bold, design: .rounded))
-                    .foregroundStyle(payload.netCents >= 0 ? AppTheme.brandDark : .black)
+                    .foregroundStyle(payload.netCents >= 0 ? Color.black : AppTheme.destructive)
                     .minimumScaleFactor(0.6)
                     .lineLimit(1)
             }
             HStack(spacing: 70) {
-                shareMetric("Income", payload.incomeCents, sign: "+", color: AppTheme.brandDark)
-                shareMetric("Expense", payload.expenseCents, sign: "−", color: .black)
+                shareMetric("Income", payload.incomeCents, sign: "+", color: AppTheme.incomeStrong)
+                shareMetric("Expense", payload.expenseCents, sign: "−", color: AppTheme.expenseStrong)
                 shareMetric("Entries", Int64(payload.recordCount * 100), sign: "", color: .black, isCount: true)
             }
             trend
             HStack(alignment: .top, spacing: 30) {
-                topProject("Top Income", payload.topIncomeProject, color: AppTheme.brandDark)
-                topProject("Top Expense", payload.topExpenseProject, color: .black)
+                topProject("Top Income", payload.topIncomeProject, color: AppTheme.incomeStrong)
+                topProject("Top Expense", payload.topExpenseProject, color: AppTheme.expenseStrong)
             }
             Spacer()
             Text("Made locally with MiniBill")
@@ -75,7 +75,7 @@ struct MonthlyShareCard: View {
                             yEnd: .value("Net", Double(item.netCents)),
                             width: .fixed(14)
                         )
-                        .foregroundStyle(item.netCents >= 0 ? AppTheme.brand : Color.black)
+                        .foregroundStyle(item.netCents >= 0 ? AppTheme.income : AppTheme.expense)
 
                         if item.netCents == 0 {
                             PointMark(

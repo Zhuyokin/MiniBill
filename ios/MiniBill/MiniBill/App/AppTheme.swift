@@ -1,14 +1,34 @@
 import SwiftUI
 
 enum AppTheme {
-    static let brand = Color(red: 7 / 255, green: 193 / 255, blue: 96 / 255)
-    static let brandDark = Color(red: 7 / 255, green: 148 / 255, blue: 71 / 255)
-    static let brandSoft = Color(red: 233 / 255, green: 248 / 255, blue: 239 / 255)
+    static let expense = Color(red: 7 / 255, green: 193 / 255, blue: 96 / 255)
+    static let expenseStrong = Color(red: 5 / 255, green: 128 / 255, blue: 66 / 255)
+    static let expenseSoft = Color(red: 232 / 255, green: 248 / 255, blue: 239 / 255)
+
+    static let income = Color(red: 246 / 255, green: 183 / 255, blue: 60 / 255)
+    static let incomeStrong = Color(red: 164 / 255, green: 93 / 255, blue: 0 / 255)
+    static let incomeSoft = Color(red: 255 / 255, green: 244 / 255, blue: 214 / 255)
+
+    static let brand = expense
+    static let brandDark = expenseStrong
+    static let brandSoft = expenseSoft
     static let background = Color(uiColor: .systemGroupedBackground)
     static let surface = Color(uiColor: .secondarySystemGroupedBackground)
     static let ink = Color.primary
     static let muted = Color.secondary
     static let destructive = Color(red: 217 / 255, green: 66 / 255, blue: 53 / 255)
+
+    static func color(for kind: LedgerKind) -> Color {
+        kind == .income ? income : expense
+    }
+
+    static func strongColor(for kind: LedgerKind) -> Color {
+        kind == .income ? incomeStrong : expenseStrong
+    }
+
+    static func softColor(for kind: LedgerKind) -> Color {
+        kind == .income ? incomeSoft : expenseSoft
+    }
 }
 
 enum AppFormat {

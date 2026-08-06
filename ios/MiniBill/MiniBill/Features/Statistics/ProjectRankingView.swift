@@ -9,7 +9,11 @@ struct ProjectRankingView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(title).font(.headline)
+            HStack(spacing: 8) {
+                Circle().fill(tint).frame(width: 9, height: 9)
+                Text(title)
+            }
+            .font(.headline)
             if totals.isEmpty {
                 Text("No project data")
                     .foregroundStyle(AppTheme.muted)

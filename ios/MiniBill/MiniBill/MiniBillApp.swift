@@ -8,6 +8,13 @@ private let reminderLogger = Logger(
     category: "Reminders"
 )
 
+#if DEBUG
+private let demoDataLogger = Logger(
+    subsystem: Bundle.main.bundleIdentifier ?? "MiniBill",
+    category: "DebugDemoData"
+)
+#endif
+
 private func reconcileReminderPreferences(reason: String) async {
     do {
         try await ReminderService.shared.reconcileFromPreferences()
@@ -107,7 +114,15 @@ final class LaunchCoordinator: ObservableObject {
                 groupContainer: .none,
                 cloudKitDatabase: .none
             )
-            container = try ModelContainer(for: schema, configurations: [configuration])
+            let openedContainer = try ModelContainer(for: schema, configurations: [configuration])
+#if DEBUG
+            do {
+                try DebugDemoDataSeeder.seedIfNeeded(in: openedContainer)
+            } catch {
+                demoDataLogger.error("Could not seed Debug demo data: \(error.localizedDescription, privacy: .public)")
+            }
+#endif
+            container = openedContainer
         } catch {
             container = nil
         }

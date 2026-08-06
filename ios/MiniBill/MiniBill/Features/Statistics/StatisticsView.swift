@@ -39,7 +39,12 @@ struct StatisticsView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Daily Net").font(.headline)
+                    HStack {
+                        Text("Daily Net").font(.headline)
+                        Spacer()
+                        chartLegend("Income", color: AppTheme.income)
+                        chartLegend("Expense", color: AppTheme.expense)
+                    }
                     DailyNetChart(values: summary.dailyNet, month: summary.month)
                 }
                 .padding(16)
@@ -48,14 +53,14 @@ struct StatisticsView: View {
                 ProjectRankingView(
                     title: "Income Projects",
                     totals: summary.incomeProjects,
-                    tint: AppTheme.brand,
+                    tint: AppTheme.income,
                     month: summary.month,
                     kind: .income
                 )
                 ProjectRankingView(
                     title: "Expense Projects",
                     totals: summary.expenseProjects,
-                    tint: AppTheme.ink,
+                    tint: AppTheme.expense,
                     month: summary.month,
                     kind: .expense
                 )
@@ -72,6 +77,15 @@ struct StatisticsView: View {
         if let next = Calendar.current.date(byAdding: .month, value: value, to: selectedMonth) {
             selectedMonth = next
         }
+    }
+
+    private func chartLegend(_ title: LocalizedStringKey, color: Color) -> some View {
+        HStack(spacing: 5) {
+            Circle().fill(color).frame(width: 7, height: 7)
+            Text(title)
+        }
+        .font(.caption)
+        .foregroundStyle(AppTheme.muted)
     }
 }
 
@@ -98,7 +112,7 @@ private struct DailyNetChart: View {
                         yEnd: .value("Net", Double(item.netCents)),
                         width: .fixed(9)
                     )
-                    .foregroundStyle(item.netCents >= 0 ? AppTheme.brand : AppTheme.ink)
+                    .foregroundStyle(item.netCents >= 0 ? AppTheme.income : AppTheme.expense)
                     .accessibilityLabel(AppFormat.shortDate(item.date))
                     .accessibilityValue(AppFormat.money(item.netCents, signed: true))
 

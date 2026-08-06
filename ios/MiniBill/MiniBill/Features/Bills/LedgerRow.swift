@@ -7,9 +7,9 @@ struct LedgerRow: View {
         HStack(spacing: 12) {
             Text(String(entry.projectName.trimmingCharacters(in: .whitespacesAndNewlines).first ?? "•"))
                 .font(.headline)
-                .foregroundStyle(AppTheme.brandDark)
+                .foregroundStyle(AppTheme.strongColor(for: entry.kind))
                 .frame(width: 40, height: 40)
-                .background(AppTheme.brandSoft, in: Circle())
+                .background(AppTheme.softColor(for: entry.kind), in: Circle())
             VStack(alignment: .leading, spacing: 3) {
                 Text(entry.projectName)
                     .font(.body.weight(.medium))
@@ -28,7 +28,7 @@ struct LedgerRow: View {
             Text("\(entry.kind == .income ? "+" : "−")\(AppFormat.money(entry.amountCents))")
                 .font(.body.weight(.semibold))
                 .monospacedDigit()
-                .foregroundStyle(entry.kind == .income ? AppTheme.brandDark : AppTheme.ink)
+                .foregroundStyle(AppTheme.strongColor(for: entry.kind))
         }
         .padding(12)
         .contentShape(Rectangle())

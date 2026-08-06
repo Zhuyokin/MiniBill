@@ -30,6 +30,7 @@ struct QuickEntrySheet: View {
                     Text("Expense").tag(LedgerKind.expense)
                 }
                 .pickerStyle(.segmented)
+                .tint(AppTheme.strongColor(for: kind))
 
                 Section("Amount") {
                     TextField("0.00", text: $amountText)

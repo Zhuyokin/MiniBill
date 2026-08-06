@@ -29,6 +29,7 @@ struct EditEntryView: View {
                 Text("Expense").tag(LedgerKind.expense)
             }
             .pickerStyle(.segmented)
+            .tint(AppTheme.strongColor(for: draft.kind))
 
             Section("Amount") {
                 TextField("0.00", text: $draft.amountText)
