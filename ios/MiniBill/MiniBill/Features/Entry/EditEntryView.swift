@@ -12,7 +12,6 @@ struct EditEntryView: View {
     @State private var errorMessage: String?
     @State private var confirmDelete = false
     @State private var confirmDiscard = false
-    @State private var shareRecord: LedgerRecord?
 
     init(entry: LedgerEntry) {
         self.entry = entry
@@ -48,8 +47,20 @@ struct EditEntryView: View {
                 Text(errorMessage).foregroundStyle(.red).font(.footnote)
             }
             Section {
-                Button("Share Entry", action: share)
-                Button("Delete Entry", role: .destructive) { confirmDelete = true }
+                if let sharePayload {
+                    ShareImageLink(
+                        payload: .entry(sharePayload),
+                        title: "Share Entry",
+                        systemImage: "square.and.arrow.up"
+                    )
+                } else {
+                    Button(action: validateForSharing) {
+                        Label("Share Entry", systemImage: "square.and.arrow.up")
+                    }
+                }
+                Button(role: .destructive) { confirmDelete = true } label: {
+                    Label("Delete Entry", systemImage: "trash")
+                }
             }
         }
         .navigationTitle("Entry Details")
@@ -75,15 +86,17 @@ struct EditEntryView: View {
                     dismiss()
                 } catch {
                     modelContext.rollback()
-                    errorMessage = String(localized: "Delete failed. The entry was not changed.")
+                    errorMessage = AppLocalization.string("Delete failed. The entry was not changed.")
                 }
             }
         } message: {
             Text("Deleting it also updates statistics.")
         }
-        .sheet(item: $shareRecord) { record in
-            SharePreviewView(payload: .entry(EntrySharePayload(record: record)))
-        }
+    }
+
+    private var sharePayload: EntrySharePayload? {
+        guard let record = try? draft.validatedRecord(updatedAt: entry.updatedAt) else { return nil }
+        return EntrySharePayload(record: record)
     }
 
     private func save() {
@@ -94,30 +107,30 @@ struct EditEntryView: View {
             dismiss()
         } catch let error as EntryValidationError {
             switch error {
-            case .invalidAmount: errorMessage = String(localized: "Enter an amount greater than zero with at most two decimal places.")
-            case .amountTooLarge: errorMessage = String(localized: "Amount cannot exceed ¥99,999,999.99.")
-            case .emptyProjectName: errorMessage = String(localized: "Project name is required.")
-            case .noteTooLong: errorMessage = String(localized: "Note must be 200 characters or fewer.")
+            case .invalidAmount: errorMessage = AppLocalization.string("Enter an amount greater than zero with at most two decimal places.")
+            case .amountTooLarge: errorMessage = AppLocalization.string("Amount cannot exceed ¥99,999,999.99.")
+            case .emptyProjectName: errorMessage = AppLocalization.string("Project name is required.")
+            case .noteTooLong: errorMessage = AppLocalization.string("Note must be 200 characters or fewer.")
             }
         } catch {
             modelContext.rollback()
-            errorMessage = String(localized: "Could not save. Your changes are still here; try again.")
+            errorMessage = AppLocalization.string("Could not save. Your changes are still here; try again.")
         }
     }
 
-    private func share() {
+    private func validateForSharing() {
         do {
-            shareRecord = try draft.validatedRecord(updatedAt: entry.updatedAt)
+            _ = try draft.validatedRecord(updatedAt: entry.updatedAt)
             errorMessage = nil
         } catch let error as EntryValidationError {
             switch error {
-            case .invalidAmount: errorMessage = String(localized: "Enter an amount greater than zero with at most two decimal places.")
-            case .amountTooLarge: errorMessage = String(localized: "Amount cannot exceed ¥99,999,999.99.")
-            case .emptyProjectName: errorMessage = String(localized: "Project name is required.")
-            case .noteTooLong: errorMessage = String(localized: "Note must be 200 characters or fewer.")
+            case .invalidAmount: errorMessage = AppLocalization.string("Enter an amount greater than zero with at most two decimal places.")
+            case .amountTooLarge: errorMessage = AppLocalization.string("Amount cannot exceed ¥99,999,999.99.")
+            case .emptyProjectName: errorMessage = AppLocalization.string("Project name is required.")
+            case .noteTooLong: errorMessage = AppLocalization.string("Note must be 200 characters or fewer.")
             }
         } catch {
-            errorMessage = String(localized: "Could not prepare this entry for sharing.")
+            errorMessage = AppLocalization.string("Could not prepare this entry for sharing.")
         }
     }
 }

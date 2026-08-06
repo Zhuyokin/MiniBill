@@ -12,12 +12,20 @@ enum AppTheme {
 }
 
 enum AppFormat {
-    static func money(_ cents: Int64, signed: Bool = false) -> String {
+    static func money(
+        _ cents: Int64,
+        signed: Bool = false,
+        locale: Locale = AppLanguage.current.locale
+    ) -> String {
         let decimal = Decimal(cents) / Decimal(100)
-        let value = decimal.formatted(.currency(code: "CNY").precision(.fractionLength(0...2)))
+        let value = decimal.formatted(
+            .currency(code: "CNY")
+                .precision(.fractionLength(0...2))
+                .locale(locale)
+        )
         guard signed else { return value }
         if cents > 0 { return "+\(value)" }
-        if cents < 0 { return "−\(money(abs(cents)))" }
+        if cents < 0 { return "−\(money(abs(cents), locale: locale))" }
         return value
     }
 
@@ -25,7 +33,27 @@ enum AppFormat {
         EntryValidator.amountText(cents: cents)
     }
 
-    static func month(_ date: Date) -> String {
-        date.formatted(.dateTime.year().month(.wide))
+    static func month(_ date: Date, locale: Locale = AppLanguage.current.locale) -> String {
+        date.formatted(.dateTime.year().month(.wide).locale(locale))
+    }
+
+    static func shortDate(_ date: Date, locale: Locale = AppLanguage.current.locale) -> String {
+        date.formatted(.dateTime.year().month(.abbreviated).day().locale(locale))
+    }
+
+    static func shortTime(_ date: Date, locale: Locale = AppLanguage.current.locale) -> String {
+        date.formatted(.dateTime.hour().minute().locale(locale))
+    }
+
+    static func dateTime(_ date: Date, locale: Locale = AppLanguage.current.locale) -> String {
+        date.formatted(.dateTime.year().month(.abbreviated).day().hour().minute().locale(locale))
+    }
+
+    static func longDateTime(_ date: Date, locale: Locale = AppLanguage.current.locale) -> String {
+        date.formatted(.dateTime.year().month(.wide).day().hour().minute().locale(locale))
+    }
+
+    static func day(_ date: Date, locale: Locale = AppLanguage.current.locale) -> String {
+        date.formatted(.dateTime.day().locale(locale))
     }
 }

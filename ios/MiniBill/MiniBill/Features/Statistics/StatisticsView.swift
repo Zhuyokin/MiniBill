@@ -1,10 +1,10 @@
 import SwiftUI
 import SwiftData
+import Charts
 
 struct StatisticsView: View {
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
     @State private var selectedMonth: Date
-    @State private var sharingSummary: MonthlySummary?
 
     init(initialMonth: Date) {
         _selectedMonth = State(initialValue: initialMonth)
@@ -28,18 +28,22 @@ struct StatisticsView: View {
                 MonthlySummaryCard(summary: summary)
 
                 HStack {
-                    Label("\(summary.recordCount) entries", systemImage: "number")
+                    Label("\(summary.recordCount) entries", systemImage: "doc.plaintext")
                         .font(.subheadline)
                     Spacer()
-                    Button { sharingSummary = summary } label: { Label("Share Month", systemImage: "square.and.arrow.up") }
+                    ShareImageLink(
+                        payload: .month(MonthlySharePayload(summary: summary)),
+                        title: "Share Month",
+                        systemImage: "square.and.arrow.up"
+                    )
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Daily Net").font(.headline)
-                    DailyNetChart(values: summary.dailyNet)
+                    DailyNetChart(values: summary.dailyNet, month: summary.month)
                 }
                 .padding(16)
-                .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 16))
+                .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 8))
 
                 ProjectRankingView(
                     title: "Income Projects",
@@ -62,9 +66,6 @@ struct StatisticsView: View {
         }
         .background(AppTheme.background)
         .navigationTitle("Statistics")
-        .sheet(item: $sharingSummary) { value in
-            SharePreviewView(payload: .month(MonthlySharePayload(summary: value)))
-        }
     }
 
     private func moveMonth(_ value: Int) {
@@ -76,40 +77,82 @@ struct StatisticsView: View {
 
 private struct DailyNetChart: View {
     let values: [DailyTotal]
+    let month: Date
+    @State private var selectedDay: Date?
 
     var body: some View {
         if values.isEmpty {
             Text("No entries this month")
                 .foregroundStyle(AppTheme.muted)
                 .frame(maxWidth: .infinity, minHeight: 100)
-        } else {
-            GeometryReader { proxy in
-                let maximum = max(values.map { abs($0.netCents) }.max() ?? 1, 1)
-                HStack(alignment: .center, spacing: 4) {
-                    ForEach(values) { item in
-                        NavigationLink {
-                            FilteredEntriesView(selection: .day(item.date))
-                        } label: {
-                            VStack(spacing: 3) {
-                                Spacer(minLength: 0)
-                                Capsule()
-                                    .fill(item.netCents >= 0 ? AppTheme.brand : AppTheme.ink)
-                                    .frame(height: max(4, CGFloat(abs(item.netCents)) / CGFloat(maximum) * (proxy.size.height - 24)))
-                                Text(item.date.formatted(.dateTime.day()))
-                                    .font(.system(size: 9))
-                                    .foregroundStyle(AppTheme.muted)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("\(item.date.formatted(date: .abbreviated, time: .omitted)), \(AppFormat.money(item.netCents, signed: true))")
-                        .accessibilityHint("Shows entries for this day")
+        } else if let interval = StatisticsChartScale.monthInterval(containing: month, calendar: .current) {
+            let yDomain = StatisticsChartScale.symmetricYDomain(values: values.map(\.netCents))
+            Chart {
+                RuleMark(y: .value("Zero", 0))
+                    .foregroundStyle(AppTheme.muted.opacity(0.45))
+
+                ForEach(values) { item in
+                    BarMark(
+                        x: .value("Date", item.date, unit: .day),
+                        yStart: .value("Zero", 0),
+                        yEnd: .value("Net", Double(item.netCents)),
+                        width: .fixed(9)
+                    )
+                    .foregroundStyle(item.netCents >= 0 ? AppTheme.brand : AppTheme.ink)
+                    .accessibilityLabel(AppFormat.shortDate(item.date))
+                    .accessibilityValue(AppFormat.money(item.netCents, signed: true))
+
+                    if item.netCents == 0 {
+                        PointMark(
+                            x: .value("Date", item.date, unit: .day),
+                            y: .value("Net", 0)
+                        )
+                        .symbolSize(24)
+                        .foregroundStyle(AppTheme.muted)
                     }
                 }
             }
-            .frame(height: 150)
+            .chartXScale(domain: interval.start...interval.end)
+            .chartYScale(domain: yDomain)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day, count: 7)) { value in
+                    AxisTick().foregroundStyle(AppTheme.muted.opacity(0.5))
+                    AxisValueLabel {
+                        if let date = value.as(Date.self) {
+                            Text(AppFormat.day(date))
+                        }
+                    }
+                }
+            }
+            .chartYAxis(.hidden)
+            .chartOverlay { proxy in
+                GeometryReader { geometry in
+                    Rectangle()
+                        .fill(.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            SpatialTapGesture().onEnded { event in
+                                selectDay(at: event.location, proxy: proxy, geometry: geometry)
+                            }
+                        )
+                }
+            }
+            .frame(height: 180)
+            .accessibilityHint("Shows entries for this day")
+            .navigationDestination(item: $selectedDay) { date in
+                FilteredEntriesView(selection: .day(date))
+            }
         }
+    }
+
+    private func selectDay(at location: CGPoint, proxy: ChartProxy, geometry: GeometryProxy) {
+        guard let plotFrame = proxy.plotFrame else { return }
+        let frame = geometry[plotFrame]
+        guard frame.contains(location),
+              let date: Date = proxy.value(atX: location.x - frame.origin.x),
+              let value = values.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) }) else {
+            return
+        }
+        selectedDay = value.date
     }
 }

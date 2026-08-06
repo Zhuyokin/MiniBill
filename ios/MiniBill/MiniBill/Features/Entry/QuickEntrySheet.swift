@@ -128,10 +128,10 @@ struct QuickEntrySheet: View {
         } catch let error as EntryValidationError {
             isSaving = false
             switch error {
-            case .invalidAmount: validationMessage = String(localized: "Enter an amount greater than zero with at most two decimal places.")
-            case .amountTooLarge: validationMessage = String(localized: "Amount cannot exceed ¥99,999,999.99.")
-            case .emptyProjectName: validationMessage = String(localized: "Project name is required.")
-            case .noteTooLong: validationMessage = String(localized: "Note must be 200 characters or fewer.")
+            case .invalidAmount: validationMessage = AppLocalization.string("Enter an amount greater than zero with at most two decimal places.")
+            case .amountTooLarge: validationMessage = AppLocalization.string("Amount cannot exceed ¥99,999,999.99.")
+            case .emptyProjectName: validationMessage = AppLocalization.string("Project name is required.")
+            case .noteTooLong: validationMessage = AppLocalization.string("Note must be 200 characters or fewer.")
             }
         } catch {
             if let insertedEntry {
@@ -139,7 +139,7 @@ struct QuickEntrySheet: View {
             }
             modelContext.rollback()
             isSaving = false
-            validationMessage = String(localized: "Could not save. Your input is still here; try again.")
+            validationMessage = AppLocalization.string("Could not save. Your input is still here; try again.")
         }
     }
 }

@@ -16,7 +16,7 @@ struct LedgerRow: View {
                     .lineLimit(1)
                 HStack(spacing: 5) {
                     Text(entry.kind == .income ? "Income" : "Expense")
-                    Text(entry.occurredAt.formatted(date: .omitted, time: .shortened))
+                    Text(AppFormat.shortTime(entry.occurredAt))
                     if let note = entry.note, !note.isEmpty {
                         Text("· \(note)").lineLimit(1)
                     }
@@ -33,6 +33,6 @@ struct LedgerRow: View {
         .padding(12)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(entry.kind == .income ? String(localized: "Income") : String(localized: "Expense")), \(entry.projectName), \(AppFormat.money(entry.amountCents)), \(entry.occurredAt.formatted())")
+        .accessibilityLabel("\(entry.kind == .income ? AppLocalization.string("Income") : AppLocalization.string("Expense")), \(entry.projectName), \(AppFormat.money(entry.amountCents)), \(AppFormat.dateTime(entry.occurredAt))")
     }
 }

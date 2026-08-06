@@ -32,7 +32,7 @@ struct BillsView: View {
                 .listRowSeparator(.hidden)
 
                 if entries.isEmpty {
-                    ContentUnavailableView("No entries yet", systemImage: "tray", description: Text("Tap Add Entry to record income or expense."))
+                    ContentUnavailableView("No entries yet", systemImage: "doc.text.magnifyingglass", description: Text("Tap Add Entry to record income or expense."))
                         .frame(maxWidth: .infinity, minHeight: 240)
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -53,7 +53,7 @@ struct BillsView: View {
                                 }
                             }
                         } header: {
-                            Text(Calendar.current.isDateInToday(day) ? String(localized: "Today") : day.formatted(date: .abbreviated, time: .omitted))
+                            Text(Calendar.current.isDateInToday(day) ? AppLocalization.string("Today") : AppFormat.shortDate(day))
                                 .font(.headline)
                         }
                     }
@@ -94,7 +94,7 @@ struct BillsView: View {
                 } catch {
                     modelContext.rollback()
                     pendingDelete = nil
-                    deletionError = String(localized: "Delete failed. The entry was not changed.")
+                    deletionError = AppLocalization.string("Delete failed. The entry was not changed.")
                 }
             }
         } message: {

@@ -10,7 +10,7 @@ struct MonthlySummaryCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(AppTheme.muted)
                 Spacer()
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .foregroundStyle(AppTheme.muted)
             }
             VStack(alignment: .leading, spacing: 4) {
@@ -30,7 +30,7 @@ struct MonthlySummaryCard: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 16))
+        .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 8))
     }
 
     private func metric(_ title: LocalizedStringKey, _ cents: Int64, color: Color, sign: String) -> some View {

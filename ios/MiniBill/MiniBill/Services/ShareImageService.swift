@@ -7,8 +7,20 @@ enum ShareCardPayload: Identifiable {
 
     var id: String {
         switch self {
-        case .month(let value): return "month-\(value.month.timeIntervalSince1970)"
-        case .entry(let value): return "entry-\(value.occurredAt.timeIntervalSince1970)-\(value.projectName)"
+        case .month(let value):
+            let days = value.dailyNet.map { "\($0.date.timeIntervalSince1970):\($0.netCents)" }.joined(separator: ",")
+            let topIncome = value.topIncomeProject.map { "\($0.normalizedKey):\($0.totalCents)" } ?? "none"
+            let topExpense = value.topExpenseProject.map { "\($0.normalizedKey):\($0.totalCents)" } ?? "none"
+            return [
+                "month", String(value.month.timeIntervalSince1970), String(value.netCents),
+                String(value.incomeCents), String(value.expenseCents), String(value.recordCount),
+                days, topIncome, topExpense
+            ].joined(separator: "|")
+        case .entry(let value):
+            return [
+                "entry", value.kind.rawValue, String(value.amountCents), value.projectName,
+                String(value.occurredAt.timeIntervalSince1970)
+            ].joined(separator: "|")
         }
     }
 }
@@ -17,25 +29,23 @@ enum ShareCardPayload: Identifiable {
 enum ShareImageService {
     enum RenderError: Error { case renderingFailed }
 
-    static func render(_ payload: ShareCardPayload) throws -> URL {
+    static func render(_ payload: ShareCardPayload, language: AppLanguage) throws -> UIImage {
         let card: AnyView
-        let name: String
         switch payload {
         case .month(let value):
-            card = AnyView(MonthlyShareCard(payload: value))
-            name = "MiniBill-Month"
+            card = AnyView(MonthlyShareCard(payload: value, locale: language.locale))
         case .entry(let value):
-            card = AnyView(EntryShareCard(payload: value))
-            name = "MiniBill-Entry"
+            card = AnyView(EntryShareCard(payload: value, locale: language.locale))
         }
 
-        let renderer = ImageRenderer(content: card.frame(width: 900, height: 1200).environment(\.colorScheme, .light))
+        let renderer = ImageRenderer(
+            content: card
+                .frame(width: 900, height: 1200)
+                .environment(\.locale, language.locale)
+                .environment(\.colorScheme, .light)
+        )
         renderer.scale = 2
-        guard let data = renderer.uiImage?.pngData() else { throw RenderError.renderingFailed }
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("\(name)-\(UUID().uuidString)")
-            .appendingPathExtension("png")
-        try data.write(to: url, options: .atomic)
-        return url
+        guard let image = renderer.uiImage else { throw RenderError.renderingFailed }
+        return image
     }
 }

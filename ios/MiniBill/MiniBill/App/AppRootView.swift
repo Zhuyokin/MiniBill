@@ -28,13 +28,13 @@ struct AppRootView: View {
                     }
                 }
             }
-            .tabItem { Label("Bills", systemImage: "list.bullet.rectangle") }
+            .tabItem { Label("Bills", systemImage: "list.bullet.clipboard") }
             .tag(RootTab.bills)
 
             NavigationStack {
                 SettingsView()
             }
-            .tabItem { Label("Me", systemImage: "person.crop.circle") }
+            .tabItem { Label("Me", systemImage: "gearshape") }
             .tag(RootTab.settings)
         }
         .tint(AppTheme.brand)

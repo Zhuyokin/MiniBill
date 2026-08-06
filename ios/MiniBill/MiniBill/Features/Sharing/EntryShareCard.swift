@@ -2,14 +2,12 @@ import SwiftUI
 
 struct EntryShareCard: View {
     let payload: EntrySharePayload
+    let locale: Locale
 
     var body: some View {
         VStack(alignment: .leading, spacing: 52) {
             HStack {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16).fill(AppTheme.brand).frame(width: 64, height: 64)
-                    Image(systemName: "book.closed.fill").font(.system(size: 30)).foregroundStyle(.white)
-                }
+                AppBrandIcon(size: 64, cornerRadius: 14)
                 Text("MiniBill").font(.system(size: 32, weight: .bold)).foregroundStyle(.black)
                 Spacer()
                 Text(payload.kind == .income ? "Income" : "Expense")
@@ -25,11 +23,11 @@ struct EntryShareCard: View {
                     .foregroundStyle(.black)
                     .lineLimit(3)
                     .minimumScaleFactor(0.65)
-                Text("\(payload.kind == .income ? "+" : "−")\(AppFormat.money(payload.amountCents))")
+                Text("\(payload.kind == .income ? "+" : "−")\(AppFormat.money(payload.amountCents, locale: locale))")
                     .font(.system(size: 82, weight: .bold, design: .rounded))
                     .foregroundStyle(payload.kind == .income ? AppTheme.brandDark : .black)
                     .minimumScaleFactor(0.5).lineLimit(1)
-                Text(payload.occurredAt.formatted(date: .long, time: .shortened))
+                Text(AppFormat.longDateTime(payload.occurredAt, locale: locale))
                     .font(.system(size: 26, weight: .medium)).foregroundStyle(.gray)
             }
             Spacer()

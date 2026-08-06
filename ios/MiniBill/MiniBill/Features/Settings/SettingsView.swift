@@ -14,6 +14,7 @@ struct SettingsView: View {
     @AppStorage(ReminderPreferenceKey.monthEndEnabled) private var monthEndEnabled = false
     @AppStorage(ReminderPreferenceKey.monthEndHour) private var monthEndHour = 21
     @AppStorage(ReminderPreferenceKey.monthEndMinute) private var monthEndMinute = 0
+    @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.simplifiedChinese.rawValue
 
     @State private var authorizationStatus: UNAuthorizationStatus = .notDetermined
     @State private var exportedDocument: BackupDocument?
@@ -26,15 +27,23 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("Local Entries", value: "\(entries.count)")
+                LabeledContent {
+                    Text("\(entries.count)")
+                } label: {
+                    Label("Local Entries", systemImage: "tray.full")
+                }
             }
 
             Section {
-                Toggle("Daily Reminder", isOn: dailyBinding)
+                Toggle(isOn: dailyBinding) {
+                    Label("Daily Reminder", systemImage: "bell")
+                }
                 if dailyEnabled {
                     DatePicker("Daily Time", selection: timeBinding(hour: $dailyHour, minute: $dailyMinute, action: reconcileDaily), displayedComponents: .hourAndMinute)
                 }
-                Toggle("Month-end Reminder", isOn: monthEndBinding)
+                Toggle(isOn: monthEndBinding) {
+                    Label("Month-end Reminder", systemImage: "calendar.badge.clock")
+                }
                 if monthEndEnabled {
                     DatePicker("Month-end Time", selection: timeBinding(hour: $monthEndHour, minute: $monthEndMinute, action: reconcileMonthEnd), displayedComponents: .hourAndMinute)
                 }
@@ -43,7 +52,9 @@ struct SettingsView: View {
                         Text("System notifications are off. Your reminder preference is preserved.")
                             .font(.footnote)
                             .foregroundStyle(.red)
-                        Button("Open System Settings") { openSystemSettings() }
+                        Button { openSystemSettings() } label: {
+                            Label("Open System Settings", systemImage: "gearshape")
+                        }
                     }
                 }
                 if let reminderErrorMessage {
@@ -61,8 +72,8 @@ struct SettingsView: View {
             }
 
             Section {
-                Button { prepareExport() } label: { Label("Export Backup", systemImage: "square.and.arrow.up") }
-                Button { showImporter = true } label: { Label("Restore from Backup", systemImage: "square.and.arrow.down") }
+                Button { prepareExport() } label: { Label("Export Backup", systemImage: "arrow.up.doc") }
+                Button { showImporter = true } label: { Label("Restore from Backup", systemImage: "arrow.down.doc") }
             } header: {
                 Text("Backup")
             } footer: {
@@ -70,11 +81,22 @@ struct SettingsView: View {
             }
 
             Section("App") {
-                Button { openAppLanguageSettings() } label: {
-                    LabeledContent("Language", value: String(localized: "System App Language"))
+                NavigationLink {
+                    LanguageSelectionView(languageCode: $languageCode)
+                } label: {
+                    HStack {
+                        Label("Language", systemImage: "globe")
+                        Spacer()
+                        Text(AppLanguage(storedCode: languageCode).displayName)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                NavigationLink("Privacy") { PrivacyView() }
-                NavigationLink("About MiniBill") { AboutView() }
+                NavigationLink { PrivacyView() } label: {
+                    Label("Privacy", systemImage: "hand.raised")
+                }
+                NavigationLink { AboutView() } label: {
+                    Label("About MiniBill", systemImage: "info.circle")
+                }
             }
 
             if let errorMessage {
@@ -100,7 +122,7 @@ struct SettingsView: View {
             defaultFilename: "\(BackupService.filename()).minibill"
         ) { result in
             if case .failure(let error) = result, !isCancellation(error) {
-                errorMessage = String(localized: "Export failed. Choose another location or try again.")
+                errorMessage = AppLocalization.string("Export failed. Choose another location or try again.")
             }
             exportedDocument = nil
         }
@@ -157,7 +179,7 @@ struct SettingsView: View {
                 try await ReminderService.shared.setDailyEnabled(enabled, hour: hour, minute: minute)
                 reminderErrorMessage = nil
             } catch {
-                reminderErrorMessage = String(localized: "Could not schedule the reminder. Your preference was saved; try again.")
+                reminderErrorMessage = AppLocalization.string("Could not schedule the reminder. Your preference was saved; try again.")
             }
             authorizationStatus = await ReminderService.shared.authorizationStatus()
         }
@@ -169,7 +191,7 @@ struct SettingsView: View {
                 try await ReminderService.shared.setMonthEndEnabled(enabled, hour: hour, minute: minute)
                 reminderErrorMessage = nil
             } catch {
-                reminderErrorMessage = String(localized: "Could not schedule the reminder. Your preference was saved; try again.")
+                reminderErrorMessage = AppLocalization.string("Could not schedule the reminder. Your preference was saved; try again.")
             }
             authorizationStatus = await ReminderService.shared.authorizationStatus()
         }
@@ -186,7 +208,7 @@ struct SettingsView: View {
             try await ReminderService.shared.reconcileFromPreferences()
             reminderErrorMessage = nil
         } catch {
-            reminderErrorMessage = String(localized: "Could not schedule the reminder. Your preference was saved; try again.")
+            reminderErrorMessage = AppLocalization.string("Could not schedule the reminder. Your preference was saved; try again.")
         }
         authorizationStatus = await ReminderService.shared.authorizationStatus()
     }
@@ -196,7 +218,7 @@ struct SettingsView: View {
             exportedDocument = try BackupService.document(entries: entries)
             showExporter = true
         } catch {
-            errorMessage = String(localized: "Export failed. Choose another location or try again.")
+            errorMessage = AppLocalization.string("Export failed. Choose another location or try again.")
         }
     }
 
@@ -209,14 +231,14 @@ struct SettingsView: View {
                 restorePreview = try BackupService.preview(data: Data(contentsOf: url), currentRecordCount: entries.count)
             } catch let error as BackupValidationError {
                 switch error {
-                case .schemaTooNew: errorMessage = String(localized: "This backup needs a newer version of MiniBill. Your ledger was not changed.")
-                default: errorMessage = String(localized: "This backup is damaged or invalid. Your ledger was not changed.")
+                case .schemaTooNew: errorMessage = AppLocalization.string("This backup needs a newer version of MiniBill. Your ledger was not changed.")
+                default: errorMessage = AppLocalization.string("This backup is damaged or invalid. Your ledger was not changed.")
                 }
             } catch {
-                errorMessage = String(localized: "This backup could not be read. Your ledger was not changed.")
+                errorMessage = AppLocalization.string("This backup could not be read. Your ledger was not changed.")
             }
         case .failure(let error):
-            if !isCancellation(error) { errorMessage = String(localized: "This backup could not be read. Your ledger was not changed.") }
+            if !isCancellation(error) { errorMessage = AppLocalization.string("This backup could not be read. Your ledger was not changed.") }
         }
     }
 
@@ -229,9 +251,31 @@ struct SettingsView: View {
         UIApplication.shared.open(url)
     }
 
-    private func openAppLanguageSettings() {
-        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-        UIApplication.shared.open(url)
+}
+
+private struct LanguageSelectionView: View {
+    @Binding var languageCode: String
+
+    var body: some View {
+        List(AppLanguage.allCases) { language in
+            Button {
+                languageCode = language.rawValue
+            } label: {
+                HStack {
+                    Text(verbatim: language.displayName)
+                    Spacer()
+                    if language.rawValue == languageCode {
+                        Image(systemName: "checkmark")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(AppTheme.brand)
+                    }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(language.rawValue == languageCode ? .isSelected : [])
+        }
+        .navigationTitle("Language")
     }
 }
 
@@ -252,7 +296,7 @@ private struct AboutView: View {
     var body: some View {
         List {
             VStack(spacing: 12) {
-                Image(systemName: "book.closed.fill").font(.system(size: 48)).foregroundStyle(AppTheme.brand)
+                AppBrandIcon(size: 96, cornerRadius: 20)
                 Text("MiniBill").font(.title2.bold())
                 Text("Offline bookkeeping for small businesses and side work.")
                     .foregroundStyle(AppTheme.muted).multilineTextAlignment(.center)

@@ -1,15 +1,17 @@
 import SwiftUI
+import Charts
 
 struct MonthlyShareCard: View {
     let payload: MonthlySharePayload
+    let locale: Locale
 
     var body: some View {
         VStack(alignment: .leading, spacing: 44) {
             brandHeader
             VStack(alignment: .leading, spacing: 14) {
-                Text(AppFormat.month(payload.month)).font(.system(size: 30, weight: .semibold)).foregroundStyle(.gray)
+                Text(AppFormat.month(payload.month, locale: locale)).font(.system(size: 30, weight: .semibold)).foregroundStyle(.gray)
                 Text("Net Profit").font(.system(size: 26, weight: .medium)).foregroundStyle(.gray)
-                Text(AppFormat.money(payload.netCents, signed: true))
+                Text(AppFormat.money(payload.netCents, signed: true, locale: locale))
                     .font(.system(size: 76, weight: .bold, design: .rounded))
                     .foregroundStyle(payload.netCents >= 0 ? AppTheme.brandDark : .black)
                     .minimumScaleFactor(0.6)
@@ -37,10 +39,7 @@ struct MonthlyShareCard: View {
 
     private var brandHeader: some View {
         HStack {
-            ZStack {
-                RoundedRectangle(cornerRadius: 16).fill(AppTheme.brand).frame(width: 64, height: 64)
-                Image(systemName: "book.closed.fill").font(.system(size: 30)).foregroundStyle(.white)
-            }
+            AppBrandIcon(size: 64, cornerRadius: 14)
             Text("MiniBill").font(.system(size: 32, weight: .bold)).foregroundStyle(.black)
             Spacer()
             Text("MONTHLY").font(.system(size: 18, weight: .bold, design: .monospaced)).foregroundStyle(.gray)
@@ -50,7 +49,7 @@ struct MonthlyShareCard: View {
     private func shareMetric(_ title: LocalizedStringKey, _ cents: Int64, sign: String, color: Color, isCount: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title).font(.system(size: 20)).foregroundStyle(.gray)
-            Text(isCount ? "\(payload.recordCount)" : "\(sign)\(AppFormat.money(cents))")
+            Text(isCount ? "\(payload.recordCount)" : "\(sign)\(AppFormat.money(cents, locale: locale))")
                 .font(.system(size: 30, weight: .bold)).foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.6)
         }
     }
@@ -58,17 +57,42 @@ struct MonthlyShareCard: View {
     private var trend: some View {
         VStack(alignment: .leading, spacing: 18) {
             Text("Daily Net").font(.system(size: 24, weight: .semibold)).foregroundStyle(.black)
-            GeometryReader { proxy in
-                let maximum = max(payload.dailyNet.map { abs($0.netCents) }.max() ?? 1, 1)
-                HStack(alignment: .bottom, spacing: 8) {
-                    ForEach(payload.dailyNet.suffix(18)) { item in
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(item.netCents >= 0 ? AppTheme.brand : Color.black)
-                            .frame(maxWidth: .infinity, minHeight: 6, maxHeight: max(6, CGFloat(abs(item.netCents)) / CGFloat(maximum) * proxy.size.height))
+            if payload.dailyNet.isEmpty {
+                Text("No entries this month")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(.gray)
+                    .frame(maxWidth: .infinity, minHeight: 150)
+            } else if let interval = StatisticsChartScale.monthInterval(containing: payload.month, calendar: .current) {
+                let yDomain = StatisticsChartScale.symmetricYDomain(values: payload.dailyNet.map(\.netCents))
+                Chart {
+                    RuleMark(y: .value("Zero", 0))
+                        .foregroundStyle(Color.gray.opacity(0.45))
+
+                    ForEach(payload.dailyNet) { item in
+                        BarMark(
+                            x: .value("Date", item.date, unit: .day),
+                            yStart: .value("Zero", 0),
+                            yEnd: .value("Net", Double(item.netCents)),
+                            width: .fixed(14)
+                        )
+                        .foregroundStyle(item.netCents >= 0 ? AppTheme.brand : Color.black)
+
+                        if item.netCents == 0 {
+                            PointMark(
+                                x: .value("Date", item.date, unit: .day),
+                                y: .value("Net", 0)
+                            )
+                            .symbolSize(34)
+                            .foregroundStyle(Color.gray)
+                        }
                     }
                 }
+                .chartXScale(domain: interval.start...interval.end)
+                .chartYScale(domain: yDomain)
+                .chartXAxis(.hidden)
+                .chartYAxis(.hidden)
+                .frame(height: 180)
             }
-            .frame(height: 180)
         }
         .padding(26)
         .background(Color(white: 0.96), in: RoundedRectangle(cornerRadius: 20))
@@ -78,7 +102,7 @@ struct MonthlyShareCard: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title).font(.system(size: 19)).foregroundStyle(.gray)
             Text(project?.displayName ?? "—").font(.system(size: 28, weight: .semibold)).foregroundStyle(.black).lineLimit(1)
-            Text(project.map { AppFormat.money($0.totalCents) } ?? "—").font(.system(size: 24, weight: .bold)).foregroundStyle(color)
+            Text(project.map { AppFormat.money($0.totalCents, locale: locale) } ?? "—").font(.system(size: 24, weight: .bold)).foregroundStyle(color)
         }
         .padding(26)
         .frame(maxWidth: .infinity, alignment: .leading)

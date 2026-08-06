@@ -8,7 +8,7 @@ enum StatisticsDrilldown {
     var title: String {
         switch self {
         case .day(let date):
-            return date.formatted(date: .abbreviated, time: .omitted)
+            return AppFormat.shortDate(date)
         case .project(_, _, _, let displayName):
             return displayName
         }

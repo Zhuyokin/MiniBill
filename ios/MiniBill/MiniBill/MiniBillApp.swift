@@ -39,7 +39,12 @@ private struct LaunchHostView: View {
     @ObservedObject var launch: LaunchCoordinator
     @ObservedObject var router: NotificationRouter
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.simplifiedChinese.rawValue
     @State private var isShowingSplash = true
+
+    private var language: AppLanguage {
+        AppLanguage(storedCode: languageCode)
+    }
 
     var body: some View {
         ZStack {
@@ -76,6 +81,12 @@ private struct LaunchHostView: View {
             guard launch.container != nil else { return }
             Task { await reconcileReminderPreferences(reason: "system time-zone change") }
         }
+        .onChange(of: languageCode) { _, _ in
+            guard launch.container != nil else { return }
+            Task { await reconcileReminderPreferences(reason: "app language change") }
+        }
+        .environment(\.locale, language.locale)
+        .environment(\.appLanguage, language)
     }
 }
 

@@ -30,7 +30,7 @@ struct ProjectRankingView: View {
                                 Text("\(index + 1). \(item.displayName)").lineLimit(1)
                                 Spacer()
                                 Text(AppFormat.money(item.totalCents)).monospacedDigit()
-                                Image(systemName: "chevron.right")
+                                Image(systemName: "chevron.forward")
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(AppTheme.muted)
                             }
@@ -50,6 +50,6 @@ struct ProjectRankingView: View {
             }
         }
         .padding(16)
-        .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 16))
+        .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 8))
     }
 }

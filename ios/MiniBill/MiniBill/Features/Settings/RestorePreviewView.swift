@@ -14,10 +14,10 @@ struct RestorePreviewView: View {
         NavigationStack {
             Form {
                 Section("Backup") {
-                    LabeledContent("Exported", value: preview.archive.exportedAt.formatted())
+                    LabeledContent("Exported", value: AppFormat.dateTime(preview.archive.exportedAt))
                     LabeledContent("Backup Entries", value: "\(preview.archive.recordCount)")
                     if let earliest = preview.earliestDate, let latest = preview.latestDate {
-                        LabeledContent("Date Range", value: "\(earliest.formatted(date: .abbreviated, time: .omitted)) – \(latest.formatted(date: .abbreviated, time: .omitted))")
+                        LabeledContent("Date Range", value: "\(AppFormat.shortDate(earliest)) - \(AppFormat.shortDate(latest))")
                     } else {
                         Text("This backup is empty. Restoring it will erase every current entry.")
                             .foregroundStyle(AppTheme.destructive)
@@ -46,7 +46,7 @@ struct RestorePreviewView: View {
                         UINotificationFeedbackGenerator().notificationOccurred(.warning)
                         dismiss()
                     } catch {
-                        errorMessage = String(localized: "Restore failed. Your original ledger was not changed.")
+                        errorMessage = AppLocalization.string("Restore failed. Your original ledger was not changed.")
                     }
                 }
             }

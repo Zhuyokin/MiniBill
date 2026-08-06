@@ -103,8 +103,8 @@ actor ReminderService {
 
     private func scheduleDaily(hour: Int, minute: Int) async throws {
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "Daily bookkeeping reminder")
-        content.body = String(localized: "Take a moment to record today's income and expenses.")
+        content.title = AppLocalization.string("Daily bookkeeping reminder")
+        content.body = AppLocalization.string("Take a moment to record today's income and expenses.")
         content.sound = .default
         content.userInfo = ["route": "quickEntry"]
         let trigger = UNCalendarNotificationTrigger(dateMatching: DateComponents(hour: hour, minute: minute), repeats: true)
@@ -138,8 +138,8 @@ actor ReminderService {
             let values = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
             let identifier = String(format: "%@%04d-%02d", Self.monthEndPrefix, values.year ?? 0, values.month ?? 0)
             let content = UNMutableNotificationContent()
-            content.title = String(localized: "Month-end review")
-            content.body = String(localized: "Review this month's income and expenses in MiniBill.")
+            content.title = AppLocalization.string("Month-end review")
+            content.body = AppLocalization.string("Review this month's income and expenses in MiniBill.")
             content.sound = .default
             content.userInfo = ["route": "statistics"]
             let trigger = UNCalendarNotificationTrigger(dateMatching: values, repeats: false)
