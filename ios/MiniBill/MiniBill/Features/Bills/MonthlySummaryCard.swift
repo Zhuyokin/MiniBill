@@ -2,6 +2,12 @@ import SwiftUI
 
 struct MonthlySummaryCard: View {
     let summary: MonthlySummary
+    let showsChevron: Bool
+
+    init(summary: MonthlySummary, showsChevron: Bool = false) {
+        self.summary = summary
+        self.showsChevron = showsChevron
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -10,8 +16,10 @@ struct MonthlySummaryCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(AppTheme.muted)
                 Spacer()
-                Image(systemName: "chevron.forward")
-                    .foregroundStyle(AppTheme.muted)
+                if showsChevron {
+                    Image(systemName: "chevron.forward")
+                        .foregroundStyle(AppTheme.muted)
+                }
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text("Net Profit")

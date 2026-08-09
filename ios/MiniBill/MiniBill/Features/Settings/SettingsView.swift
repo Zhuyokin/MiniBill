@@ -23,6 +23,16 @@ struct SettingsView: View {
     @State private var restorePreview: RestorePreview?
     @State private var errorMessage: String?
     @State private var reminderErrorMessage: String?
+    @State private var copiedEmailMessage: String?
+
+    private let supportEmail = "yokinzhu@gmail.com"
+    private let appStoreReviewURL = URL(string: "itms-apps://apps.apple.com/app/id6761642667?action=write-review")
+    private let appStoreWebReviewURL = URL(string: "https://apps.apple.com/app/id6761642667?action=write-review")
+    private let moreAppsURL = URL(string: "https://apps.apple.com/developer/%E8%A3%95%E9%87%91-%E6%9C%B1/id1888184686")
+
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "-"
+    }
 
     var body: some View {
         Form {
@@ -91,11 +101,29 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                NavigationLink { PrivacyView() } label: {
-                    Label("Privacy", systemImage: "hand.raised")
-                }
-                NavigationLink { AboutView() } label: {
+                NavigationLink { AboutView(appVersion: appVersion) } label: {
                     Label("About MiniBill", systemImage: "info.circle")
+                }
+                LabeledContent {
+                    Text(appVersion)
+                } label: {
+                    Label("Version", systemImage: "number")
+                }
+                Button(action: openSupportEmail) {
+                    HStack {
+                        Label("Contact Email", systemImage: "envelope")
+                        Spacer()
+                        Text(supportEmail)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                }
+                Button(action: openAppStoreRating) {
+                    Label("Rate App", systemImage: "star")
+                }
+                Button(action: openMoreApps) {
+                    Label("More Apps", systemImage: "square.grid.2x2")
                 }
             }
 
@@ -114,6 +142,14 @@ struct SettingsView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .NSSystemTimeZoneDidChange)) { _ in
             Task { await refreshReminderSchedulingState() }
+        }
+        .alert("Email Copied", isPresented: Binding(
+            get: { copiedEmailMessage != nil },
+            set: { if !$0 { copiedEmailMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { copiedEmailMessage = nil }
+        } message: {
+            Text(copiedEmailMessage ?? "")
         }
         .fileExporter(
             isPresented: $showExporter,
@@ -251,6 +287,44 @@ struct SettingsView: View {
         UIApplication.shared.open(url)
     }
 
+    private func openSupportEmail() {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = supportEmail
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: AppLocalization.string("MiniBill Support"))
+        ]
+
+        guard let url = components.url else {
+            copySupportEmail()
+            return
+        }
+
+        UIApplication.shared.open(url) { success in
+            guard !success else { return }
+            DispatchQueue.main.async { copySupportEmail() }
+        }
+    }
+
+    private func copySupportEmail() {
+        UIPasteboard.general.string = supportEmail
+        copiedEmailMessage = String(format: AppLocalization.string("Email copied: %@"), supportEmail)
+    }
+
+    private func openAppStoreRating() {
+        guard let appStoreReviewURL else { return }
+        UIApplication.shared.open(appStoreReviewURL) { success in
+            if !success, let appStoreWebReviewURL {
+                UIApplication.shared.open(appStoreWebReviewURL)
+            }
+        }
+    }
+
+    private func openMoreApps() {
+        guard let moreAppsURL else { return }
+        UIApplication.shared.open(moreAppsURL)
+    }
+
 }
 
 private struct LanguageSelectionView: View {
@@ -279,20 +353,9 @@ private struct LanguageSelectionView: View {
     }
 }
 
-private struct PrivacyView: View {
-    var body: some View {
-        List {
-            Section {
-                Text("MiniBill stores ledger entries only on this device. It has no account, analytics, advertising, cloud sync, or network dependency.")
-                Text("Share images are generated locally and never include notes. Backup files are not encrypted.")
-                Text("Deleting MiniBill removes its local ledger and scheduled notifications from this device.")
-            }
-        }
-        .navigationTitle("Privacy")
-    }
-}
-
 private struct AboutView: View {
+    let appVersion: String
+
     var body: some View {
         List {
             VStack(spacing: 12) {
@@ -303,6 +366,16 @@ private struct AboutView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
+
+            Section("App") {
+                LabeledContent("Version", value: appVersion)
+            }
+
+            Section("Privacy") {
+                Text("MiniBill stores ledger entries only on this device. It has no account, analytics, advertising, cloud sync, or network dependency.")
+                Text("Share images are generated locally and never include notes. Backup files are not encrypted.")
+                Text("Deleting MiniBill removes its local ledger and scheduled notifications from this device.")
+            }
         }
         .navigationTitle("About MiniBill")
     }
