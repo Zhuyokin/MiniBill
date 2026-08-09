@@ -23,7 +23,7 @@ struct AppRootView: View {
                     }
                 )
             }
-            .tabItem { Label("Bills", systemImage: "list.bullet.clipboard") }
+            .tabItem { Label("Home", systemImage: "list.bullet.clipboard") }
             .tag(RootTab.bills)
 
             NavigationStack {
