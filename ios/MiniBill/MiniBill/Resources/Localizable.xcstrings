@@ -294,6 +294,7 @@
       }
     },
     "Bills" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -917,6 +918,7 @@
       }
     },
     "Deleting MiniBill removes its local ledger and scheduled notifications from this device." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -1057,6 +1059,7 @@
       }
     },
     "Email copied: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -1367,34 +1370,6 @@
         }
       }
     },
-    "Image generation failed. Try again." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "画像を生成できませんでした。もう一度お試しください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이미지 생성에 실패했습니다. 다시 시도하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "图片生成失败，请重试。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "圖片產生失敗，請再試一次。"
-          }
-        }
-      }
-    },
     "Home" : {
       "localizations" : {
         "ja" : {
@@ -1419,6 +1394,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "首頁"
+          }
+        }
+      }
+    },
+    "Image generation failed. Try again." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を生成できませんでした。もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미지 생성에 실패했습니다. 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图片生成失败，请重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圖片產生失敗，請再試一次。"
           }
         }
       }
@@ -1622,34 +1625,6 @@
     "MiniBill" : {
 
     },
-    "MiniBill Support" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiniBillサポート"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiniBill 지원"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiniBill 支持"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiniBill 支援"
-          }
-        }
-      }
-    },
     "MiniBill schedules reminders on this device. Delivery can be affected by system notification settings, Focus, or power state." : {
       "localizations" : {
         "ja" : {
@@ -1679,6 +1654,7 @@
       }
     },
     "MiniBill stores ledger entries only on this device. It has no account, analytics, advertising, cloud sync, or network dependency." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -1702,6 +1678,35 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "MiniBill 只在本機儲存流水，不含帳戶、分析、廣告、雲端同步或網路依賴。"
+          }
+        }
+      }
+    },
+    "MiniBill Support" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBillサポート"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill 지원"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill 支持"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill 支援"
           }
         }
       }
@@ -2217,6 +2222,7 @@
       }
     },
     "Privacy" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -2640,6 +2646,7 @@
       }
     },
     "Share images are generated locally and never include notes. Backup files are not encrypted." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
