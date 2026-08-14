@@ -378,6 +378,34 @@
         }
       }
     },
+    "Contact Email" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "連絡先メール"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문의 이메일"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "联系邮箱"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "聯絡信箱"
+          }
+        }
+      }
+    },
     "Could not delete entry" : {
       "localizations" : {
         "ja" : {
@@ -1000,6 +1028,62 @@
         }
       }
     },
+    "Email Copied" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メールをコピーしました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이메일 복사됨"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邮箱已复制"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電子郵件已複製"
+          }
+        }
+      }
+    },
+    "Email copied: %@" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メールをコピーしました：%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이메일 복사됨: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邮箱已复制：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電子郵件已複製：%@"
+          }
+        }
+      }
+    },
     "Enter an amount greater than zero with at most two decimal places." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1311,6 +1395,34 @@
         }
       }
     },
+    "Home" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホーム"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首页"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首頁"
+          }
+        }
+      }
+    },
     "Income" : {
       "localizations" : {
         "ja" : {
@@ -1510,6 +1622,34 @@
     "MiniBill" : {
 
     },
+    "MiniBill Support" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBillサポート"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill 지원"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill 支持"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill 支援"
+          }
+        }
+      }
+    },
     "MiniBill schedules reminders on this device. Delivery can be affected by system notification settings, Focus, or power state." : {
       "localizations" : {
         "ja" : {
@@ -1675,6 +1815,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "月度"
+          }
+        }
+      }
+    },
+    "More Apps" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "その他の作品"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 많은 작품"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多作品"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多作品"
           }
         }
       }
@@ -2129,6 +2297,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "項目名稱為必填項目。"
+          }
+        }
+      }
+    },
+    "Rate App" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Storeで評価"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store에서 평가"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去 App Store 评分"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前往 App Store 評分"
           }
         }
       }
@@ -3006,6 +3202,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "類型"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バージョン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버전"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本"
           }
         }
       }

@@ -2,34 +2,35 @@ import SwiftUI
 
 private enum RootTab: Hashable {
     case bills
+    case statistics
     case settings
-}
-
-private enum BillsDestination: Hashable {
-    case statistics(Date)
 }
 
 struct AppRootView: View {
     @EnvironmentObject private var router: NotificationRouter
     @State private var selectedTab: RootTab = .bills
-    @State private var billsPath: [BillsDestination] = []
+    @State private var selectedStatisticsMonth = Date()
     @State private var showQuickEntry = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            NavigationStack(path: $billsPath) {
+            NavigationStack {
                 BillsView(
                     showQuickEntry: $showQuickEntry,
-                    onOpenStatistics: { month in billsPath.append(.statistics(month)) }
-                )
-                .navigationDestination(for: BillsDestination.self) { destination in
-                    switch destination {
-                    case .statistics(let month): StatisticsView(initialMonth: month)
+                    onOpenStatistics: { month in
+                        selectedStatisticsMonth = month
+                        selectedTab = .statistics
                     }
-                }
+                )
             }
-            .tabItem { Label("Bills", systemImage: "list.bullet.clipboard") }
+            .tabItem { Label("Home", systemImage: "list.bullet.clipboard") }
             .tag(RootTab.bills)
+
+            NavigationStack {
+                StatisticsView(selectedMonth: $selectedStatisticsMonth)
+            }
+            .tabItem { Label("Statistics", systemImage: "chart.bar.xaxis") }
+            .tag(RootTab.statistics)
 
             NavigationStack {
                 SettingsView()
@@ -44,13 +45,13 @@ struct AppRootView: View {
 
     private func consumeRoute() {
         guard let route = router.route else { return }
-        selectedTab = .bills
         switch route {
         case .quickEntry:
-            billsPath.removeAll()
+            selectedTab = .bills
             showQuickEntry = true
         case .statistics:
-            billsPath = [.statistics(Date())]
+            selectedStatisticsMonth = Date()
+            selectedTab = .statistics
         }
         router.consume()
     }

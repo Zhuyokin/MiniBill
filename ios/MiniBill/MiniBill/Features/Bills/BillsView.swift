@@ -23,7 +23,7 @@ struct BillsView: View {
         ZStack(alignment: .bottomTrailing) {
             List {
                 Button { onOpenStatistics(Date()) } label: {
-                    MonthlySummaryCard(summary: summary)
+                    MonthlySummaryCard(summary: summary, showsChevron: true)
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("Opens monthly statistics")

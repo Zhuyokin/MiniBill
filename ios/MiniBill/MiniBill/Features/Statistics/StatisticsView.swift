@@ -4,10 +4,10 @@ import Charts
 
 struct StatisticsView: View {
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
-    @State private var selectedMonth: Date
+    @Binding private var selectedMonth: Date
 
-    init(initialMonth: Date) {
-        _selectedMonth = State(initialValue: initialMonth)
+    init(selectedMonth: Binding<Date>) {
+        _selectedMonth = selectedMonth
     }
 
     private var summary: MonthlySummary {
