@@ -7,6 +7,19 @@ struct ShareImageLink: View {
     let payload: ShareCardPayload
     let title: LocalizedStringKey
     let systemImage: String
+    let colorOnlyInRetro: Bool
+
+    init(
+        payload: ShareCardPayload,
+        title: LocalizedStringKey,
+        systemImage: String,
+        colorOnlyInRetro: Bool = false
+    ) {
+        self.payload = payload
+        self.title = title
+        self.systemImage = systemImage
+        self.colorOnlyInRetro = colorOnlyInRetro
+    }
 
     @State private var isRendering = false
     @State private var renderFailed = false
@@ -23,7 +36,7 @@ struct ShareImageLink: View {
                     }
                 }
         }
-        .themedActionButton()
+        .themedActionButton(colorOnlyInRetro: colorOnlyInRetro)
         .disabled(isRendering)
         .sheet(item: $preparedShare) { share in
             ActivityShareSheet(activityItems: [share.image])

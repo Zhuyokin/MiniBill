@@ -5,6 +5,7 @@ import UIKit
 struct EditEntryView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.locale) private var locale
     let entry: LedgerEntry
 
     private let initialDraft: EntryDraft
@@ -12,6 +13,7 @@ struct EditEntryView: View {
     @State private var errorMessage: String?
     @State private var confirmDelete = false
     @State private var confirmDiscard = false
+    @FocusState private var amountIsFocused: Bool
 
     init(entry: LedgerEntry) {
         self.entry = entry
@@ -36,6 +38,21 @@ struct EditEntryView: View {
                     .keyboardType(.decimalPad)
                     .font(.title2.bold())
                     .themedInputWell()
+                    .focused($amountIsFocused)
+                    .onChange(of: draft.amountText) { _, value in
+                        let limited = EntryValidator.limitedAmountText(
+                            value,
+                            decimalSeparator: locale.decimalSeparator ?? "."
+                        )
+                        if limited != value { draft.amountText = limited }
+                    }
+                    .onChange(of: amountIsFocused) { _, isFocused in
+                        guard !isFocused else { return }
+                        draft.amountText = EntryValidator.fixedAmountText(
+                            draft.amountText,
+                            decimalSeparator: locale.decimalSeparator ?? "."
+                        )
+                    }
             }
             Section("Project Name") {
                 TextField("What was this for?", text: $draft.projectName)
@@ -55,7 +72,8 @@ struct EditEntryView: View {
                     ShareImageLink(
                         payload: .entry(sharePayload),
                         title: "Share Entry",
-                        systemImage: "square.and.arrow.up"
+                        systemImage: "square.and.arrow.up",
+                        colorOnlyInRetro: true
                     )
                 } else {
                     Button(action: validateForSharing) {
@@ -100,13 +118,19 @@ struct EditEntryView: View {
     }
 
     private var sharePayload: EntrySharePayload? {
-        guard let record = try? draft.validatedRecord(updatedAt: entry.updatedAt) else { return nil }
+        guard let record = try? draft.validatedRecord(
+            updatedAt: entry.updatedAt,
+            decimalSeparator: locale.decimalSeparator ?? "."
+        ) else { return nil }
         return EntrySharePayload(record: record)
     }
 
     private func save() {
         do {
-            let record = try draft.validatedRecord(updatedAt: Date())
+            let record = try draft.validatedRecord(
+                updatedAt: Date(),
+                decimalSeparator: locale.decimalSeparator ?? "."
+            )
             LedgerEntryMapper.apply(record, to: entry)
             try modelContext.save()
             dismiss()
@@ -125,7 +149,10 @@ struct EditEntryView: View {
 
     private func validateForSharing() {
         do {
-            _ = try draft.validatedRecord(updatedAt: entry.updatedAt)
+            _ = try draft.validatedRecord(
+                updatedAt: entry.updatedAt,
+                decimalSeparator: locale.decimalSeparator ?? "."
+            )
             errorMessage = nil
         } catch let error as EntryValidationError {
             switch error {

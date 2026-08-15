@@ -5,6 +5,7 @@ import UIKit
 struct QuickEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.locale) private var locale
     let accountID: UUID
     let candidates: [String]
 
@@ -17,6 +18,7 @@ struct QuickEntrySheet: View {
     @State private var validationMessage: String?
     @State private var isSaving = false
     @State private var showDiscardConfirmation = false
+    @FocusState private var amountIsFocused: Bool
 
     private var hasInput: Bool {
         !amountText.isEmpty || !projectName.isEmpty || !note.isEmpty
@@ -39,6 +41,21 @@ struct QuickEntrySheet: View {
                         .monospacedDigit()
                         .accessibilityLabel("Amount")
                         .themedInputWell()
+                        .focused($amountIsFocused)
+                        .onChange(of: amountText) { _, value in
+                            let limited = EntryValidator.limitedAmountText(
+                                value,
+                                decimalSeparator: locale.decimalSeparator ?? "."
+                            )
+                            if limited != value { amountText = limited }
+                        }
+                        .onChange(of: amountIsFocused) { _, isFocused in
+                            guard !isFocused else { return }
+                            amountText = EntryValidator.fixedAmountText(
+                                amountText,
+                                decimalSeparator: locale.decimalSeparator ?? "."
+                            )
+                        }
                 }
 
                 Section("Project Name") {
@@ -78,7 +95,7 @@ struct QuickEntrySheet: View {
                         Spacer()
                     }
                 }
-                .themedPrimaryButton(tint: AppTheme.brand)
+                .themedPrimaryButton(tint: AppTheme.brand, colorOnlyInRetro: true)
                 .disabled(isSaving)
             }
             .navigationTitle("Add Entry")
@@ -102,7 +119,10 @@ struct QuickEntrySheet: View {
         validationMessage = nil
         var insertedEntry: LedgerEntry?
         do {
-            let cents = try EntryValidator.amountCents(from: amountText)
+            let cents = try EntryValidator.amountCents(
+                from: amountText,
+                decimalSeparator: locale.decimalSeparator ?? "."
+            )
             let trimmedProject = projectName.trimmingCharacters(in: .whitespacesAndNewlines)
             let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
             try EntryValidator.validate(

@@ -11,6 +11,15 @@ final class EntryValidationTests: XCTestCase {
         XCTAssertThrowsError(try EntryValidator.amountCents(from: "abc"))
     }
 
+    func testAmountInputLimitsFractionAndFormatsTwoDecimalPlaces() {
+        XCTAssertEqual(EntryValidator.limitedAmountText("12.345", decimalSeparator: "."), "12.34")
+        XCTAssertEqual(EntryValidator.limitedAmountText("12,345", decimalSeparator: ","), "12,34")
+        XCTAssertEqual(EntryValidator.limitedAmountText("12.3.4", decimalSeparator: "."), "12.34")
+        XCTAssertEqual(EntryValidator.fixedAmountText("12", decimalSeparator: "."), "12.00")
+        XCTAssertEqual(EntryValidator.fixedAmountText("12.5", decimalSeparator: "."), "12.50")
+        XCTAssertEqual(EntryValidator.fixedAmountText("", decimalSeparator: "."), "")
+    }
+
     func testValidationRequiresPositiveCentsAndNonemptyNormalizedProject() {
         XCTAssertNoThrow(try EntryValidator.validate(amountCents: 1, projectName: " 🧋 ", note: String(repeating: "a", count: 200)))
         XCTAssertThrowsError(try EntryValidator.validate(amountCents: 0, projectName: "Valid", note: nil))

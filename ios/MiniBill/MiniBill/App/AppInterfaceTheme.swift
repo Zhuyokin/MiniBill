@@ -43,7 +43,7 @@ struct RootTabNavigationTitle: View {
     }
 }
 
-private enum SkeuomorphicPalette {
+enum SkeuomorphicPalette {
     static let accent = Color(red: 48 / 255, green: 103 / 255, blue: 143 / 255)
     static let accentActive = Color(red: 33 / 255, green: 76 / 255, blue: 108 / 255)
     static let ink = Color(red: 35 / 255, green: 43 / 255, blue: 49 / 255)
@@ -244,33 +244,17 @@ private struct SkeuomorphicPrimaryButtonStyle: ButtonStyle {
     }
 }
 
-private struct SkeuomorphicSecondaryButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundStyle(SkeuomorphicPalette.ink)
-            .fontWeight(.semibold)
-            .padding(.horizontal, 18)
-            .frame(minHeight: 44)
-            .background(SkeuomorphicPalette.controlStyle, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(SkeuomorphicPalette.hairlineStrong, lineWidth: 1)
-            }
-            .brightness(configuration.isPressed ? -0.06 : 0)
-            .shadow(color: .black.opacity(configuration.isPressed ? 0.08 : 0.20), radius: 1.5, y: configuration.isPressed ? 0 : 1)
-            .scaleEffect(configuration.isPressed ? 0.99 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-    }
-}
-
 private struct ThemedPrimaryButtonModifier: ViewModifier {
     @Environment(\.appInterfaceStyle) private var style
     let tint: Color
+    let colorOnlyInRetro: Bool
 
     @ViewBuilder
     func body(content: Content) -> some View {
         if style == .modern {
             content.buttonStyle(.borderedProminent).tint(tint)
+        } else if colorOnlyInRetro {
+            content.buttonStyle(.borderedProminent).tint(SkeuomorphicPalette.accent)
         } else {
             content.buttonStyle(SkeuomorphicPrimaryButtonStyle())
         }
@@ -286,18 +270,21 @@ private struct ThemedSecondaryButtonModifier: ViewModifier {
         if style == .modern {
             content.buttonStyle(.bordered).tint(tint)
         } else {
-            content.buttonStyle(SkeuomorphicSecondaryButtonStyle())
+            content.buttonStyle(.bordered).tint(SkeuomorphicPalette.accent)
         }
     }
 }
 
 private struct ThemedActionButtonModifier: ViewModifier {
     @Environment(\.appInterfaceStyle) private var style
+    let colorOnlyInRetro: Bool
 
     @ViewBuilder
     func body(content: Content) -> some View {
         if style == .modern {
             content
+        } else if colorOnlyInRetro {
+            content.tint(SkeuomorphicPalette.accent)
         } else {
             content.buttonStyle(SkeuomorphicPrimaryButtonStyle())
         }
@@ -314,14 +301,7 @@ private struct ThemedInputWellModifier: ViewModifier {
         } else {
             content
                 .foregroundStyle(SkeuomorphicPalette.ink)
-                .padding(.horizontal, 12)
-                .frame(minHeight: 44)
-                .background(SkeuomorphicPalette.controlStyle, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(SkeuomorphicPalette.hairlineStrong, lineWidth: 1)
-                }
-                .shadow(color: .black.opacity(0.12), radius: 1, y: 1)
+                .tint(SkeuomorphicPalette.accent)
         }
     }
 }
@@ -337,8 +317,16 @@ struct ThemedFloatingButtonBackground: View {
         } else {
             Circle()
                 .fill(SkeuomorphicPalette.primaryButtonStyle)
-                .overlay { Circle().stroke(Color.white.opacity(0.52), lineWidth: 1).padding(1) }
-                .shadow(color: .black.opacity(0.28), radius: 2, y: 1)
+                .overlay(alignment: .top) {
+                    Ellipse()
+                        .fill(Color.white.opacity(0.32))
+                        .frame(width: 36, height: 16)
+                        .blur(radius: 1)
+                        .padding(.top, 6)
+                }
+                .overlay { Circle().stroke(Color.white.opacity(0.62), lineWidth: 1).padding(2) }
+                .overlay { Circle().stroke(Color.black.opacity(0.42), lineWidth: 1) }
+                .shadow(color: .black.opacity(0.32), radius: 3, y: 2)
         }
     }
 }
@@ -421,8 +409,12 @@ extension View {
     func themedListRowBackground() -> some View { modifier(ThemedListRowModifier()) }
     func themedNavigationChrome() -> some View { modifier(ThemedNavigationChromeModifier()) }
     func themedTabChrome() -> some View { modifier(ThemedTabChromeModifier()) }
-    func themedPrimaryButton(tint: Color = AppTheme.brand) -> some View { modifier(ThemedPrimaryButtonModifier(tint: tint)) }
+    func themedPrimaryButton(tint: Color = AppTheme.brand, colorOnlyInRetro: Bool = false) -> some View {
+        modifier(ThemedPrimaryButtonModifier(tint: tint, colorOnlyInRetro: colorOnlyInRetro))
+    }
     func themedSecondaryButton(tint: Color = AppTheme.brandDark) -> some View { modifier(ThemedSecondaryButtonModifier(tint: tint)) }
-    func themedActionButton() -> some View { modifier(ThemedActionButtonModifier()) }
+    func themedActionButton(colorOnlyInRetro: Bool = false) -> some View {
+        modifier(ThemedActionButtonModifier(colorOnlyInRetro: colorOnlyInRetro))
+    }
     func themedInputWell() -> some View { modifier(ThemedInputWellModifier()) }
 }

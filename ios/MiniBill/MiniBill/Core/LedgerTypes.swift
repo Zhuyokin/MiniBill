@@ -202,6 +202,47 @@ public enum EntryValidator {
         return "\(cents / 100)\(separator)\(fraction)"
     }
 
+    public static func limitedAmountText(
+        _ input: String,
+        decimalSeparator: String = Locale.current.decimalSeparator ?? "."
+    ) -> String {
+        let separator = decimalSeparator.isEmpty ? "." : decimalSeparator
+        var output = ""
+        var hasSeparator = false
+        var fractionalDigits = 0
+
+        for character in input {
+            if character.isNumber {
+                guard !hasSeparator || fractionalDigits < 2 else { continue }
+                output.append(character)
+                if hasSeparator { fractionalDigits += 1 }
+            } else if String(character) == separator || character == "." {
+                guard !hasSeparator else { continue }
+                if output.isEmpty { output = "0" }
+                output.append(separator)
+                hasSeparator = true
+            }
+        }
+        return output
+    }
+
+    public static func fixedAmountText(
+        _ input: String,
+        decimalSeparator: String = Locale.current.decimalSeparator ?? "."
+    ) -> String {
+        let separator = decimalSeparator.isEmpty ? "." : decimalSeparator
+        let limited = limitedAmountText(input, decimalSeparator: separator)
+        guard !limited.isEmpty else { return "" }
+
+        let pieces = limited.components(separatedBy: separator)
+        let rawWhole = pieces.first ?? "0"
+        let trimmedWhole = rawWhole.drop(while: { $0 == "0" })
+        let whole = trimmedWhole.isEmpty ? "0" : String(trimmedWhole)
+        let rawFraction = pieces.count > 1 ? pieces[1] : ""
+        let fraction = rawFraction + String(repeating: "0", count: 2 - rawFraction.count)
+        return "\(whole)\(separator)\(fraction)"
+    }
+
     public static func validate(amountCents: Int64, projectName: String, note: String?) throws {
         guard amountCents > 0 else { throw EntryValidationError.invalidAmount }
         guard amountCents <= maximumAmountCents else { throw EntryValidationError.amountTooLarge }

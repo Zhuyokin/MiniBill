@@ -11,6 +11,7 @@ private func accountDisplayName(_ account: LedgerAccount, language: AppLanguage)
 
 struct AccountSwitcher: View {
     @Environment(\.appLanguage) private var language
+    @Environment(\.appInterfaceStyle) private var interfaceStyle
     @Query(sort: \LedgerAccount.createdAt) private var accounts: [LedgerAccount]
     @Binding var selectedAccountID: UUID
 
@@ -35,10 +36,29 @@ struct AccountSwitcher: View {
                 }
             }
         } label: {
-            Image(systemName: "person.2.circle.fill")
-                .font(.body.weight(.semibold))
-                .frame(width: 32, height: 32)
-                .contentShape(Rectangle())
+            if interfaceStyle == .modern {
+                Image(systemName: "person.2.circle.fill")
+                    .font(.body.weight(.semibold))
+                    .frame(width: 32, height: 32)
+                    .contentShape(Rectangle())
+            } else {
+                Image(systemName: "person.2.circle.fill")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 32)
+                    .background(SkeuomorphicPalette.primaryButtonStyle, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .stroke(Color.white.opacity(0.58), lineWidth: 1)
+                            .padding(1)
+                    }
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .stroke(Color.black.opacity(0.40), lineWidth: 1)
+                    }
+                    .shadow(color: .black.opacity(0.28), radius: 1.5, y: 1)
+                    .contentShape(Rectangle())
+            }
         }
         .accessibilityLabel(
             "\(AppLocalization.string("Switch Account", language: language)): \(selectedName)"
