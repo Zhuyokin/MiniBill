@@ -10,5 +10,6 @@ final class AppInterfaceStyleTests: XCTestCase {
     func testMissingOrUnknownStoredValueFallsBackToModern() {
         XCTAssertEqual(AppInterfaceStyle(storedValue: nil), .modern)
         XCTAssertEqual(AppInterfaceStyle(storedValue: "future-style"), .modern)
+        XCTAssertEqual(AppInterfaceStyle(storedValue: "expo"), .modern)
     }
 }

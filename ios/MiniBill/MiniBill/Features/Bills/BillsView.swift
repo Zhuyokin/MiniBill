@@ -52,10 +52,12 @@ struct BillsView: View {
                                     editingEntry = entry
                                 } label: {
                                     LedgerRow(entry: entry)
+                                        .themedPanel(cornerRadius: 10)
                                 }
                                 .buttonStyle(.plain)
-                                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                                .themedListRowBackground()
+                                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) { pendingDelete = entry } label: {
                                         Label("Delete", systemImage: "trash")
