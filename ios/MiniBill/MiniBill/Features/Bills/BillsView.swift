@@ -3,6 +3,7 @@ import SwiftData
 
 struct BillsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.appLanguage) private var language
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
     @Binding var showQuickEntry: Bool
     @Binding var selectedAccountID: UUID
@@ -54,7 +55,7 @@ struct BillsView: View {
                                 }
                                 .buttonStyle(.plain)
                                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                                .listRowBackground(AppTheme.surface)
+                                .themedListRowBackground()
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) { pendingDelete = entry } label: {
                                         Label("Delete", systemImage: "trash")
@@ -62,7 +63,11 @@ struct BillsView: View {
                                 }
                             }
                         } header: {
-                            Text(Calendar.current.isDateInToday(day) ? AppLocalization.string("Today") : AppFormat.shortDate(day))
+                            Text(
+                                Calendar.current.isDateInToday(day)
+                                    ? AppLocalization.string("Today", language: language)
+                                    : AppFormat.shortDate(day, locale: language.locale)
+                            )
                                 .font(.headline)
                         }
                     }
@@ -80,14 +85,13 @@ struct BillsView: View {
                     .font(.title2.bold())
                     .foregroundStyle(.white)
                     .frame(width: 56, height: 56)
-                    .background(AppTheme.brand, in: Circle())
-                    .shadow(color: .black.opacity(0.16), radius: 10, y: 5)
+                    .background { ThemedFloatingButtonBackground() }
             }
             .accessibilityLabel("Add Entry")
             .padding(20)
         }
-        .background(AppTheme.background)
-        .navigationTitle("MiniBill")
+        .themedScreen()
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showQuickEntry) {
             QuickEntrySheet(accountID: selectedAccountID, candidates: ProjectSuggestionService.candidates(from: records))
                 .presentationDetents([.medium, .large], selection: $quickEntryDetent)
@@ -102,6 +106,9 @@ struct BillsView: View {
             if isPresented { quickEntryDetent = .medium }
         }
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                RootTabNavigationTitle("MiniBill")
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 AccountSwitcher(selectedAccountID: $selectedAccountID)
             }

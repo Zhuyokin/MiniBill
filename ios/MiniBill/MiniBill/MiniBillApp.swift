@@ -47,10 +47,15 @@ private struct LaunchHostView: View {
     @ObservedObject var router: NotificationRouter
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.simplifiedChinese.rawValue
+    @AppStorage(AppInterfaceStyle.storageKey) private var interfaceStyleValue = AppInterfaceStyle.modern.rawValue
     @State private var isShowingSplash = true
 
     private var language: AppLanguage {
         AppLanguage(storedCode: languageCode)
+    }
+
+    private var interfaceStyle: AppInterfaceStyle {
+        AppInterfaceStyle(storedValue: interfaceStyleValue)
     }
 
     var body: some View {
@@ -94,6 +99,8 @@ private struct LaunchHostView: View {
         }
         .environment(\.locale, language.locale)
         .environment(\.appLanguage, language)
+        .environment(\.appInterfaceStyle, interfaceStyle)
+        .preferredColorScheme(interfaceStyle == .skeuomorphic ? .light : nil)
     }
 }
 

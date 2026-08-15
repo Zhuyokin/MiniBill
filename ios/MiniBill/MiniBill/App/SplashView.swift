@@ -23,7 +23,7 @@ struct SplashView: View {
         }
         .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(uiColor: .systemBackground))
+        .themedSplash()
         .accessibilityElement(children: .combine)
     }
 }

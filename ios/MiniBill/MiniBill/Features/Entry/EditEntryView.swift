@@ -35,13 +35,16 @@ struct EditEntryView: View {
                 TextField("0.00", text: $draft.amountText)
                     .keyboardType(.decimalPad)
                     .font(.title2.bold())
+                    .themedInputWell()
             }
             Section("Project Name") {
                 TextField("What was this for?", text: $draft.projectName)
+                    .themedInputWell()
             }
             Section("Note and Date") {
                 TextField("Optional note", text: $draft.note, axis: .vertical)
                     .lineLimit(2...4)
+                    .themedInputWell()
                 DatePicker("Date", selection: $draft.occurredAt)
             }
             if let errorMessage {
@@ -65,6 +68,7 @@ struct EditEntryView: View {
             }
         }
         .navigationTitle("Entry Details")
+        .themedForm()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {

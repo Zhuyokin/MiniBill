@@ -1,23 +1,24 @@
 import SwiftUI
 import SwiftData
 
-private func accountDisplayName(_ account: LedgerAccount) -> String {
+private func accountDisplayName(_ account: LedgerAccount, language: AppLanguage) -> String {
     if account.id == LedgerAccountDefaults.id,
        account.name == LedgerAccountDefaults.name {
-        return AppLocalization.string("Default Account")
+        return AppLocalization.string("Default Account", language: language)
     }
     return account.name
 }
 
 struct AccountSwitcher: View {
+    @Environment(\.appLanguage) private var language
     @Query(sort: \LedgerAccount.createdAt) private var accounts: [LedgerAccount]
     @Binding var selectedAccountID: UUID
 
     private var selectedName: String {
         if let account = accounts.first(where: { $0.id == selectedAccountID }) ?? accounts.first {
-            return accountDisplayName(account)
+            return accountDisplayName(account, language: language)
         }
-        return AppLocalization.string("Default Account")
+        return AppLocalization.string("Default Account", language: language)
     }
 
     var body: some View {
@@ -27,17 +28,21 @@ struct AccountSwitcher: View {
                     selectedAccountID = account.id
                 } label: {
                     if account.id == selectedAccountID {
-                        Label(accountDisplayName(account), systemImage: "checkmark")
+                        Label(accountDisplayName(account, language: language), systemImage: "checkmark")
                     } else {
-                        Text(accountDisplayName(account))
+                        Text(accountDisplayName(account, language: language))
                     }
                 }
             }
         } label: {
-            Label(selectedName, systemImage: "creditcard")
-                .lineLimit(1)
+            Image(systemName: "person.2.circle.fill")
+                .font(.body.weight(.semibold))
+                .frame(width: 32, height: 32)
+                .contentShape(Rectangle())
         }
-        .accessibilityLabel("Switch Account")
+        .accessibilityLabel(
+            "\(AppLocalization.string("Switch Account", language: language)): \(selectedName)"
+        )
         .onAppear(perform: repairSelection)
         .onChange(of: accounts.map(\.id)) { _, _ in repairSelection() }
     }
@@ -49,8 +54,106 @@ struct AccountSwitcher: View {
     }
 }
 
+struct AccountSettingsLink: View {
+    @Environment(\.appLanguage) private var language
+    @Query(sort: \LedgerAccount.createdAt) private var accounts: [LedgerAccount]
+    @Binding var selectedAccountID: UUID
+    let entryCount: Int
+    @State private var isShowingManager = false
+
+    private var selectedName: String {
+        if let account = accounts.first(where: { $0.id == selectedAccountID }) ?? accounts.first {
+            return accountDisplayName(account, language: language)
+        }
+        return AppLocalization.string("Default Account", language: language)
+    }
+
+    var body: some View {
+        Button {
+            isShowingManager = true
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "wallet.pass.fill")
+                    .foregroundStyle(AppTheme.ink)
+                    .frame(width: 24)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(selectedName)
+                        .font(.body)
+                        .foregroundStyle(AppTheme.ink)
+                        .lineLimit(1)
+                    Text("\(entryCount) entries")
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.muted)
+                }
+                Spacer()
+                Image(systemName: "gearshape")
+                    .foregroundStyle(AppTheme.muted)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Manage Accounts")
+        .navigationDestination(isPresented: $isShowingManager) {
+            AccountManagerView(selectedAccountID: $selectedAccountID)
+        }
+        .onAppear(perform: repairSelection)
+        .onChange(of: accounts.map(\.id)) { _, _ in repairSelection() }
+    }
+
+    private func repairSelection() {
+        guard let first = accounts.first,
+              !accounts.contains(where: { $0.id == selectedAccountID }) else { return }
+        selectedAccountID = first.id
+    }
+}
+
+private struct AccountManagerRow: View {
+    let name: String
+    let entryCount: Int
+    let isSelected: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "wallet.pass.fill")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(isSelected ? AppTheme.brandDark : AppTheme.muted)
+                .frame(width: 40, height: 40)
+                .background(
+                    isSelected ? AppTheme.brandSoft : AppTheme.background,
+                    in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+                )
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(name)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(AppTheme.ink)
+                    .lineLimit(1)
+                Text("\(entryCount) entries")
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.muted)
+            }
+
+            Spacer(minLength: 8)
+
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                .font(.title3)
+                .foregroundStyle(isSelected ? AppTheme.brand : AppTheme.muted.opacity(0.45))
+        }
+        .padding(12)
+        .contentShape(Rectangle())
+        .themedPanel(cornerRadius: 12)
+        .overlay {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(isSelected ? AppTheme.brand.opacity(0.55) : Color.clear, lineWidth: 1.25)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
 struct AccountManagerView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.appLanguage) private var language
     @Query(sort: \LedgerAccount.createdAt) private var accounts: [LedgerAccount]
     @Query private var entries: [LedgerEntry]
     @Binding var selectedAccountID: UUID
@@ -68,18 +171,16 @@ struct AccountManagerView: View {
                     Button {
                         selectedAccountID = account.id
                     } label: {
-                        HStack {
-                            Label(accountDisplayName(account), systemImage: "creditcard")
-                                .foregroundStyle(AppTheme.ink)
-                            Spacer()
-                            Text("\(entryCount(for: account.id))")
-                                .foregroundStyle(AppTheme.muted)
-                            if account.id == selectedAccountID {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(AppTheme.brand)
-                            }
-                        }
+                        AccountManagerRow(
+                            name: accountDisplayName(account, language: language),
+                            entryCount: entryCount(for: account.id),
+                            isSelected: account.id == selectedAccountID
+                        )
                     }
+                    .buttonStyle(.plain)
+                    .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
                             pendingDelete = account
@@ -104,6 +205,7 @@ struct AccountManagerView: View {
             }
         }
         .navigationTitle("Accounts")
+        .themedForm()
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -133,7 +235,7 @@ struct AccountManagerView: View {
             Button("Delete Account and Its Entries", role: .destructive, action: deletePendingAccount)
         } message: {
             if let account = pendingDelete {
-                Text("This permanently deletes \(entryCount(for: account.id)) entries in \(accountDisplayName(account)).")
+                Text("This permanently deletes \(entryCount(for: account.id)) entries in \(accountDisplayName(account, language: language)).")
             }
         }
         .alert("Could not update accounts", isPresented: Binding(

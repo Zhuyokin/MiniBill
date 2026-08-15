@@ -38,18 +38,19 @@ struct QuickEntrySheet: View {
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .monospacedDigit()
                         .accessibilityLabel("Amount")
+                        .themedInputWell()
                 }
 
                 Section("Project Name") {
                     TextField("What was this for?", text: $projectName)
                         .textInputAutocapitalization(.sentences)
+                        .themedInputWell()
                     if !candidates.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
                                 ForEach(candidates, id: \.self) { candidate in
                                     Button(candidate) { projectName = candidate }
-                                        .buttonStyle(.bordered)
-                                        .tint(AppTheme.brandDark)
+                                        .themedSecondaryButton(tint: AppTheme.brandDark)
                                 }
                             }
                         }
@@ -59,6 +60,7 @@ struct QuickEntrySheet: View {
                 DisclosureGroup("Note and Date", isExpanded: $showOptional) {
                     TextField("Optional note", text: $note, axis: .vertical)
                         .lineLimit(2...4)
+                        .themedInputWell()
                     DatePicker("Date", selection: $occurredAt)
                 }
 
@@ -76,8 +78,7 @@ struct QuickEntrySheet: View {
                         Spacer()
                     }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(AppTheme.brand)
+                .themedPrimaryButton(tint: AppTheme.brand)
                 .disabled(isSaving)
             }
             .navigationTitle("Add Entry")
@@ -93,6 +94,7 @@ struct QuickEntrySheet: View {
             .confirmationDialog("Discard this entry?", isPresented: $showDiscardConfirmation) {
                 Button("Discard", role: .destructive) { dismiss() }
             }
+            .themedForm()
         }
     }
 

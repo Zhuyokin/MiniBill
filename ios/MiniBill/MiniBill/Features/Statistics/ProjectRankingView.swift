@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProjectRankingView: View {
+    @Environment(\.appLanguage) private var language
     let title: LocalizedStringKey
     let totals: [ProjectTotal]
     let tint: Color
@@ -34,7 +35,7 @@ struct ProjectRankingView: View {
                             HStack {
                                 Text("\(index + 1). \(item.displayName)").lineLimit(1)
                                 Spacer()
-                                Text(AppFormat.money(item.totalCents)).monospacedDigit()
+                                Text(AppFormat.money(item.totalCents, locale: language.locale)).monospacedDigit()
                                 Image(systemName: "chevron.forward")
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(AppTheme.muted)
@@ -55,6 +56,6 @@ struct ProjectRankingView: View {
             }
         }
         .padding(16)
-        .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 8))
+        .themedPanel(cornerRadius: 8)
     }
 }

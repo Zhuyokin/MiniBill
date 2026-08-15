@@ -32,22 +32,25 @@ struct AppRootView: View {
                     }
                 )
             }
+            .themedNavigationChrome()
             .tabItem { Label("Home", systemImage: "list.bullet.clipboard") }
             .tag(RootTab.bills)
 
             NavigationStack {
                 StatisticsView(selectedMonth: $selectedStatisticsMonth, selectedAccountID: selectedAccountID)
             }
+            .themedNavigationChrome()
             .tabItem { Label("Statistics", systemImage: "chart.bar.xaxis") }
             .tag(RootTab.statistics)
 
             NavigationStack {
                 SettingsView(selectedAccountID: selectedAccountID)
             }
-            .tabItem { Label("Me", systemImage: "gearshape") }
+            .themedNavigationChrome()
+            .tabItem { Label("Settings", systemImage: "gearshape") }
             .tag(RootTab.settings)
         }
-        .tint(AppTheme.brand)
+        .themedTabChrome()
         .onAppear(perform: consumeRoute)
         .onChange(of: router.route) { _, _ in consumeRoute() }
     }

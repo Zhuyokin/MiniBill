@@ -5,10 +5,10 @@ enum StatisticsDrilldown {
     case day(Date)
     case project(month: Date, kind: LedgerKind, normalizedKey: String, displayName: String)
 
-    var title: String {
+    func title(locale: Locale) -> String {
         switch self {
         case .day(let date):
-            return AppFormat.shortDate(date)
+            return AppFormat.shortDate(date, locale: locale)
         case .project(_, _, _, let displayName):
             return displayName
         }
@@ -31,6 +31,7 @@ enum StatisticsDrilldown {
 }
 
 struct FilteredEntriesView: View {
+    @Environment(\.appLanguage) private var language
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
     @State private var editingEntry: LedgerEntry?
     @State private var editEntryDetent: PresentationDetent = .medium
@@ -70,7 +71,7 @@ struct FilteredEntriesView: View {
                         }
                         .buttonStyle(.plain)
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                        .listRowBackground(AppTheme.surface)
+                        .themedListRowBackground()
                     }
                 } header: {
                     Text("\(filteredEntries.count) entries")
@@ -79,8 +80,8 @@ struct FilteredEntriesView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(AppTheme.background)
-        .navigationTitle(selection.title)
+        .themedScreen()
+        .navigationTitle(selection.title(locale: language.locale))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editingEntry) { entry in
             NavigationStack { EditEntryView(entry: entry) }

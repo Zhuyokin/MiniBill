@@ -6,6 +6,7 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     case english = "en"
     case japanese = "ja"
     case korean = "ko"
+    case german = "de"
 
     public static let storageKey = "app.language"
 
@@ -26,6 +27,7 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
         case .english: "English"
         case .japanese: "日本語"
         case .korean: "한국어"
+        case .german: "Deutsch"
         }
     }
 

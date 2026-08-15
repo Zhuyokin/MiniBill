@@ -3,6 +3,49 @@ import SwiftData
 import UserNotifications
 import UIKit
 
+private enum SettingsHelpTopic: String, Identifiable {
+    case accounts
+    case reminders
+    case backup
+
+    var id: String { rawValue }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .accounts: "Accounts"
+        case .reminders: "Reminders"
+        case .backup: "Backup"
+        }
+    }
+
+    var message: LocalizedStringKey {
+        switch self {
+        case .accounts: "Entries and statistics are isolated by account."
+        case .reminders: "MiniBill schedules reminders on this device. Delivery can be affected by system notification settings, Focus, or power state."
+        case .backup: "Backups are not encrypted. Save them only in a location you trust."
+        }
+    }
+}
+
+private struct SettingsSectionHeader: View {
+    let title: LocalizedStringKey
+    let helpAccessibilityLabel: LocalizedStringKey
+    let showHelp: () -> Void
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Text(title)
+            Button(action: showHelp) {
+                Image(systemName: "questionmark.circle")
+                    .font(.caption)
+                    .imageScale(.small)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(helpAccessibilityLabel)
+        }
+    }
+}
+
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
@@ -17,6 +60,7 @@ struct SettingsView: View {
     @AppStorage(ReminderPreferenceKey.monthEndHour) private var monthEndHour = 21
     @AppStorage(ReminderPreferenceKey.monthEndMinute) private var monthEndMinute = 0
     @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.simplifiedChinese.rawValue
+    @AppStorage(AppInterfaceStyle.storageKey) private var interfaceStyleValue = AppInterfaceStyle.modern.rawValue
 
     @State private var authorizationStatus: UNAuthorizationStatus = .notDetermined
     @State private var exportedDocument: BackupDocument?
@@ -26,6 +70,7 @@ struct SettingsView: View {
     @State private var errorMessage: String?
     @State private var reminderErrorMessage: String?
     @State private var copiedEmailMessage: String?
+    @State private var helpTopic: SettingsHelpTopic?
 
     private let supportEmail = "yokinzhu@gmail.com"
     private let appStoreReviewURL = URL(string: "itms-apps://apps.apple.com/app/id6761642667?action=write-review")
@@ -40,27 +85,34 @@ struct SettingsView: View {
         entries.lazy.filter { $0.resolvedAccountID == selectedAccountID }.count
     }
 
+    private var selectedInterfaceStyle: AppInterfaceStyle {
+        AppInterfaceStyle(storedValue: interfaceStyleValue)
+    }
+
     var body: some View {
         Form {
             Section {
-                LabeledContent {
-                    Text("\(selectedEntryCount)")
-                } label: {
-                    Label("Local Entries", systemImage: "tray.full")
-                }
+                AccountSettingsLink(
+                    selectedAccountID: $selectedAccountID,
+                    entryCount: selectedEntryCount
+                )
+            } header: {
+                SettingsSectionHeader(title: "Accounts", helpAccessibilityLabel: "Account Help") { helpTopic = .accounts }
             }
 
             Section {
-                AccountSwitcher(selectedAccountID: $selectedAccountID)
-                NavigationLink {
-                    AccountManagerView(selectedAccountID: $selectedAccountID)
-                } label: {
-                    Label("Manage Accounts", systemImage: "creditcard")
+                VStack(spacing: 8) {
+                    ForEach(AppInterfaceStyle.allCases, id: \.self) { style in
+                        InterfaceStyleOption(
+                            style: style,
+                            isSelected: selectedInterfaceStyle == style,
+                            action: { interfaceStyleValue = style.rawValue }
+                        )
+                    }
                 }
+                .padding(.vertical, 4)
             } header: {
-                Text("Accounts")
-            } footer: {
-                Text("Entries and statistics are isolated by account.")
+                Text("Appearance")
             }
 
             Section {
@@ -95,18 +147,14 @@ struct SettingsView: View {
                     }
                 }
             } header: {
-                Text("Reminders")
-            } footer: {
-                Text("MiniBill schedules reminders on this device. Delivery can be affected by system notification settings, Focus, or power state.")
+                SettingsSectionHeader(title: "Reminders", helpAccessibilityLabel: "Reminder Help") { helpTopic = .reminders }
             }
 
             Section {
                 Button { prepareExport() } label: { Label("Export Backup", systemImage: "arrow.up.doc") }
                 Button { showImporter = true } label: { Label("Restore from Backup", systemImage: "arrow.down.doc") }
             } header: {
-                Text("Backup")
-            } footer: {
-                Text("Backups are not encrypted. Save them only in a location you trust.")
+                SettingsSectionHeader(title: "Backup", helpAccessibilityLabel: "Backup Help") { helpTopic = .backup }
             }
 
             Section("App") {
@@ -150,7 +198,13 @@ struct SettingsView: View {
                 Section { Text(errorMessage).foregroundStyle(.red) }
             }
         }
-        .navigationTitle("Me")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                RootTabNavigationTitle("Settings")
+            }
+        }
+        .themedForm()
         .task { await refreshReminderSchedulingState() }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
@@ -169,6 +223,13 @@ struct SettingsView: View {
             Button("OK", role: .cancel) { copiedEmailMessage = nil }
         } message: {
             Text(copiedEmailMessage ?? "")
+        }
+        .alert(item: $helpTopic) { topic in
+            Alert(
+                title: Text(topic.title),
+                message: Text(topic.message),
+                dismissButton: .default(Text("OK"))
+            )
         }
         .fileExporter(
             isPresented: $showExporter,
@@ -356,6 +417,10 @@ struct SettingsView: View {
 private struct LanguageSelectionView: View {
     @Binding var languageCode: String
 
+    private var selectedLanguage: AppLanguage {
+        AppLanguage(storedCode: languageCode)
+    }
+
     var body: some View {
         List(AppLanguage.allCases) { language in
             Button {
@@ -375,7 +440,8 @@ private struct LanguageSelectionView: View {
             .buttonStyle(.plain)
             .accessibilityAddTraits(language.rawValue == languageCode ? .isSelected : [])
         }
-        .navigationTitle("Language")
+        .navigationTitle(AppLocalization.string("Language", language: selectedLanguage))
+        .themedForm()
     }
 }
 
@@ -394,44 +460,37 @@ private struct AboutView: View {
             .padding(.vertical, 24)
 
             Section {
-                AboutParagraph("MiniBill 是深耕小微经营者的本地离线收支流水记录工具，完美适配 iPhone 与 iPad。")
-                AboutParagraph("专为摆摊、零工、副业、小微商户打造极简记账体验，无需复杂分类、不用维护账户库存，打开即可快速记收支，离线也能高效完成流水记录、账目复盘与收益统计。")
-                AboutParagraph("支持项目化流水汇总、每日账单查看、本月收益趋势分析，搭配本地备份、收支截图分享、定时记账提醒功能，是小微从业者日常对账、收益核算、月末结账的刚需记账工具。")
-            } header: {
-                Text(verbatim: "App 简介")
+                AboutParagraph("Simple offline bills, effortless bookkeeping for small business")
+                AboutParagraph("Offline bookkeeping for small businesses and side work.")
             }
 
-            Section {
-                ForEach(Self.coreFeatures) { feature in
-                    AboutFeatureBlock(feature: feature)
-                }
-            } header: {
-                Text(verbatim: "【核心功能】")
+            Section("Bills") {
+                AboutFeatureBlock(
+                    title: "Add Entry",
+                    detail: "Tap Add Entry to record income or expense."
+                )
             }
 
-            Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Self.targetUsers, id: \.self) { user in
-                        AboutBullet(user)
-                    }
-                }
-                .padding(.vertical, 2)
-            } header: {
-                Text(verbatim: "【适合这些用户】")
-            } footer: {
-                Text(verbatim: "专为小微日常收支场景打造，零学习门槛，离线轻量化记账，一站式解决小生意、副业、零工的账目记录与收益统计需求。")
+            Section("Statistics") {
+                AboutFeatureBlock(
+                    title: "Income and Expense by Type",
+                    detail: "Monthly Income and Expense"
+                )
             }
 
-            Section {
-                AboutParagraph("全程无需注册登录、无需联网、不收集任何用户信息，所有记账数据本地存储、用户自主掌控，无广告、无内购、无数据上传分析，极致纯净、安全私密。")
-            } header: {
-                Text(verbatim: "【隐私与纯净说明】")
+            Section("Backup") {
+                AboutFeatureBlock(
+                    title: "Backup Entries",
+                    detail: "Restore replaces the entire local ledger. It does not merge entries."
+                )
             }
 
-            Section {
-                AboutParagraph("由衷感谢每一位用户对独立开发者的支持！")
-            } header: {
-                Text(verbatim: "【感谢支持】")
+            Section("Reminders") {
+                AboutParagraph("MiniBill schedules reminders on this device. Delivery can be affected by system notification settings, Focus, or power state.")
+            }
+
+            Section("Privacy") {
+                AboutParagraph("MiniBill stores ledger entries only on this device. It has no account, analytics, advertising, cloud sync, or network dependency.")
             }
 
             Section("App") {
@@ -439,68 +498,19 @@ private struct AboutView: View {
             }
         }
         .navigationTitle("About MiniBill")
+        .themedForm()
     }
-
-    private static let coreFeatures = [
-        AboutCopyBlock(
-            title: "极简极速记账",
-            body: "摒弃繁琐分类、账户、客户、库存维护流程，仅需输入金额、填写/选择项目名称即可保存收支记录，冰粉、摊位费、跑腿收入、副业佣金等各类小微收支都能快速记录，零基础上手无门槛。"
-        ),
-        AboutCopyBlock(
-            title: "项目化收益智能汇总",
-            body: "自动按项目名称统计本月总收入、总支出与净收益，生成项目收支排行，清晰区分盈利项目与支出项目，精准掌握每一笔资金流向与核心收益来源。"
-        ),
-        AboutCopyBlock(
-            title: "明细与趋势可视化复盘",
-            body: "支持按日查看全部收支流水，完整留存每笔账单记录；直观展示本月收支趋势，清晰掌握月度经营资金波动，方便月末对账、经营复盘。"
-        ),
-        AboutCopyBlock(
-            title: "灵活账单编辑与分享",
-            body: "可随时修改、删除错误记账记录，保障账目精准；支持单笔流水、本月整体收益一键生成图片，预览确认后通过系统直接分享，分享图纯净无备注，保护账目隐私。"
-        ),
-        AboutCopyBlock(
-            title: "本地安全备份恢复",
-            body: "所有账单数据仅保存在本机设备，无云端上传、无数据泄露风险。支持导出专属.minibill备份文件，恢复账目前自动校验数据并预览内容，确认后一键完整替换本机流水，账目留存安全可控。"
-        ),
-        AboutCopyBlock(
-            title: "智能定时记账提醒",
-            body: "可选本地每日记账提醒、月末结账提醒，由iOS本地专属排程运行，无后台驻留耗电，仅首次开启时申请通知权限，贴心杜绝漏记、忘记账单问题。"
-        ),
-        AboutCopyBlock(
-            title: "多语言&本地化适配",
-            body: "原生支持简体中文、繁体中文、英语、日语、韩语五国语言，自动适配设备地区，精准匹配对应日期、时间、数字格式与人民币金额展示，适配不同用户使用习惯。"
-        ),
-        AboutCopyBlock(
-            title: "极致纯净无干扰体验",
-            body: "无账号注册、无网络依赖、无云端同步功能，全程零广告、无弹窗、无推送骚扰，应用轻量简洁，专注核心记账功能，无多余冗余功能干扰。"
-        )
-    ]
-
-    private static let targetUsers = [
-        "夜市、地摊、摆摊创业者",
-        "跑腿、兼职、自由职业零工从业者",
-        "各类副业、小众小微经营者",
-        "个体散户、小成本创业者",
-        "需要极简离线记账、快速复盘收支的用户"
-    ]
-}
-
-private struct AboutCopyBlock: Identifiable {
-    let title: String
-    let body: String
-
-    var id: String { title }
 }
 
 private struct AboutParagraph: View {
-    let text: String
+    let text: LocalizedStringKey
 
-    init(_ text: String) {
+    init(_ text: LocalizedStringKey) {
         self.text = text
     }
 
     var body: some View {
-        Text(verbatim: text)
+        Text(text)
             .font(.body)
             .foregroundStyle(AppTheme.ink)
             .lineSpacing(3)
@@ -509,38 +519,20 @@ private struct AboutParagraph: View {
 }
 
 private struct AboutFeatureBlock: View {
-    let feature: AboutCopyBlock
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(verbatim: feature.title)
+            Text(title)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(AppTheme.ink)
-            Text(verbatim: feature.body)
+            Text(detail)
                 .font(.body)
                 .foregroundStyle(AppTheme.ink)
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.vertical, 4)
-    }
-}
-
-private struct AboutBullet: View {
-    let text: String
-
-    init(_ text: String) {
-        self.text = text
-    }
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text(verbatim: "-")
-                .foregroundStyle(AppTheme.muted)
-            Text(verbatim: text)
-                .foregroundStyle(AppTheme.ink)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .font(.body)
     }
 }

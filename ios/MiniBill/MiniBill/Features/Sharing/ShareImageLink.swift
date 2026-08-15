@@ -23,6 +23,7 @@ struct ShareImageLink: View {
                     }
                 }
         }
+        .themedActionButton()
         .disabled(isRendering)
         .sheet(item: $preparedShare) { share in
             ActivityShareSheet(activityItems: [share.image])

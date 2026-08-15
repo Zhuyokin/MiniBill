@@ -2,10 +2,24 @@
   "sourceLanguage" : "en",
   "strings" : {
     "· %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "· %@"
+          }
+        }
+      }
     },
     "%@, %@, %@, %@" : {
+      "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %@, %@, %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -14,8 +28,24 @@
         }
       }
     },
+    "%@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
     "%@%@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@%@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -25,10 +55,23 @@
       }
     },
     "%lld" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
     },
     "%lld entries" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Einträge"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -57,6 +100,12 @@
     },
     "%lld. %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld. %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -66,10 +115,23 @@
       }
     },
     "0.00" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0,00"
+          }
+        }
+      }
     },
     "About MiniBill" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über MiniBill"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -96,8 +158,48 @@
         }
       }
     },
+    "Account Help" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontohilfe"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントのヘルプ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 도움말"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账户说明"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "帳戶說明"
+          }
+        }
+      }
+    },
     "Account Name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontoname"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -126,6 +228,12 @@
     },
     "Accounts" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konten"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -154,6 +262,12 @@
     },
     "Add Account" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto hinzufügen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -182,6 +296,12 @@
     },
     "Add Entry" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eintrag hinzufügen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -210,6 +330,12 @@
     },
     "Amount" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrag"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -239,6 +365,12 @@
     "Amount cannot exceed ¥99,999,999.99." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Betrag darf ¥99.999.999,99 nicht überschreiten."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -267,6 +399,12 @@
     },
     "App" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -293,8 +431,48 @@
         }
       }
     },
+    "Appearance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Darstellung"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外観"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "화면 스타일"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外观"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外觀"
+          }
+        }
+      }
+    },
     "Backup" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherung"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -323,6 +501,12 @@
     },
     "Backup Entries" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einträge sichern"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -349,8 +533,48 @@
         }
       }
     },
+    "Backup Help" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherungshilfe"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックアップのヘルプ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업 도움말"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份说明"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "備份說明"
+          }
+        }
+      }
+    },
     "Backups are not encrypted. Save them only in a location you trust." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherungen sind nicht verschlüsselt. Speichere sie nur an einem vertrauenswürdigen Ort."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -378,8 +602,13 @@
       }
     },
     "Bills" : {
-      "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchungen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -408,6 +637,12 @@
     },
     "Cancel" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -436,6 +671,12 @@
     },
     "Chart View" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagrammansicht"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -462,9 +703,49 @@
         }
       }
     },
+    "Teal-toned minimalist texture" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimalistische Textur in Grüntönen"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青みを帯びたミニマルな質感"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "청록 톤의 미니멀한 질감"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青调极简质感"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青調極簡質感"
+          }
+        }
+      }
+    },
     "Close" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -493,6 +774,12 @@
     },
     "Contact Email" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontakt-E-Mail"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -521,6 +808,12 @@
     },
     "Could not delete entry" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eintrag konnte nicht gelöscht werden"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -550,6 +843,12 @@
     "Could not prepare this entry for sharing." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Eintrag konnte nicht zum Teilen vorbereitet werden."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -579,6 +878,12 @@
     "Could not save. Your changes are still here; try again." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern fehlgeschlagen. Deine Änderungen sind noch vorhanden; versuche es erneut."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -608,6 +913,12 @@
     "Could not save. Your input is still here; try again." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern fehlgeschlagen. Deine Eingabe ist noch vorhanden; versuche es erneut."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -637,6 +948,12 @@
     "Could not schedule the reminder. Your preference was saved; try again." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Erinnerung konnte nicht geplant werden. Deine Einstellung wurde gespeichert; versuche es erneut."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -664,10 +981,47 @@
       }
     },
     "Could not update accounts" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konten konnten nicht aktualisiert werden"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントを更新できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정을 업데이트할 수 없습니다"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法更新账户"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法更新帳戶"
+          }
+        }
+      }
     },
     "Current Entries" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuelle Einträge"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -696,6 +1050,12 @@
     },
     "Current Ledger" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuelles Kassenbuch"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -725,6 +1085,12 @@
     "Daily bookkeeping reminder" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tägliche Buchhaltungserinnerung"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -753,6 +1119,12 @@
     },
     "Daily Net" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tagessaldo"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -781,6 +1153,12 @@
     },
     "Daily Reminder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tägliche Erinnerung"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -809,6 +1187,12 @@
     },
     "Daily Time" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tägliche Uhrzeit"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -837,6 +1221,12 @@
     },
     "Date" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -865,6 +1255,12 @@
     },
     "Date Range" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitraum"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -894,6 +1290,12 @@
     "Default Account" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standardkonto"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -922,6 +1324,12 @@
     },
     "Delete" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -950,6 +1358,12 @@
     },
     "Delete Account and Its Entries" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto und Einträge löschen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -978,6 +1392,12 @@
     },
     "Delete Entry" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eintrag löschen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1007,6 +1427,12 @@
     "Delete failed. The entry was not changed." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen fehlgeschlagen. Der Eintrag wurde nicht geändert."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1034,10 +1460,47 @@
       }
     },
     "Delete this account?" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Konto löschen?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このアカウントを削除しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 계정을 삭제할까요?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除此账户？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除此帳戶？"
+          }
+        }
+      }
     },
     "Delete this entry?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diesen Eintrag löschen?"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1066,6 +1529,12 @@
     },
     "Deleting it also updates statistics." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Löschen werden auch die Statistiken aktualisiert."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1095,6 +1564,12 @@
     "Deleting MiniBill removes its local ledger and scheduled notifications from this device." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Löschen von MiniBill werden das lokale Kassenbuch und geplante Mitteilungen von diesem Gerät entfernt."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1123,6 +1598,12 @@
     },
     "Discard" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwerfen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1151,6 +1632,12 @@
     },
     "Discard this entry?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diesen Eintrag verwerfen?"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1179,6 +1666,12 @@
     },
     "Discard your changes?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungen verwerfen?"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1206,10 +1699,47 @@
       }
     },
     "Each account has independent entries and statistics. Backups include every account." : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedes Konto hat eigene Einträge und Statistiken. Sicherungen enthalten alle Konten."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各アカウントの記録と統計は独立しています。バックアップにはすべてのアカウントが含まれます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "각 계정의 내역과 통계는 서로 분리됩니다. 백업에는 모든 계정이 포함됩니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个账户的账单和统计数据相互独立。备份包含所有账户。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每個帳戶的帳單與統計資料相互獨立。備份包含所有帳戶。"
+          }
+        }
+      }
     },
     "Email Copied" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-Mail kopiert"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1239,6 +1769,12 @@
     "Email copied: %@" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-Mail kopiert: %@"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1268,6 +1804,12 @@
     "Enter an amount greater than zero with at most two decimal places." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gib einen Betrag größer als null mit höchstens zwei Dezimalstellen ein."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1296,6 +1838,12 @@
     },
     "Entries" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einträge"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1323,10 +1871,47 @@
       }
     },
     "Entries and statistics are isolated by account." : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einträge und Statistiken sind nach Konto getrennt."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録と統計はアカウントごとに分かれています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내역과 통계는 계정별로 분리됩니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账单和统计数据按账户独立保存。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "帳單與統計資料按帳戶獨立儲存。"
+          }
+        }
+      }
     },
     "Entry Details" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchungsdetails"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1355,6 +1940,12 @@
     },
     "Expense" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabe"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1383,6 +1974,12 @@
     },
     "Expense Projects" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabenprojekte"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1411,6 +2008,12 @@
     },
     "Export Backup" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherung exportieren"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1439,6 +2042,12 @@
     },
     "Export Current Ledger First" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuerst aktuelles Kassenbuch exportieren"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1468,6 +2077,12 @@
     "Export failed. Choose another location or try again." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export fehlgeschlagen. Wähle einen anderen Ort oder versuche es erneut."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1496,6 +2111,12 @@
     },
     "Exported" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportiert"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1525,6 +2146,12 @@
     "Generating image…" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bild wird erstellt …"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1553,6 +2180,12 @@
     },
     "Home" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übersicht"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1581,6 +2214,12 @@
     },
     "Image generation failed. Try again." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilderstellung fehlgeschlagen. Versuche es erneut."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1609,6 +2248,12 @@
     },
     "Income" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einnahme"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1637,6 +2282,12 @@
     },
     "Income and Expense by Type" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einnahmen und Ausgaben nach Typ"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1665,6 +2316,12 @@
     },
     "Income Projects" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einnahmeprojekte"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1691,8 +2348,83 @@
         }
       }
     },
+    "Interface Style" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oberflächenstil"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インターフェーススタイル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인터페이스 스타일"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "界面风格"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "介面風格"
+          }
+        }
+      }
+    },
+    "Retro skeuomorphic texture" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retro-skeuomorphe Textur"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レトロなスキューモーフィック質感"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "레트로 스큐어모픽 질감"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复古拟物质感"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "復古擬物質感"
+          }
+        }
+      }
+    },
     "Language" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprache"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1721,6 +2453,12 @@
     },
     "Ledger unavailable" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kassenbuch nicht verfügbar"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1748,7 +2486,14 @@
       }
     },
     "Local Entries" : {
+      "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokale Einträge"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1777,6 +2522,12 @@
     },
     "Made locally with MiniBill" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokal mit MiniBill erstellt"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1805,6 +2556,12 @@
     },
     "Manage Accounts" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konten verwalten"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1832,7 +2589,14 @@
       }
     },
     "Me" : {
+      "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1860,10 +2624,23 @@
       }
     },
     "MiniBill" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill"
+          }
+        }
+      }
     },
     "MiniBill schedules reminders on this device. Delivery can be affected by system notification settings, Focus, or power state." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill plant Erinnerungen auf diesem Gerät. Die Zustellung kann durch Mitteilungseinstellungen, Fokus oder Energiestatus beeinflusst werden."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1891,8 +2668,13 @@
       }
     },
     "MiniBill stores ledger entries only on this device. It has no account, analytics, advertising, cloud sync, or network dependency." : {
-      "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill speichert Buchungen nur auf diesem Gerät. Es gibt kein Benutzerkonto, keine Analyse, keine Werbung, keine Cloud-Synchronisierung und keine Netzwerkabhängigkeit."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1922,6 +2704,12 @@
     "MiniBill Support" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiniBill-Support"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1948,8 +2736,48 @@
         }
       }
     },
+    "Modern Minimalist" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moderner Minimalismus"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "モダンミニマル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모던 미니멀"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "现代极简"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現代極簡"
+          }
+        }
+      }
+    },
     "Month" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monat"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1978,6 +2806,12 @@
     },
     "Month-end Reminder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatsend-Erinnerung"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2007,6 +2841,12 @@
     "Month-end review" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatsabschluss prüfen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2035,6 +2875,12 @@
     },
     "Month-end Time" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhrzeit zum Monatsende"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2063,6 +2909,12 @@
     },
     "MONTHLY" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MONATLICH"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2091,6 +2943,12 @@
     },
     "Monthly Income and Expense" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatliche Einnahmen und Ausgaben"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2119,6 +2977,12 @@
     },
     "More Apps" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weitere Apps"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2146,10 +3010,23 @@
       }
     },
     "Net" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saldo"
+          }
+        }
+      }
     },
     "Net Profit" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nettogewinn"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2178,6 +3055,12 @@
     },
     "New Account" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neues Konto"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2206,6 +3089,12 @@
     },
     "No entries this month" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Einträge in diesem Monat"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2234,6 +3123,12 @@
     },
     "No entries yet" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Einträge"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2262,6 +3157,12 @@
     },
     "No matching entries" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine passenden Einträge"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2290,6 +3191,12 @@
     },
     "No project data" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Projektdaten"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2318,6 +3225,12 @@
     },
     "Note and Date" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notiz und Datum"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2347,6 +3260,12 @@
     "Note must be 200 characters or fewer." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Notiz darf höchstens 200 Zeichen lang sein."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2375,6 +3294,12 @@
     },
     "Offline bookkeeping for small businesses and side work." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offline-Buchhaltung für Kleinunternehmen und Nebentätigkeiten."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2403,6 +3328,12 @@
     },
     "OK" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2432,6 +3363,12 @@
     "Open Share Sheet" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen-Menü öffnen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2460,6 +3397,12 @@
     },
     "Open System Settings" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemeinstellungen öffnen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2488,6 +3431,12 @@
     },
     "Opens monthly statistics" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet die Monatsstatistik"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2516,6 +3465,12 @@
     },
     "Optional note" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optionale Notiz"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2543,8 +3498,13 @@
       }
     },
     "Privacy" : {
-      "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenschutz"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2573,6 +3533,12 @@
     },
     "Project Name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Projektname"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2602,6 +3568,12 @@
     "Project name is required." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Projektname ist erforderlich."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2628,8 +3600,48 @@
         }
       }
     },
+    "Reminder Help" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erinnerungshilfe"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リマインダーのヘルプ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림 도움말"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提醒说明"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提醒說明"
+          }
+        }
+      }
+    },
     "Reminders" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erinnerungen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2658,6 +3670,12 @@
     },
     "Rename" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umbenennen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2686,6 +3704,12 @@
     },
     "Rename Account" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto umbenennen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2714,6 +3738,12 @@
     },
     "Replace and Restore" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersetzen und wiederherstellen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2742,6 +3772,12 @@
     },
     "Replace the current ledger?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuelles Kassenbuch ersetzen?"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2771,6 +3807,12 @@
     "Restore failed. Your original ledger was not changed." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederherstellung fehlgeschlagen. Dein ursprüngliches Kassenbuch wurde nicht geändert."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2799,6 +3841,12 @@
     },
     "Restore from Backup" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus Sicherung wiederherstellen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2827,6 +3875,12 @@
     },
     "Restore Preview" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschau der Wiederherstellung"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2855,6 +3909,12 @@
     },
     "Restore replaces the entire local ledger. It does not merge entries." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Wiederherstellung ersetzt das gesamte lokale Kassenbuch. Einträge werden nicht zusammengeführt."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2881,9 +3941,49 @@
         }
       }
     },
+    "Retro Skeuomorphic" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retro-Skeuomorphismus"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レトロスキューモーフィズム"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "레트로 스큐어모피즘"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复古拟物"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "復古擬物"
+          }
+        }
+      }
+    },
     "Review this month's income and expenses in MiniBill." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfe die Einnahmen und Ausgaben dieses Monats in MiniBill."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2912,6 +4012,12 @@
     },
     "Save" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2940,6 +4046,12 @@
     },
     "Saving…" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird gespeichert …"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2966,8 +4078,48 @@
         }
       }
     },
+    "Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
+          }
+        }
+      }
+    },
     "Share Entry" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eintrag teilen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2997,6 +4149,12 @@
     "Share images are generated locally and never include notes. Backup files are not encrypted." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geteilte Bilder werden lokal erstellt und enthalten keine Notizen. Sicherungsdateien sind nicht verschlüsselt."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3025,6 +4183,12 @@
     },
     "Share Month" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monat teilen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3054,6 +4218,12 @@
     "Share Preview" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen-Vorschau"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3082,6 +4252,12 @@
     },
     "Shows entries for this day" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt die Einträge dieses Tages"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3110,6 +4286,12 @@
     },
     "Shows entries for this project" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt die Einträge dieses Projekts"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3138,6 +4320,12 @@
     },
     "Simple offline bills, effortless bookkeeping for small business" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einfache Offline-Buchungen, mühelose Buchhaltung für Kleinunternehmen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3166,6 +4354,12 @@
     },
     "Statistics" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistik"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3193,7 +4387,14 @@
       }
     },
     "Switch Account" : {
+      "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto wechseln"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3223,6 +4424,12 @@
     "System App Language" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemsprache der App"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3251,6 +4458,12 @@
     },
     "System notifications are off. Your reminder preference is preserved." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemmitteilungen sind deaktiviert. Deine Erinnerungseinstellung bleibt gespeichert."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3280,6 +4493,12 @@
     "Take a moment to record today's income and expenses." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nimm dir einen Moment, um die heutigen Einnahmen und Ausgaben einzutragen."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3308,6 +4527,12 @@
     },
     "Tap Add Entry to record income or expense." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe auf „Eintrag hinzufügen“, um eine Einnahme oder Ausgabe zu erfassen."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3336,6 +4561,12 @@
     },
     "Thanks for using MiniBill. Leave a review" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Danke, dass du MiniBill verwendest. Bewertung abgeben"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3365,6 +4596,12 @@
     "This backup could not be read. Your ledger was not changed." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Sicherung konnte nicht gelesen werden. Dein Kassenbuch wurde nicht geändert."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3394,6 +4631,12 @@
     "This backup is damaged or invalid. Your ledger was not changed." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Sicherung ist beschädigt oder ungültig. Dein Kassenbuch wurde nicht geändert."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3422,6 +4665,12 @@
     },
     "This backup is empty. Restoring it will erase every current entry." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Sicherung ist leer. Bei der Wiederherstellung werden alle aktuellen Einträge gelöscht."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3451,6 +4700,12 @@
     "This backup needs a newer version of MiniBill. Your ledger was not changed." : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Sicherung benötigt eine neuere Version von MiniBill. Dein Kassenbuch wurde nicht geändert."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3479,10 +4734,40 @@
     },
     "This permanently deletes %lld entries in %@." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dadurch werden %lld Einträge in %@ dauerhaft gelöscht."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "This permanently deletes %1$lld entries in %2$@."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@の記録%1$lld件を完全に削除します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@의 내역 %1$lld건이 영구적으로 삭제됩니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ 中的 %1$lld 笔账单将被永久删除。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ 中的 %1$lld 筆帳單將被永久刪除。"
           }
         }
       }
@@ -3490,6 +4775,12 @@
     "Today" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3518,6 +4809,12 @@
     },
     "Top Expense" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Höchste Ausgabe"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3546,6 +4843,12 @@
     },
     "Top Income" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Höchste Einnahme"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3574,6 +4877,12 @@
     },
     "Try Again" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneut versuchen"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3602,6 +4911,12 @@
     },
     "Type" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typ"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3629,10 +4944,47 @@
       }
     },
     "Use 1–30 characters." : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwende 1–30 Zeichen."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1〜30文字で入力してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1~30자로 입력하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请输入 1–30 个字符。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請輸入 1–30 個字元。"
+          }
+        }
+      }
     },
     "Version" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3661,6 +5013,12 @@
     },
     "What was this for?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wofür war das?"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3689,6 +5047,12 @@
     },
     "Year" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jahr"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3717,6 +5081,12 @@
     },
     "Year Summary" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jahresübersicht"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3745,6 +5115,12 @@
     },
     "Your existing ledger was not changed. Try opening it again." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein bestehendes Kassenbuch wurde nicht geändert. Versuche erneut, es zu öffnen."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3772,7 +5148,14 @@
       }
     },
     "Zero" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Null"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

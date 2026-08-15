@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MonthlySummaryCard: View {
+    @Environment(\.appLanguage) private var language
     let summary: MonthlySummary
     let showsChevron: Bool
 
@@ -12,7 +13,7 @@ struct MonthlySummaryCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text(AppFormat.month(summary.month))
+                Text(AppFormat.month(summary.month, locale: language.locale))
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(AppTheme.muted)
                 Spacer()
@@ -25,7 +26,7 @@ struct MonthlySummaryCard: View {
                 Text("Net Profit")
                     .font(.caption)
                     .foregroundStyle(AppTheme.muted)
-                Text(AppFormat.money(summary.netCents, signed: true))
+                Text(AppFormat.money(summary.netCents, signed: true, locale: language.locale))
                     .font(.system(size: 30, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(summary.netCents >= 0 ? AppTheme.ink : AppTheme.destructive)
@@ -42,7 +43,7 @@ struct MonthlySummaryCard: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 8))
+        .themedPanel(cornerRadius: 8)
     }
 
     private func metric(_ title: LocalizedStringKey, _ cents: Int64, kind: LedgerKind, sign: String) -> some View {
@@ -55,7 +56,7 @@ struct MonthlySummaryCard: View {
             }
             .font(.caption)
             .foregroundStyle(AppTheme.muted)
-            Text("\(sign)\(AppFormat.money(cents))")
+            Text("\(sign)\(AppFormat.money(cents, locale: language.locale))")
                 .font(.headline)
                 .monospacedDigit()
                 .foregroundStyle(AppTheme.strongColor(for: kind))
@@ -79,8 +80,8 @@ struct MonthlySummaryCard: View {
             .frame(height: 8)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(
-                "\(AppLocalization.string("Income")), \(AppFormat.money(summary.incomeCents)); "
-                + "\(AppLocalization.string("Expense")), \(AppFormat.money(summary.expenseCents))"
+                "\(AppLocalization.string("Income", language: language)), \(AppFormat.money(summary.incomeCents, locale: language.locale)); "
+                + "\(AppLocalization.string("Expense", language: language)), \(AppFormat.money(summary.expenseCents, locale: language.locale))"
             )
         }
     }

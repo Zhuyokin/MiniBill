@@ -10,8 +10,8 @@ struct LaunchFailureView: View {
             Text("Your existing ledger was not changed. Try opening it again.")
         } actions: {
             Button("Try Again", action: onRetry)
-                .buttonStyle(.borderedProminent)
-                .tint(AppTheme.brand)
+                .themedPrimaryButton(tint: AppTheme.brand)
         }
+        .retroScreenOnly()
     }
 }

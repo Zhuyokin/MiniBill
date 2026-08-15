@@ -19,6 +19,7 @@ private enum StatisticsChartMode: String, CaseIterable, Identifiable {
 }
 
 struct StatisticsView: View {
+    @Environment(\.appLanguage) private var language
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
     @Binding private var selectedMonth: Date
     @Binding private var selectedAccountID: UUID
@@ -104,9 +105,12 @@ struct StatisticsView: View {
             .frame(maxWidth: 680)
             .frame(maxWidth: .infinity)
         }
-        .background(AppTheme.background)
-        .navigationTitle("Statistics")
+        .themedScreen()
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                RootTabNavigationTitle("Statistics")
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 AccountSwitcher(selectedAccountID: $selectedAccountID)
             }
@@ -129,9 +133,9 @@ struct StatisticsView: View {
 
     private var periodTitle: String {
         if chartMode == .year {
-            return selectedMonth.formatted(.dateTime.year().locale(AppLanguage.current.locale))
+            return selectedMonth.formatted(.dateTime.year().locale(language.locale))
         }
-        return AppFormat.month(selectedMonth)
+        return AppFormat.month(selectedMonth, locale: language.locale)
     }
 
     private func movePeriod(_ value: Int) {
@@ -143,6 +147,7 @@ struct StatisticsView: View {
 }
 
 private struct DailyNetChart: View {
+    @Environment(\.appLanguage) private var language
     let values: [DailyTotal]
     let month: Date
     let accountID: UUID
@@ -166,8 +171,8 @@ private struct DailyNetChart: View {
                             width: .fixed(9)
                         )
                         .foregroundStyle(item.netCents >= 0 ? AppTheme.income : AppTheme.expense)
-                        .accessibilityLabel(AppFormat.shortDate(item.date))
-                        .accessibilityValue(AppFormat.money(item.netCents, signed: true))
+                        .accessibilityLabel(AppFormat.shortDate(item.date, locale: language.locale))
+                        .accessibilityValue(AppFormat.money(item.netCents, signed: true, locale: language.locale))
 
                         if item.netCents == 0 {
                             PointMark(x: .value("Date", item.date, unit: .day), y: .value("Net", 0))
@@ -182,7 +187,9 @@ private struct DailyNetChart: View {
                     AxisMarks(values: .stride(by: .day, count: 7)) { value in
                         AxisTick().foregroundStyle(AppTheme.muted.opacity(0.5))
                         AxisValueLabel {
-                            if let date = value.as(Date.self) { Text(AppFormat.day(date)) }
+                            if let date = value.as(Date.self) {
+                                Text(AppFormat.day(date, locale: language.locale))
+                            }
                         }
                     }
                 }
@@ -253,6 +260,7 @@ private struct YearlyChart: View {
 }
 
 private struct KindDistributionChart: View {
+    @Environment(\.appLanguage) private var language
     let values: [LedgerKindTotal]
 
     private var hasData: Bool { values.contains { $0.totalCents > 0 } }
@@ -280,7 +288,7 @@ private struct KindDistributionChart: View {
                                 Circle().fill(AppTheme.color(for: item.kind)).frame(width: 8, height: 8)
                             }
                             .font(.caption)
-                            Text(AppFormat.money(item.totalCents))
+                            Text(AppFormat.money(item.totalCents, locale: language.locale))
                                 .font(.subheadline.bold())
                                 .monospacedDigit()
                             Text("\(item.recordCount) entries")
@@ -298,6 +306,7 @@ private struct KindDistributionChart: View {
 }
 
 private struct YearSummaryCard: View {
+    @Environment(\.appLanguage) private var language
     let values: [MonthlyLedgerTotal]
 
     private var income: Int64 { clampedSum(values.map(\.incomeCents)) }
@@ -315,13 +324,16 @@ private struct YearSummaryCard: View {
                 .foregroundStyle(AppTheme.muted)
         }
         .padding(16)
-        .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 8))
+        .themedPanel(cornerRadius: 8)
     }
 
     private func metric(_ title: LocalizedStringKey, value: Int64, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title).font(.caption).foregroundStyle(AppTheme.muted)
-            Text(AppFormat.money(value)).font(.title3.bold()).foregroundStyle(color).monospacedDigit()
+            Text(AppFormat.money(value, locale: language.locale))
+                .font(.title3.bold())
+                .foregroundStyle(color)
+                .monospacedDigit()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -348,7 +360,7 @@ private func chartCard<Content: View>(
         content()
     }
     .padding(16)
-    .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 8))
+    .themedPanel(cornerRadius: 8)
 }
 
 private func chartLegend(_ title: LocalizedStringKey, color: Color) -> some View {
