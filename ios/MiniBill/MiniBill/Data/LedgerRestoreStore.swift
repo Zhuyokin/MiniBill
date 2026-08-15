@@ -7,8 +7,10 @@ import MiniBillCore
 
 public enum LedgerRestoreError: Error, Equatable {
     case duplicateExistingIdentifier
+    case duplicateExistingAccountIdentifier
     case stagedCountMismatch
     case stagedRecordMismatch
+    case stagedAccountMismatch
 }
 
 @MainActor
@@ -31,12 +33,39 @@ public enum LedgerRestoreStore {
 
         do {
             let existingEntries = try restoreContext.fetch(FetchDescriptor<LedgerEntry>())
+            let existingAccounts = try restoreContext.fetch(FetchDescriptor<LedgerAccount>())
             var existingByID: [UUID: LedgerEntry] = [:]
             existingByID.reserveCapacity(existingEntries.count)
             for entry in existingEntries {
                 guard existingByID.updateValue(entry, forKey: entry.id) == nil else {
                     throw LedgerRestoreError.duplicateExistingIdentifier
                 }
+            }
+
+            var existingAccountsByID: [UUID: LedgerAccount] = [:]
+            existingAccountsByID.reserveCapacity(existingAccounts.count)
+            for account in existingAccounts {
+                guard existingAccountsByID.updateValue(account, forKey: account.id) == nil else {
+                    throw LedgerRestoreError.duplicateExistingAccountIdentifier
+                }
+            }
+
+            let desiredAccountIDs = Set(archive.accounts.map(\.id))
+            var stagedAccounts: [LedgerAccount] = []
+            stagedAccounts.reserveCapacity(archive.accounts.count)
+            for accountRecord in archive.accounts {
+                let account: LedgerAccount
+                if let existing = existingAccountsByID[accountRecord.id] {
+                    LedgerAccountMapper.apply(accountRecord, to: existing)
+                    account = existing
+                } else {
+                    account = LedgerAccountMapper.account(from: accountRecord)
+                    restoreContext.insert(account)
+                }
+                stagedAccounts.append(account)
+            }
+            for account in existingAccounts where !desiredAccountIDs.contains(account.id) {
+                restoreContext.delete(account)
             }
 
             let desiredIDs = Set(archive.records.map(\.id))
@@ -65,6 +94,11 @@ public enum LedgerRestoreStore {
             for (entry, expected) in zip(stagedEntries, archive.records) {
                 guard LedgerEntryMapper.record(from: entry) == expected else {
                     throw LedgerRestoreError.stagedRecordMismatch
+                }
+            }
+            for (account, expected) in zip(stagedAccounts, archive.accounts) {
+                guard LedgerAccountMapper.record(from: account) == expected else {
+                    throw LedgerRestoreError.stagedAccountMismatch
                 }
             }
 

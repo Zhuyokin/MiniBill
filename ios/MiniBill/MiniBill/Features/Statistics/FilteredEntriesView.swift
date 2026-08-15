@@ -33,13 +33,17 @@ enum StatisticsDrilldown {
 struct FilteredEntriesView: View {
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
     @State private var editingEntry: LedgerEntry?
+    @State private var editEntryDetent: PresentationDetent = .medium
 
     let selection: StatisticsDrilldown
+    let accountID: UUID
 
     private var filteredEntries: [LedgerEntry] {
         let entriesByID = Dictionary(uniqueKeysWithValues: entries.map { ($0.id, $0) })
         let records = selection.records(
-            from: entries.map(LedgerEntryMapper.record),
+            from: entries
+                .filter { $0.resolvedAccountID == accountID }
+                .map(LedgerEntryMapper.record),
             calendar: .current
         )
         return records.compactMap { entriesByID[$0.id] }
@@ -58,7 +62,10 @@ struct FilteredEntriesView: View {
             } else {
                 Section {
                     ForEach(filteredEntries) { entry in
-                        Button { editingEntry = entry } label: {
+                        Button {
+                            editEntryDetent = .medium
+                            editingEntry = entry
+                        } label: {
                             LedgerRow(entry: entry)
                         }
                         .buttonStyle(.plain)
@@ -77,6 +84,8 @@ struct FilteredEntriesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editingEntry) { entry in
             NavigationStack { EditEntryView(entry: entry) }
+                .presentationDetents([.medium, .large], selection: $editEntryDetent)
+                .presentationDragIndicator(.visible)
         }
     }
 }

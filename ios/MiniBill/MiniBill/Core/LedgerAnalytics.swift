@@ -49,6 +49,52 @@ public enum LedgerAnalytics {
         )
     }
 
+    public static func yearlyTotals(records: [LedgerRecord], year: Date, calendar: Calendar) -> [MonthlyLedgerTotal] {
+        guard let yearInterval = calendar.dateInterval(of: .year, for: year) else { return [] }
+
+        return (0..<12).compactMap { offset in
+            guard let month = calendar.date(byAdding: .month, value: offset, to: yearInterval.start),
+                  let monthInterval = calendar.dateInterval(of: .month, for: month) else {
+                return nil
+            }
+            let selected = records.filter {
+                monthInterval.start <= $0.occurredAt
+                    && $0.occurredAt < monthInterval.end
+                    && $0.amountCents > 0
+            }
+            let income = selected
+                .filter { $0.kind == .income }
+                .reduce(Int64(0)) { addingClamped($0, $1.amountCents) }
+            let expense = selected
+                .filter { $0.kind == .expense }
+                .reduce(Int64(0)) { addingClamped($0, $1.amountCents) }
+            return MonthlyLedgerTotal(
+                month: monthInterval.start,
+                incomeCents: income,
+                expenseCents: expense,
+                netCents: subtractingClamped(income, expense),
+                recordCount: selected.count
+            )
+        }
+    }
+
+    public static func kindTotals(records: [LedgerRecord], month: Date, calendar: Calendar) -> [LedgerKindTotal] {
+        guard let interval = calendar.dateInterval(of: .month, for: month) else { return [] }
+        let selected = records.filter {
+            interval.start <= $0.occurredAt
+                && $0.occurredAt < interval.end
+                && $0.amountCents > 0
+        }
+        return LedgerKind.allCases.map { kind in
+            let kindRecords = selected.filter { $0.kind == kind }
+            return LedgerKindTotal(
+                kind: kind,
+                totalCents: kindRecords.reduce(Int64(0)) { addingClamped($0, $1.amountCents) },
+                recordCount: kindRecords.count
+            )
+        }
+    }
+
     private struct ProjectAccumulator {
         var totalCents: Int64
         var count: Int

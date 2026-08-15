@@ -11,12 +11,21 @@ struct AppRootView: View {
     @State private var selectedTab: RootTab = .bills
     @State private var selectedStatisticsMonth = Date()
     @State private var showQuickEntry = false
+    @AppStorage(LedgerAccountDefaults.selectionStorageKey) private var selectedAccountValue = LedgerAccountDefaults.id.uuidString
+
+    private var selectedAccountID: Binding<UUID> {
+        Binding(
+            get: { UUID(uuidString: selectedAccountValue) ?? LedgerAccountDefaults.id },
+            set: { selectedAccountValue = $0.uuidString }
+        )
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
                 BillsView(
                     showQuickEntry: $showQuickEntry,
+                    selectedAccountID: selectedAccountID,
                     onOpenStatistics: { month in
                         selectedStatisticsMonth = month
                         selectedTab = .statistics
@@ -27,13 +36,13 @@ struct AppRootView: View {
             .tag(RootTab.bills)
 
             NavigationStack {
-                StatisticsView(selectedMonth: $selectedStatisticsMonth)
+                StatisticsView(selectedMonth: $selectedStatisticsMonth, selectedAccountID: selectedAccountID)
             }
             .tabItem { Label("Statistics", systemImage: "chart.bar.xaxis") }
             .tag(RootTab.statistics)
 
             NavigationStack {
-                SettingsView()
+                SettingsView(selectedAccountID: selectedAccountID)
             }
             .tabItem { Label("Me", systemImage: "gearshape") }
             .tag(RootTab.settings)

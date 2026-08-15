@@ -107,7 +107,7 @@ final class LaunchCoordinator: ObservableObject {
 
     func openPersistentLedger() {
         do {
-            let schema = Schema([LedgerEntry.self])
+            let schema = Schema([LedgerEntry.self, LedgerAccount.self])
             let configuration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
@@ -115,6 +115,7 @@ final class LaunchCoordinator: ObservableObject {
                 cloudKitDatabase: .none
             )
             let openedContainer = try ModelContainer(for: schema, configurations: [configuration])
+            try LedgerAccountStore.ensureDefaultAccount(in: openedContainer)
 #if DEBUG
             do {
                 try DebugDemoDataSeeder.seedIfNeeded(in: openedContainer)

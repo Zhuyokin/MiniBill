@@ -11,6 +11,7 @@ final class LedgerEntryMapperTests: XCTestCase {
         let formatter = ISO8601DateFormatter()
         let original = LedgerRecord(
             id: UUID(uuidString: "31F00AC2-8C09-4B28-8E81-D8838B334B14")!,
+            accountID: UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!,
             kind: .expense,
             amountCents: 1_250,
             projectName: "矿泉水 🧊",
@@ -34,6 +35,7 @@ final class LedgerEntryMapperTests: XCTestCase {
         let originalID = UUID()
         let entry = LedgerEntry(
             id: originalID,
+            accountID: UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!,
             kindRawValue: LedgerKind.income.rawValue,
             amountCents: 100,
             projectName: "Old",
@@ -45,6 +47,7 @@ final class LedgerEntryMapperTests: XCTestCase {
         context.insert(entry)
         let replacement = LedgerRecord(
             id: originalID,
+            accountID: UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!,
             kind: .expense,
             amountCents: 250,
             projectName: "New",

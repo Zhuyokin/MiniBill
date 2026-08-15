@@ -8,69 +8,61 @@ struct ShareImageLink: View {
     let title: LocalizedStringKey
     let systemImage: String
 
-    @State private var renderedImage: UIImage?
     @State private var isRendering = false
     @State private var renderFailed = false
-
-    private var renderKey: String {
-        "\(payload.id)|\(language.rawValue)"
-    }
+    @State private var preparedShare: PreparedImageShare?
 
     var body: some View {
-        Group {
-            if let renderedImage {
-                let image = Image(uiImage: renderedImage)
-                ShareLink(
-                    item: image,
-                    subject: Text("MiniBill"),
-                    message: Text("Made locally with MiniBill"),
-                    preview: SharePreview("MiniBill", image: Image("BrandIcon"))
-                ) {
-                    Label(title, systemImage: systemImage)
+        Button(action: prepareAndShare) {
+            Label(title, systemImage: systemImage)
+                .overlay(alignment: .trailing) {
+                    if isRendering {
+                        ProgressView()
+                            .controlSize(.small)
+                            .offset(x: 24)
+                    }
                 }
-            } else if renderFailed {
-                Button(action: render) {
-                    Label("Try Again", systemImage: "arrow.clockwise")
-                }
-            } else {
-                Button(action: render) {
-                    Label(title, systemImage: systemImage)
-                        .foregroundStyle(.secondary)
-                        .overlay(alignment: .trailing) {
-                            if isRendering {
-                                ProgressView()
-                                    .controlSize(.small)
-                                    .offset(x: 24)
-                            }
-                        }
-                }
-                .disabled(isRendering)
-            }
         }
-        .task(id: renderKey) {
-            renderedImage = nil
-            renderFailed = false
-            try? await Task.sleep(nanoseconds: 250_000_000)
-            guard !Task.isCancelled, renderedImage == nil else { return }
-            render()
+        .disabled(isRendering)
+        .sheet(item: $preparedShare) { share in
+            ActivityShareSheet(activityItems: [share.image])
         }
         .alert("Image generation failed. Try again.", isPresented: $renderFailed) {
-            Button("Try Again", action: render)
+            Button("Try Again", action: prepareAndShare)
             Button("Cancel", role: .cancel) {}
         }
     }
 
-    @MainActor
-    private func render() {
-        renderedImage = nil
-        renderFailed = false
+    private func prepareAndShare() {
+        guard !isRendering else { return }
         isRendering = true
-        defer { isRendering = false }
+        renderFailed = false
 
-        do {
-            renderedImage = try ShareImageService.render(payload, language: language)
-        } catch {
-            renderFailed = true
+        Task { @MainActor in
+            await Task.yield()
+            do {
+                let image = try ShareImageService.render(payload, language: language)
+                isRendering = false
+                preparedShare = PreparedImageShare(image: image)
+            } catch {
+                isRendering = false
+                renderFailed = true
+            }
         }
     }
+}
+
+private struct PreparedImageShare: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
+private struct ActivityShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

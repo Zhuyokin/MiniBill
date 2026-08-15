@@ -5,17 +5,23 @@ struct BillsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
     @Binding var showQuickEntry: Bool
+    @Binding var selectedAccountID: UUID
     let onOpenStatistics: (Date) -> Void
     @State private var editingEntry: LedgerEntry?
     @State private var pendingDelete: LedgerEntry?
     @State private var deletionError: String?
+    @State private var quickEntryDetent: PresentationDetent = .medium
+    @State private var editEntryDetent: PresentationDetent = .medium
 
-    private var records: [LedgerRecord] { entries.map(LedgerEntryMapper.record) }
+    private var selectedEntries: [LedgerEntry] {
+        entries.filter { $0.resolvedAccountID == selectedAccountID }
+    }
+    private var records: [LedgerRecord] { selectedEntries.map(LedgerEntryMapper.record) }
     private var summary: MonthlySummary {
         LedgerAnalytics.summary(records: records, month: Date(), calendar: .current)
     }
     private var groupedDays: [(Date, [LedgerEntry])] {
-        Dictionary(grouping: entries) { Calendar.current.startOfDay(for: $0.occurredAt) }
+        Dictionary(grouping: selectedEntries) { Calendar.current.startOfDay(for: $0.occurredAt) }
             .sorted { $0.key > $1.key }
     }
 
@@ -31,7 +37,7 @@ struct BillsView: View {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
 
-                if entries.isEmpty {
+                if selectedEntries.isEmpty {
                     ContentUnavailableView("No entries yet", systemImage: "doc.text.magnifyingglass", description: Text("Tap Add Entry to record income or expense."))
                         .frame(maxWidth: .infinity, minHeight: 240)
                         .listRowBackground(Color.clear)
@@ -40,7 +46,10 @@ struct BillsView: View {
                     ForEach(groupedDays, id: \.0) { day, items in
                         Section {
                             ForEach(items) { entry in
-                                Button { editingEntry = entry } label: {
+                                Button {
+                                    editEntryDetent = .medium
+                                    editingEntry = entry
+                                } label: {
                                     LedgerRow(entry: entry)
                                 }
                                 .buttonStyle(.plain)
@@ -63,7 +72,10 @@ struct BillsView: View {
             .scrollContentBackground(.hidden)
             .contentMargins(.bottom, 72, for: .scrollContent)
 
-            Button { showQuickEntry = true } label: {
+            Button {
+                quickEntryDetent = .medium
+                showQuickEntry = true
+            } label: {
                 Image(systemName: "plus")
                     .font(.title2.bold())
                     .foregroundStyle(.white)
@@ -77,12 +89,22 @@ struct BillsView: View {
         .background(AppTheme.background)
         .navigationTitle("MiniBill")
         .sheet(isPresented: $showQuickEntry) {
-            QuickEntrySheet(candidates: ProjectSuggestionService.candidates(from: records))
-                .presentationDetents([.fraction(0.75), .large])
+            QuickEntrySheet(accountID: selectedAccountID, candidates: ProjectSuggestionService.candidates(from: records))
+                .presentationDetents([.medium, .large], selection: $quickEntryDetent)
                 .presentationDragIndicator(.visible)
         }
         .sheet(item: $editingEntry) { entry in
             NavigationStack { EditEntryView(entry: entry) }
+                .presentationDetents([.medium, .large], selection: $editEntryDetent)
+                .presentationDragIndicator(.visible)
+        }
+        .onChange(of: showQuickEntry) { _, isPresented in
+            if isPresented { quickEntryDetent = .medium }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                AccountSwitcher(selectedAccountID: $selectedAccountID)
+            }
         }
         .confirmationDialog("Delete this entry?", isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }), titleVisibility: .visible) {
             Button("Delete", role: .destructive) {

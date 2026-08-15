@@ -6,6 +6,7 @@ public enum BackupValidationError: Error, Equatable, LocalizedError {
     case invalidCurrency
     case countMismatch
     case duplicateIdentifier
+    case invalidAccount
     case invalidRecord
     case malformedData
 
@@ -16,6 +17,7 @@ public enum BackupValidationError: Error, Equatable, LocalizedError {
         case .invalidCurrency: return "This backup uses an unsupported currency."
         case .countMismatch: return "The backup record count is inconsistent."
         case .duplicateIdentifier: return "The backup contains duplicate record identifiers."
+        case .invalidAccount: return "The backup contains invalid account data."
         case .invalidRecord: return "The backup contains an invalid record."
         case .malformedData: return "The backup file is damaged or unreadable."
         }
@@ -23,7 +25,7 @@ public enum BackupValidationError: Error, Equatable, LocalizedError {
 }
 
 public struct BackupArchive: Equatable, Sendable {
-    public static let currentSchemaVersion = 1
+    public static let currentSchemaVersion = 2
     public static let expectedFormat = "com.minibill.backup"
 
     public var format: String
@@ -32,6 +34,8 @@ public struct BackupArchive: Equatable, Sendable {
     public var appVersion: String
     public var currencyCode: String
     public var recordCount: Int
+    public var accounts: [LedgerAccountRecord]
+    public var selectedAccountID: UUID
     public var records: [LedgerRecord]
 
     public init(
@@ -41,6 +45,8 @@ public struct BackupArchive: Equatable, Sendable {
         appVersion: String,
         currencyCode: String = "CNY",
         recordCount: Int? = nil,
+        accounts: [LedgerAccountRecord] = [.default],
+        selectedAccountID: UUID = LedgerAccountDefaults.id,
         records: [LedgerRecord]
     ) {
         self.format = format
@@ -49,6 +55,8 @@ public struct BackupArchive: Equatable, Sendable {
         self.appVersion = appVersion
         self.currencyCode = currencyCode
         self.recordCount = recordCount ?? records.count
+        self.accounts = accounts
+        self.selectedAccountID = selectedAccountID
         self.records = records
     }
 }
@@ -61,9 +69,22 @@ public enum BackupValidator {
         guard archive.currencyCode == "CNY" else { throw BackupValidationError.invalidCurrency }
         guard archive.recordCount == archive.records.count else { throw BackupValidationError.countMismatch }
 
+        var accountIdentifiers = Set<UUID>()
+        for account in archive.accounts {
+            guard accountIdentifiers.insert(account.id).inserted,
+                  (try? LedgerAccountName.normalized(account.name)) == account.name else {
+                throw BackupValidationError.invalidAccount
+            }
+        }
+        guard !accountIdentifiers.isEmpty,
+              accountIdentifiers.contains(archive.selectedAccountID) else {
+            throw BackupValidationError.invalidAccount
+        }
+
         var identifiers = Set<UUID>()
         for record in archive.records {
             guard identifiers.insert(record.id).inserted else { throw BackupValidationError.duplicateIdentifier }
+            guard accountIdentifiers.contains(record.accountID) else { throw BackupValidationError.invalidAccount }
             do {
                 try EntryValidator.validate(amountCents: record.amountCents, projectName: record.projectName, note: record.note)
             } catch {
@@ -80,11 +101,32 @@ private struct BackupEnvelope: Codable {
     var appVersion: String
     var currencyCode: String
     var recordCount: Int
+    var accounts: [BackupAccount]?
+    var selectedAccountID: UUID?
     var records: [BackupRecord]
+}
+
+private struct BackupAccount: Codable {
+    var id: UUID
+    var name: String
+    var createdAt: Date
+    var updatedAt: Date
+
+    init(_ account: LedgerAccountRecord) {
+        id = account.id
+        name = account.name
+        createdAt = account.createdAt
+        updatedAt = account.updatedAt
+    }
+
+    func ledgerAccount() -> LedgerAccountRecord {
+        LedgerAccountRecord(id: id, name: name, createdAt: createdAt, updatedAt: updatedAt)
+    }
 }
 
 private struct BackupRecord: Codable {
     var id: UUID
+    var accountID: UUID?
     var kind: LedgerKind
     var amount: String
     var projectName: String
@@ -95,6 +137,7 @@ private struct BackupRecord: Codable {
 
     init(_ record: LedgerRecord) {
         id = record.id
+        accountID = record.accountID
         kind = record.kind
         amount = BackupCodec.amountString(cents: record.amountCents)
         projectName = record.projectName
@@ -104,9 +147,9 @@ private struct BackupRecord: Codable {
         updatedAt = record.updatedAt
     }
 
-    func ledgerRecord() throws -> LedgerRecord {
+    func ledgerRecord(defaultAccountID: UUID) throws -> LedgerRecord {
         guard let cents = BackupCodec.cents(amount: amount) else { throw BackupValidationError.invalidRecord }
-        return LedgerRecord(id: id, kind: kind, amountCents: cents, projectName: projectName, note: note, occurredAt: occurredAt, createdAt: createdAt, updatedAt: updatedAt)
+        return LedgerRecord(id: id, accountID: accountID ?? defaultAccountID, kind: kind, amountCents: cents, projectName: projectName, note: note, occurredAt: occurredAt, createdAt: createdAt, updatedAt: updatedAt)
     }
 }
 
@@ -120,6 +163,8 @@ public enum BackupCodec {
             appVersion: archive.appVersion,
             currencyCode: archive.currencyCode,
             recordCount: archive.recordCount,
+            accounts: archive.accounts.map(BackupAccount.init),
+            selectedAccountID: archive.selectedAccountID,
             records: archive.records.map(BackupRecord.init)
         )
         let encoder = JSONEncoder()
@@ -143,6 +188,15 @@ public enum BackupCodec {
                 return date
             }
             let envelope = try decoder.decode(BackupEnvelope.self, from: data)
+            if envelope.schemaVersion >= 2 {
+                guard envelope.accounts != nil,
+                      envelope.selectedAccountID != nil,
+                      envelope.records.allSatisfy({ $0.accountID != nil }) else {
+                    throw BackupValidationError.malformedData
+                }
+            }
+            let accounts = envelope.accounts?.map { $0.ledgerAccount() } ?? [.default]
+            let selectedAccountID = envelope.selectedAccountID ?? LedgerAccountDefaults.id
             let archive = BackupArchive(
                 format: envelope.format,
                 schemaVersion: envelope.schemaVersion,
@@ -150,7 +204,9 @@ public enum BackupCodec {
                 appVersion: envelope.appVersion,
                 currencyCode: envelope.currencyCode,
                 recordCount: envelope.recordCount,
-                records: try envelope.records.map { try $0.ledgerRecord() }
+                accounts: accounts,
+                selectedAccountID: selectedAccountID,
+                records: try envelope.records.map { try $0.ledgerRecord(defaultAccountID: LedgerAccountDefaults.id) }
             )
             try BackupValidator.validate(archive)
             return archive

@@ -5,8 +5,52 @@ public enum LedgerKind: String, Codable, CaseIterable, Sendable {
     case expense
 }
 
+public enum LedgerAccountDefaults {
+    public static let id = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+    public static let name = "Default"
+    public static let selectionStorageKey = "selectedLedgerAccountID"
+}
+
+public enum LedgerAccountNameError: Error, Equatable {
+    case empty
+    case tooLong
+}
+
+public enum LedgerAccountName {
+    public static let maximumLength = 30
+
+    public static func normalized(_ value: String) throws -> String {
+        let name = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { throw LedgerAccountNameError.empty }
+        guard name.count <= maximumLength else { throw LedgerAccountNameError.tooLong }
+        return name
+    }
+}
+
+public struct LedgerAccountRecord: Codable, Equatable, Identifiable, Sendable {
+    public var id: UUID
+    public var name: String
+    public var createdAt: Date
+    public var updatedAt: Date
+
+    public init(id: UUID, name: String, createdAt: Date, updatedAt: Date) {
+        self.id = id
+        self.name = name
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+
+    public static let `default` = LedgerAccountRecord(
+        id: LedgerAccountDefaults.id,
+        name: LedgerAccountDefaults.name,
+        createdAt: Date(timeIntervalSince1970: 0),
+        updatedAt: Date(timeIntervalSince1970: 0)
+    )
+}
+
 public struct LedgerRecord: Codable, Equatable, Identifiable, Sendable {
     public var id: UUID
+    public var accountID: UUID
     public var kind: LedgerKind
     public var amountCents: Int64
     public var projectName: String
@@ -17,6 +61,7 @@ public struct LedgerRecord: Codable, Equatable, Identifiable, Sendable {
 
     public init(
         id: UUID,
+        accountID: UUID = LedgerAccountDefaults.id,
         kind: LedgerKind,
         amountCents: Int64,
         projectName: String,
@@ -26,6 +71,7 @@ public struct LedgerRecord: Codable, Equatable, Identifiable, Sendable {
         updatedAt: Date
     ) {
         self.id = id
+        self.accountID = accountID
         self.kind = kind
         self.amountCents = amountCents
         self.projectName = projectName
@@ -33,6 +79,30 @@ public struct LedgerRecord: Codable, Equatable, Identifiable, Sendable {
         self.occurredAt = occurredAt
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+    }
+}
+
+public struct MonthlyLedgerTotal: Equatable, Sendable, Identifiable {
+    public let month: Date
+    public let incomeCents: Int64
+    public let expenseCents: Int64
+    public let netCents: Int64
+    public let recordCount: Int
+
+    public var id: Date { month }
+}
+
+public struct LedgerKindTotal: Equatable, Sendable, Identifiable {
+    public let kind: LedgerKind
+    public let totalCents: Int64
+    public let recordCount: Int
+
+    public var id: LedgerKind { kind }
+
+    public init(kind: LedgerKind, totalCents: Int64, recordCount: Int) {
+        self.kind = kind
+        self.totalCents = totalCents
+        self.recordCount = recordCount
     }
 }
 
@@ -150,6 +220,7 @@ public struct EntryDraft: Equatable, Sendable {
     public var occurredAt: Date
 
     private let id: UUID
+    private let accountID: UUID
     private let createdAt: Date
 
     public init(
@@ -157,6 +228,7 @@ public struct EntryDraft: Equatable, Sendable {
         decimalSeparator: String = Locale.current.decimalSeparator ?? "."
     ) {
         id = record.id
+        accountID = record.accountID
         createdAt = record.createdAt
         kind = record.kind
         amountText = EntryValidator.amountText(cents: record.amountCents, decimalSeparator: decimalSeparator)
@@ -179,6 +251,7 @@ public struct EntryDraft: Equatable, Sendable {
         )
         return LedgerRecord(
             id: id,
+            accountID: accountID,
             kind: kind,
             amountCents: cents,
             projectName: trimmedProject,

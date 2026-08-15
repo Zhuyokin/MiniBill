@@ -5,6 +5,7 @@ import UIKit
 struct QuickEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    let accountID: UUID
     let candidates: [String]
 
     @State private var kind: LedgerKind = .income
@@ -16,7 +17,6 @@ struct QuickEntrySheet: View {
     @State private var validationMessage: String?
     @State private var isSaving = false
     @State private var showDiscardConfirmation = false
-    @FocusState private var amountFocused: Bool
 
     private var hasInput: Bool {
         !amountText.isEmpty || !projectName.isEmpty || !note.isEmpty
@@ -37,7 +37,6 @@ struct QuickEntrySheet: View {
                         .keyboardType(.decimalPad)
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                        .focused($amountFocused)
                         .accessibilityLabel("Amount")
                 }
 
@@ -94,7 +93,6 @@ struct QuickEntrySheet: View {
             .confirmationDialog("Discard this entry?", isPresented: $showDiscardConfirmation) {
                 Button("Discard", role: .destructive) { dismiss() }
             }
-            .onAppear { amountFocused = true }
         }
     }
 
@@ -113,6 +111,7 @@ struct QuickEntrySheet: View {
             isSaving = true
             let now = Date()
             let entry = LedgerEntry(
+                accountID: accountID,
                 kindRawValue: kind.rawValue,
                 amountCents: cents,
                 projectName: trimmedProject,

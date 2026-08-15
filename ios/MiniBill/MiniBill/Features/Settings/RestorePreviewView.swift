@@ -14,6 +14,7 @@ struct RestorePreviewView: View {
         NavigationStack {
             Form {
                 Section("Backup") {
+                    LabeledContent("Accounts", value: "\(preview.archive.accounts.count)")
                     LabeledContent("Exported", value: AppFormat.dateTime(preview.archive.exportedAt))
                     LabeledContent("Backup Entries", value: "\(preview.archive.recordCount)")
                     if let earliest = preview.earliestDate, let latest = preview.latestDate {

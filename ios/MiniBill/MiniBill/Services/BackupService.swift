@@ -11,13 +11,28 @@ struct RestorePreview: Identifiable {
 }
 
 enum BackupService {
-    static func archive(entries: [LedgerEntry], exportedAt: Date = Date()) -> BackupArchive {
+    static func archive(
+        entries: [LedgerEntry],
+        accounts: [LedgerAccount],
+        selectedAccountID: UUID,
+        exportedAt: Date = Date()
+    ) -> BackupArchive {
         let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
-        return BackupArchive(exportedAt: exportedAt, appVersion: appVersion, records: entries.map(LedgerEntryMapper.record))
+        return BackupArchive(
+            exportedAt: exportedAt,
+            appVersion: appVersion,
+            accounts: accounts.map(LedgerAccountMapper.record),
+            selectedAccountID: selectedAccountID,
+            records: entries.map(LedgerEntryMapper.record)
+        )
     }
 
-    static func document(entries: [LedgerEntry]) throws -> BackupDocument {
-        BackupDocument(data: try BackupCodec.encode(archive(entries: entries)))
+    static func document(entries: [LedgerEntry], accounts: [LedgerAccount], selectedAccountID: UUID) throws -> BackupDocument {
+        BackupDocument(data: try BackupCodec.encode(archive(
+            entries: entries,
+            accounts: accounts,
+            selectedAccountID: selectedAccountID
+        )))
     }
 
     static func preview(data: Data, currentRecordCount: Int) throws -> RestorePreview {

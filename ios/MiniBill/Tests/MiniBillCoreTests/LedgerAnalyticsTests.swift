@@ -107,6 +107,51 @@ final class LedgerAnalyticsTests: XCTestCase {
         XCTAssertTrue(result.expenseProjects.isEmpty)
     }
 
+    func testYearlyTotalsProduceAllTwelveMonthsAndKeepIncomeAndExpenseSeparate() {
+        var utc = calendar
+        utc.timeZone = TimeZone(secondsFromGMT: 0)!
+        let records = [
+            record(.income, 1_000, "January income", "2026-01-05T00:00:00Z"),
+            record(.expense, 250, "January expense", "2026-01-06T00:00:00Z"),
+            record(.income, 500, "December income", "2026-12-31T23:59:59Z"),
+            record(.expense, 900, "Next year", "2027-01-01T00:00:00Z"),
+        ]
+
+        let totals = LedgerAnalytics.yearlyTotals(
+            records: records,
+            year: date("2026-06-15T00:00:00Z"),
+            calendar: utc
+        )
+
+        XCTAssertEqual(totals.count, 12)
+        XCTAssertEqual(totals[0].incomeCents, 1_000)
+        XCTAssertEqual(totals[0].expenseCents, 250)
+        XCTAssertEqual(totals[0].netCents, 750)
+        XCTAssertEqual(totals[11].incomeCents, 500)
+        XCTAssertEqual(totals[11].expenseCents, 0)
+        XCTAssertEqual(totals.map(\.recordCount).reduce(0, +), 3)
+    }
+
+    func testKindTotalsUseOnlyTheSelectedMonth() {
+        let records = [
+            record(.income, 1_000, "Sale", "2026-08-01T00:00:00Z"),
+            record(.income, 500, "Sale", "2026-08-02T00:00:00Z"),
+            record(.expense, 250, "Rent", "2026-08-03T00:00:00Z"),
+            record(.expense, 999, "Other month", "2026-07-31T00:00:00Z"),
+        ]
+
+        let totals = LedgerAnalytics.kindTotals(
+            records: records,
+            month: date("2026-08-15T00:00:00Z"),
+            calendar: calendar
+        )
+
+        XCTAssertEqual(totals, [
+            LedgerKindTotal(kind: .income, totalCents: 1_500, recordCount: 2),
+            LedgerKindTotal(kind: .expense, totalCents: 250, recordCount: 1),
+        ])
+    }
+
     private func record(_ kind: LedgerKind, _ cents: Int64, _ project: String, _ occurred: String) -> LedgerRecord {
         let instant = date(occurred)
         return LedgerRecord(id: UUID(), kind: kind, amountCents: cents, projectName: project, note: nil, occurredAt: instant, createdAt: instant, updatedAt: instant)

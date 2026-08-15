@@ -96,6 +96,90 @@
         }
       }
     },
+    "Account Name" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウント名"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 이름"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账户名称"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "帳戶名稱"
+          }
+        }
+      }
+    },
+    "Accounts" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウント"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账户"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "帳戶"
+          }
+        }
+      }
+    },
+    "Add Account" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントを追加"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 추가"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加账户"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增帳戶"
+          }
+        }
+      }
+    },
     "Add Entry" : {
       "localizations" : {
         "ja" : {
@@ -350,6 +434,34 @@
         }
       }
     },
+    "Chart View" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "グラフ表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차트 보기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图表视图"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圖表檢視"
+          }
+        }
+      }
+    },
     "Close" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -550,6 +662,9 @@
           }
         }
       }
+    },
+    "Could not update accounts" : {
+
     },
     "Current Entries" : {
       "localizations" : {
@@ -776,6 +891,35 @@
         }
       }
     },
+    "Default Account" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デフォルトアカウント"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기본 계정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "默认账户"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預設帳戶"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "ja" : {
@@ -800,6 +944,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除"
+          }
+        }
+      }
+    },
+    "Delete Account and Its Entries" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントと記録を削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 및 내역 삭제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除账户及其账单"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除帳戶及其帳單"
           }
         }
       }
@@ -860,6 +1032,9 @@
           }
         }
       }
+    },
+    "Delete this account?" : {
+
     },
     "Delete this entry?" : {
       "localizations" : {
@@ -1030,6 +1205,9 @@
         }
       }
     },
+    "Each account has independent entries and statistics. Backups include every account." : {
+
+    },
     "Email Copied" : {
       "localizations" : {
         "ja" : {
@@ -1143,6 +1321,9 @@
           }
         }
       }
+    },
+    "Entries and statistics are isolated by account." : {
+
     },
     "Entry Details" : {
       "localizations" : {
@@ -1454,6 +1635,34 @@
         }
       }
     },
+    "Income and Expense by Type" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "種類別の収入と支出"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "유형별 수입 및 지출"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按类型查看收支"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按類型查看收支"
+          }
+        }
+      }
+    },
     "Income Projects" : {
       "localizations" : {
         "ja" : {
@@ -1594,6 +1803,34 @@
         }
       }
     },
+    "Manage Accounts" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウント管理"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 관리"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理账户"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理帳戶"
+          }
+        }
+      }
+    },
     "Me" : {
       "localizations" : {
         "ja" : {
@@ -1711,6 +1948,34 @@
         }
       }
     },
+    "Month" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "월"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月"
+          }
+        }
+      }
+    },
     "Month-end Reminder" : {
       "localizations" : {
         "ja" : {
@@ -1824,6 +2089,34 @@
         }
       }
     },
+    "Monthly Income and Expense" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月別の収入と支出"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "월별 수입 및 지출"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度收入与支出"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度收入與支出"
+          }
+        }
+      }
+    },
     "More Apps" : {
       "localizations" : {
         "ja" : {
@@ -1879,6 +2172,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "淨收益"
+          }
+        }
+      }
+    },
+    "New Account" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいアカウント"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 계정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新建账户"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增帳戶"
           }
         }
       }
@@ -2307,34 +2628,6 @@
         }
       }
     },
-    "Rate App" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App Storeで評価"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App Store에서 평가"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "去 App Store 评分"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "前往 App Store 評分"
-          }
-        }
-      }
-    },
     "Reminders" : {
       "localizations" : {
         "ja" : {
@@ -2359,6 +2652,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "提醒"
+          }
+        }
+      }
+    },
+    "Rename" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前を変更"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름 변경"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重命名"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新命名"
+          }
+        }
+      }
+    },
+    "Rename Account" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウント名を変更"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 이름 변경"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重命名账户"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新命名帳戶"
           }
         }
       }
@@ -2843,6 +3192,34 @@
         }
       }
     },
+    "Switch Account" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントを切り替え"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 전환"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切换账户"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切換帳戶"
+          }
+        }
+      }
+    },
     "System App Language" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2953,6 +3330,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "點一下「記一筆」記錄收入或支出。"
+          }
+        }
+      }
+    },
+    "Thanks for using MiniBill. Leave a review" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ご利用ありがとうございます。評価で応援"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이용해 주셔서 감사합니다. 리뷰로 응원"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "感谢使用，评价支持"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "感謝使用，評價支持"
           }
         }
       }
@@ -3068,6 +3473,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "此備份需要較新版本的 MiniBill，帳本未有變更。"
+          }
+        }
+      }
+    },
+    "This permanently deletes %lld entries in %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This permanently deletes %1$lld entries in %2$@."
           }
         }
       }
@@ -3213,6 +3628,9 @@
         }
       }
     },
+    "Use 1–30 characters." : {
+
+    },
     "Version" : {
       "localizations" : {
         "ja" : {
@@ -3265,6 +3683,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "這筆是甚麼項目？"
+          }
+        }
+      }
+    },
+    "Year" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연도"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按年"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按年"
+          }
+        }
+      }
+    },
+    "Year Summary" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年間サマリー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연간 요약"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年度汇总"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年度彙總"
           }
         }
       }

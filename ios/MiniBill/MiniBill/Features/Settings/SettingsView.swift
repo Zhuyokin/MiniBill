@@ -7,6 +7,8 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
+    @Query(sort: \LedgerAccount.createdAt) private var accounts: [LedgerAccount]
+    @Binding var selectedAccountID: UUID
 
     @AppStorage(ReminderPreferenceKey.dailyEnabled) private var dailyEnabled = false
     @AppStorage(ReminderPreferenceKey.dailyHour) private var dailyHour = 20
@@ -34,14 +36,31 @@ struct SettingsView: View {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "-"
     }
 
+    private var selectedEntryCount: Int {
+        entries.lazy.filter { $0.resolvedAccountID == selectedAccountID }.count
+    }
+
     var body: some View {
         Form {
             Section {
                 LabeledContent {
-                    Text("\(entries.count)")
+                    Text("\(selectedEntryCount)")
                 } label: {
                     Label("Local Entries", systemImage: "tray.full")
                 }
+            }
+
+            Section {
+                AccountSwitcher(selectedAccountID: $selectedAccountID)
+                NavigationLink {
+                    AccountManagerView(selectedAccountID: $selectedAccountID)
+                } label: {
+                    Label("Manage Accounts", systemImage: "creditcard")
+                }
+            } header: {
+                Text("Accounts")
+            } footer: {
+                Text("Entries and statistics are isolated by account.")
             }
 
             Section {
@@ -120,7 +139,7 @@ struct SettingsView: View {
                     }
                 }
                 Button(action: openAppStoreRating) {
-                    Label("Rate App", systemImage: "star")
+                    Label("Thanks for using MiniBill. Leave a review", systemImage: "star")
                 }
                 Button(action: openMoreApps) {
                     Label("More Apps", systemImage: "square.grid.2x2")
@@ -169,7 +188,10 @@ struct SettingsView: View {
             RestorePreviewView(
                 preview: preview,
                 onExportCurrent: prepareExport,
-                onRestore: { try BackupService.replace(with: preview.archive, in: modelContext) }
+                onRestore: {
+                    try BackupService.replace(with: preview.archive, in: modelContext)
+                    selectedAccountID = preview.archive.selectedAccountID
+                }
             )
         }
     }
@@ -251,7 +273,11 @@ struct SettingsView: View {
 
     private func prepareExport() {
         do {
-            exportedDocument = try BackupService.document(entries: entries)
+            exportedDocument = try BackupService.document(
+                entries: entries,
+                accounts: accounts,
+                selectedAccountID: selectedAccountID
+            )
             showExporter = true
         } catch {
             errorMessage = AppLocalization.string("Export failed. Choose another location or try again.")

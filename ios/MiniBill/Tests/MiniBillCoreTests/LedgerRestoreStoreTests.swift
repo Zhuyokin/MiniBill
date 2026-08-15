@@ -76,6 +76,57 @@ final class LedgerRestoreStoreTests: XCTestCase {
         XCTAssertEqual(try verificationContext.fetchCount(FetchDescriptor<LedgerEntry>()), 0)
     }
 
+    func testReplaceRestoresAccountsAndKeepsEachRecordInItsAccount() throws {
+        let container = try inMemoryContainer()
+        let context = ModelContext(container)
+        let base = Date(timeIntervalSince1970: 1_700_000_000)
+        context.insert(LedgerAccount(id: UUID(), name: "Remove me", createdAt: base, updatedAt: base))
+        try context.save()
+
+        let first = LedgerAccountRecord(
+            id: UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!,
+            name: "Main",
+            createdAt: base,
+            updatedAt: base
+        )
+        let second = LedgerAccountRecord(
+            id: UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!,
+            name: "Side Business",
+            createdAt: base,
+            updatedAt: base
+        )
+        let expectedRecord = LedgerRecord(
+            id: UUID(),
+            accountID: second.id,
+            kind: .income,
+            amountCents: 500,
+            projectName: "Sale",
+            note: nil,
+            occurredAt: base,
+            createdAt: base,
+            updatedAt: base
+        )
+        let archive = BackupArchive(
+            exportedAt: base,
+            appVersion: "1.0.3",
+            accounts: [first, second],
+            selectedAccountID: second.id,
+            records: [expectedRecord]
+        )
+
+        try LedgerRestoreStore.replace(with: archive, in: container)
+
+        let verification = ModelContext(container)
+        let accounts = try verification.fetch(FetchDescriptor<LedgerAccount>())
+            .map(LedgerAccountMapper.record)
+            .sorted { $0.id.uuidString < $1.id.uuidString }
+        XCTAssertEqual(accounts, [first, second])
+        XCTAssertEqual(
+            try verification.fetch(FetchDescriptor<LedgerEntry>()).map(LedgerEntryMapper.record),
+            [expectedRecord]
+        )
+    }
+
     func testInvalidArchiveIsRejectedBeforeExistingLedgerChanges() throws {
         let container = try inMemoryContainer()
         let context = ModelContext(container)
@@ -138,7 +189,7 @@ final class LedgerRestoreStoreTests: XCTestCase {
 
     private func inMemoryContainer() throws -> ModelContainer {
         try ModelContainer(
-            for: LedgerEntry.self,
+            for: LedgerEntry.self, LedgerAccount.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
     }

@@ -6,6 +6,7 @@ struct ProjectRankingView: View {
     let tint: Color
     let month: Date
     let kind: LedgerKind
+    let accountID: UUID
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -27,7 +28,7 @@ struct ProjectRankingView: View {
                             kind: kind,
                             normalizedKey: item.normalizedKey,
                             displayName: item.displayName
-                        ))
+                        ), accountID: accountID)
                     } label: {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {

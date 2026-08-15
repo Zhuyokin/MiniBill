@@ -15,3 +15,10 @@ v1.0.1 提交：
 - `swift test --package-path ios/MiniBill`：40 个 XCTest 通过，0 failures。
 - `xcodebuild -project MiniBill.xcodeproj -scheme MiniBill -configuration Debug -destination 'generic/platform=iOS Simulator' build`：Debug 构建通过。
 - Xcode 构建日志确认模拟器 entitlements 包含 `applinks:app-privacy-support.pages.dev`。
+
+v1.0.3 开发中
+预计9月再更新
+1. apple connect 多语言配置，增加一个新活动，多账户
+2. 统计页增加按月、按年、按类型的图表展示
+3. 支持多账户切换记账，各账户独立,记得导入导出数据做兼容处理，不要产生不兼容数据的bug
+4. 单笔账单分享的按钮点不了，点击编辑的时候弹窗那个分享bug为什么点击不了。

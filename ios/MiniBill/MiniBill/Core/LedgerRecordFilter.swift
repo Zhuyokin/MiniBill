@@ -2,6 +2,15 @@ import Foundation
 
 public enum LedgerRecordFilter {
     public static func records(
+        forAccountID accountID: UUID,
+        from records: [LedgerRecord]
+    ) -> [LedgerRecord] {
+        records
+            .filter { $0.accountID == accountID }
+            .sorted(by: newestFirst)
+    }
+
+    public static func records(
         on day: Date,
         from records: [LedgerRecord],
         calendar: Calendar
