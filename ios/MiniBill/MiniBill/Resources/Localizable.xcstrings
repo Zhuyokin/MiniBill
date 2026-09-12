@@ -11,6 +11,16 @@
         }
       }
     },
+    "%@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
     "%@, %@, %@, %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -113,6 +123,9 @@
           }
         }
       }
+    },
+    "%lld/200" : {
+
     },
     "0.00" : {
       "localizations" : {
@@ -703,40 +716,6 @@
         }
       }
     },
-    "Teal-toned minimalist texture" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Minimalistische Textur in Grüntönen"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "青みを帯びたミニマルな質感"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "청록 톤의 미니멀한 질감"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "青调极简质感"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "青調極簡質感"
-          }
-        }
-      }
-    },
     "Close" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -771,6 +750,9 @@
           }
         }
       }
+    },
+    "CNY" : {
+
     },
     "Contact Email" : {
       "localizations" : {
@@ -2383,40 +2365,6 @@
         }
       }
     },
-    "Retro skeuomorphic texture" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retro-skeuomorphe Textur"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "レトロなスキューモーフィック質感"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "레트로 스큐어모픽 질감"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "复古拟物质感"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "復古擬物質感"
-          }
-        }
-      }
-    },
     "Language" : {
       "localizations" : {
         "de" : {
@@ -3975,6 +3923,40 @@
         }
       }
     },
+    "Retro skeuomorphic texture" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retro-skeuomorphe Textur"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レトロなスキューモーフィック質感"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "레트로 스큐어모픽 질감"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复古拟物质感"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "復古擬物質感"
+          }
+        }
+      }
+    },
     "Review this month's income and expenses in MiniBill." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4559,6 +4541,40 @@
         }
       }
     },
+    "Teal-toned minimalist texture" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimalistische Textur in Grüntönen"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青みを帯びたミニマルな質感"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "청록 톤의 미니멀한 질감"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青调极简质感"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青調極簡質感"
+          }
+        }
+      }
+    },
     "Thanks for using MiniBill. Leave a review" : {
       "localizations" : {
         "de" : {
@@ -4594,6 +4610,7 @@
       }
     },
     "The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

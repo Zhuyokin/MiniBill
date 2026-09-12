@@ -154,4 +154,56 @@ public enum DebugDemoDataFactory {
         return whole * 100 + Int64(fraction)
     }
 }
+
+public enum DebugWatchDemo {
+    public static let ledgerID = UUID(uuidString: "4D42494C-4C44-4D00-9000-000000000001")!
+
+    public static func seedIfNeeded(
+        _ state: WatchLedgerState,
+        referenceDate: Date = Date(),
+        calendar: Calendar = .current
+    ) -> WatchLedgerState {
+        guard state.snapshot == nil else { return state }
+        let accounts = [
+            LedgerAccountRecord(id: LedgerAccountDefaults.id, name: "日常账本", createdAt: referenceDate, updatedAt: referenceDate),
+            LedgerAccountRecord(id: UUID(uuidString: "4D42494C-4C44-4D00-9000-000000000002")!, name: "门店经营", createdAt: referenceDate, updatedAt: referenceDate),
+            LedgerAccountRecord(id: UUID(uuidString: "4D42494C-4C44-4D00-9000-000000000003")!, name: "副业收入", createdAt: referenceDate, updatedAt: referenceDate),
+        ]
+        var records = DebugDemoDataFactory.records(referenceDate: referenceDate, calendar: calendar)
+            .enumerated().map { index, value in
+                var record = value
+                record.accountID = accounts[index % accounts.count].id
+                return record
+            }
+        let examples: [(LedgerKind, Int64, String)] = [
+            (.income, 12_800, "门店销售"), (.expense, 4_850, "原料采购"), (.income, 25_600, "线上订单"),
+        ]
+        for (index, account) in accounts.enumerated() {
+            for (offset, example) in examples.enumerated() {
+                let date = calendar.date(bySettingHour: 9 - offset, minute: 10, second: 0, of: referenceDate) ?? referenceDate
+                records.append(LedgerRecord(
+                    id: UUID(uuidString: String(format: "4D42494C-4C44-4D00-8000-%012llX", UInt64(0xF000 + index * 10 + offset)))!,
+                    accountID: account.id, kind: example.0, amountCents: example.1,
+                    projectName: example.2, note: nil, occurredAt: date, createdAt: date, updatedAt: date
+                ))
+            }
+        }
+        var seeded = state
+        seeded.receive(.init(ledgerID: ledgerID, revision: 1, generatedAt: referenceDate,
+                             languageCode: AppLanguage.current.rawValue, accounts: accounts, records: records))
+        return seeded
+    }
+
+    public static func applying(_ mutation: WatchLedgerMutation, to state: WatchLedgerState) throws -> WatchLedgerState {
+        guard let snapshot = state.snapshot, snapshot.ledgerID == ledgerID,
+              mutation.ledgerID == ledgerID else { throw WatchSyncRejection.conflict }
+        var records = state.records
+        var accounts = state.accounts
+        if let rejection = WatchLedgerReducer.apply(mutation, records: &records, accounts: &accounts) { throw rejection }
+        var updated = state
+        updated.receive(.init(ledgerID: ledgerID, revision: snapshot.revision + 1,
+                              languageCode: snapshot.languageCode, accounts: accounts, records: records))
+        return updated
+    }
+}
 #endif

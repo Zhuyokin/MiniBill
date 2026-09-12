@@ -6,9 +6,19 @@ import WatchKit
 @MainActor
 final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = WatchLedgerStore()
+    static var usesDemoData: Bool {
+#if DEBUG
+        !ProcessInfo.processInfo.arguments.contains("-MiniBillLiveSync")
+#else
+        false
+#endif
+    }
+    private static var selectionKey: String {
+        usesDemoData ? "debug.watch.selectedAccountID" : LedgerAccountDefaults.selectionStorageKey
+    }
     @Published private var state = WatchLedgerState()
     @Published var selectedAccountID = LedgerAccountDefaults.id {
-        didSet { UserDefaults.standard.set(selectedAccountID.uuidString, forKey: LedgerAccountDefaults.selectionStorageKey) }
+        didSet { UserDefaults.standard.set(selectedAccountID.uuidString, forKey: Self.selectionKey) }
     }
     @Published var errorMessage: String?
     @Published private(set) var isReachable = false
@@ -33,9 +43,9 @@ final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
 
     override init() {
         directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("WatchLedger", isDirectory: true)
+            .appendingPathComponent(Self.usesDemoData ? "WatchLedgerDemo" : "WatchLedger", isDirectory: true)
         super.init()
-        if let stored = UserDefaults.standard.string(forKey: LedgerAccountDefaults.selectionStorageKey), let id = UUID(uuidString: stored) {
+        if let stored = UserDefaults.standard.string(forKey: Self.selectionKey), let id = UUID(uuidString: stored) {
             selectedAccountID = id
         }
         do {
@@ -43,6 +53,12 @@ final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
             if FileManager.default.fileExists(atPath: cacheURL.path) {
                 state = try JSONDecoder().decode(WatchLedgerState.self, from: Data(contentsOf: cacheURL))
             }
+#if DEBUG
+            if Self.usesDemoData {
+                let seeded = DebugWatchDemo.seedIfNeeded(state)
+                if seeded != state { try commit(seeded) }
+            }
+#endif
             repairSelection()
         } catch {
             canPersist = false
@@ -51,7 +67,7 @@ final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func start() {
-        guard WCSession.isSupported() else { return }
+        guard !Self.usesDemoData, WCSession.isSupported() else { return }
         if !started {
             started = true
             WCSession.default.delegate = self
@@ -61,7 +77,7 @@ final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func refresh() {
-        guard started, WCSession.default.activationState == .activated else { return }
+        guard !Self.usesDemoData, started, WCSession.default.activationState == .activated else { return }
         let session = WCSession.default
         isReachable = session.isReachable
         receive(session.receivedApplicationContext)
@@ -148,6 +164,13 @@ final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     private func enqueue(_ mutation: WatchLedgerMutation) throws {
+#if DEBUG
+        if Self.usesDemoData {
+            do { try commit(DebugWatchDemo.applying(mutation, to: state)) }
+            catch let rejection as WatchSyncRejection { throw localized(rejection) }
+            return
+        }
+#endif
         var next = state
         do { try next.enqueue(mutation) }
         catch { throw localized(error) }
@@ -163,7 +186,7 @@ final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
             throw StoreError(message: message("Could not save on Apple Watch. Your changes are still on screen."))
         }
         state = next
-        UserDefaults.standard.set(language.rawValue, forKey: AppLanguage.storageKey)
+        if !Self.usesDemoData { UserDefaults.standard.set(language.rawValue, forKey: AppLanguage.storageKey) }
         repairSelection()
     }
 
@@ -174,6 +197,7 @@ final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     private func receive(_ payload: [String: Any]) {
+        guard !Self.usesDemoData else { return }
         if payload[WatchLedgerTransport.errorKey] as? Bool == true {
             errorMessage = message("Sync will retry when iPhone is available.")
             return
@@ -201,7 +225,7 @@ final class WatchLedgerStore: NSObject, ObservableObject, WCSessionDelegate {
 
     private func sendPending() {
         let session = WCSession.default
-        guard canPersist, session.activationState == .activated, let mutation = state.pending.first else { return }
+        guard !Self.usesDemoData, canPersist, session.activationState == .activated, let mutation = state.pending.first else { return }
         do {
             let data = try JSONEncoder().encode(mutation)
             let identifier = mutation.id.uuidString
@@ -369,6 +393,7 @@ final class WatchBackgroundDelegate: NSObject, WKApplicationDelegate {
 
     func applicationDidFinishLaunching() {
         WatchLedgerStore.shared.start()
+        guard !WatchLedgerStore.usesDemoData else { return }
         activationObserver = WCSession.default.observe(\.activationState) { [weak self] _, _ in
             Task { @MainActor in self?.completeTasks() }
         }
@@ -381,6 +406,16 @@ final class WatchBackgroundDelegate: NSObject, WKApplicationDelegate {
     }
 
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
+        if WatchLedgerStore.usesDemoData {
+            for task in backgroundTasks {
+                if let snapshot = task as? WKSnapshotRefreshBackgroundTask {
+                    snapshot.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: .distantFuture, userInfo: nil)
+                } else {
+                    task.setTaskCompletedWithSnapshot(false)
+                }
+            }
+            return
+        }
         for task in backgroundTasks {
             if let connectivityTask = task as? WKWatchConnectivityRefreshBackgroundTask {
                 tasks.append(connectivityTask)
