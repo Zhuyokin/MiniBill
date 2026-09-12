@@ -4593,6 +4593,46 @@
         }
       }
     },
+    "The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Kassenbuch wurde während der Bearbeitung geändert. Schließe diese Ansicht, prüfe die aktuellen Einträge und Konten und versuche es erneut."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編集中に帳簿が変更されました。この画面を閉じ、最新の明細とアカウントを確認してから、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "편집 중에 장부가 변경되었습니다. 이 화면을 닫고 최신 내역과 계정을 확인한 후 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑期间账本发生了变化。请关闭此页面，查看最新明细和账户后再试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯期間帳本發生了變化。請關閉此頁面，查看最新明細和帳戶後再試。"
+          }
+        }
+      }
+    },
     "This backup could not be read. Your ledger was not changed." : {
       "extractionState" : "stale",
       "localizations" : {

@@ -8,8 +8,8 @@ struct BillsView: View {
     @Binding var showQuickEntry: Bool
     @Binding var selectedAccountID: UUID
     let onOpenStatistics: (Date) -> Void
-    @State private var editingEntry: LedgerEntry?
-    @State private var pendingDelete: LedgerEntry?
+    @State private var editingEntry: LedgerRecord?
+    @State private var pendingDelete: LedgerRecord?
     @State private var deletionError: String?
     @State private var quickEntryDetent: PresentationDetent = .medium
     @State private var editEntryDetent: PresentationDetent = .medium
@@ -49,7 +49,7 @@ struct BillsView: View {
                             ForEach(items) { entry in
                                 Button {
                                     editEntryDetent = .medium
-                                    editingEntry = entry
+                                    editingEntry = LedgerEntryMapper.record(from: entry)
                                 } label: {
                                     LedgerRow(entry: entry)
                                         .themedPanel(cornerRadius: 10)
@@ -59,7 +59,7 @@ struct BillsView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) { pendingDelete = entry } label: {
+                                    Button(role: .destructive) { pendingDelete = LedgerEntryMapper.record(from: entry) } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
                                 }
@@ -100,7 +100,7 @@ struct BillsView: View {
                 .presentationDragIndicator(.visible)
         }
         .sheet(item: $editingEntry) { entry in
-            NavigationStack { EditEntryView(entry: entry) }
+            NavigationStack { EditEntryView(record: entry) }
                 .presentationDetents([.medium, .large], selection: $editEntryDetent)
                 .presentationDragIndicator(.visible)
         }
@@ -118,12 +118,16 @@ struct BillsView: View {
         .confirmationDialog("Delete this entry?", isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }), titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
                 guard let entry = pendingDelete else { return }
-                modelContext.delete(entry)
                 do {
-                    try modelContext.save()
+                    try LedgerMutationStore.apply(
+                        WatchLedgerMutation(ledgerID: UUID(), kind: .deleteEntry, record: entry, baseRecord: entry),
+                        in: modelContext.container
+                    )
                     pendingDelete = nil
+                } catch is WatchSyncRejection {
+                    pendingDelete = nil
+                    deletionError = AppLocalization.string("The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again.")
                 } catch {
-                    modelContext.rollback()
                     pendingDelete = nil
                     deletionError = AppLocalization.string("Delete failed. The entry was not changed.")
                 }

@@ -179,9 +179,10 @@ struct AccountManagerView: View {
     @Binding var selectedAccountID: UUID
 
     @State private var isShowingNameEditor = false
-    @State private var editingAccountID: UUID?
+    @State private var editingAccount: LedgerAccountRecord?
     @State private var nameDraft = ""
-    @State private var pendingDelete: LedgerAccount?
+    @State private var pendingDelete: LedgerAccountRecord?
+    @State private var pendingDeleteEntries: [LedgerRecord] = []
     @State private var errorMessage: String?
 
     var body: some View {
@@ -203,7 +204,9 @@ struct AccountManagerView: View {
                     .listRowSeparator(.hidden)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
-                            pendingDelete = account
+                            pendingDelete = LedgerAccountMapper.record(from: account)
+                            pendingDeleteEntries = entries.filter { $0.resolvedAccountID == account.id }
+                                .map(LedgerEntryMapper.record)
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
@@ -229,7 +232,7 @@ struct AccountManagerView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    editingAccountID = nil
+                    editingAccount = nil
                     nameDraft = ""
                     isShowingNameEditor = true
                 } label: {
@@ -237,7 +240,7 @@ struct AccountManagerView: View {
                 }
             }
         }
-        .alert(editingAccountID == nil ? "New Account" : "Rename Account", isPresented: $isShowingNameEditor) {
+        .alert(editingAccount == nil ? "New Account" : "Rename Account", isPresented: $isShowingNameEditor) {
             TextField("Account Name", text: $nameDraft)
             Button("Cancel", role: .cancel) {}
             Button("Save", action: saveName)
@@ -255,7 +258,9 @@ struct AccountManagerView: View {
             Button("Delete Account and Its Entries", role: .destructive, action: deletePendingAccount)
         } message: {
             if let account = pendingDelete {
-                Text("This permanently deletes \(entryCount(for: account.id)) entries in \(accountDisplayName(account, language: language)).")
+                let name = account.id == LedgerAccountDefaults.id && account.name == LedgerAccountDefaults.name
+                    ? AppLocalization.string("Default Account", language: language) : account.name
+                Text("This permanently deletes \(pendingDeleteEntries.count) entries in \(name).")
             }
         }
         .alert("Could not update accounts", isPresented: Binding(
@@ -275,60 +280,51 @@ struct AccountManagerView: View {
     }
 
     private func beginEditing(_ account: LedgerAccount) {
-        editingAccountID = account.id
+        editingAccount = LedgerAccountMapper.record(from: account)
         nameDraft = account.name
         isShowingNameEditor = true
     }
 
     private func saveName() {
-        let previousSelection = selectedAccountID
         do {
             let name = try LedgerAccountName.normalized(nameDraft)
-            if let editingAccountID,
-               let account = accounts.first(where: { $0.id == editingAccountID }) {
-                account.name = name
-                account.updatedAt = Date()
-            } else {
-                let now = Date()
-                let account = LedgerAccount(name: name, createdAt: now, updatedAt: now)
-                modelContext.insert(account)
-                selectedAccountID = account.id
-            }
-            try modelContext.save()
+            let now = Date()
+            let record = LedgerAccountRecord(
+                id: editingAccount?.id ?? UUID(), name: name,
+                createdAt: editingAccount?.createdAt ?? now, updatedAt: now
+            )
+            try LedgerMutationStore.apply(
+                WatchLedgerMutation(ledgerID: UUID(), kind: .saveAccount, account: record, baseAccount: editingAccount),
+                in: modelContext.container
+            )
+            if editingAccount == nil { selectedAccountID = record.id }
+        } catch is WatchSyncRejection {
+            errorMessage = AppLocalization.string("The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again.")
         } catch let error as LedgerAccountNameError {
-            modelContext.rollback()
-            selectedAccountID = previousSelection
             errorMessage = error == .empty
                 ? AppLocalization.string("Account name is required.")
                 : AppLocalization.string("Account name must be 30 characters or fewer.")
         } catch {
-            modelContext.rollback()
-            selectedAccountID = previousSelection
             errorMessage = AppLocalization.string("Your accounts were not changed.")
         }
     }
 
     private func deletePendingAccount() {
-        guard accounts.count > 1,
-              let account = pendingDelete,
-              let replacement = accounts.first(where: { $0.id != account.id }) else {
-            pendingDelete = nil
-            return
-        }
-        let previousSelection = selectedAccountID
+        guard let account = pendingDelete else { return }
         do {
-            for entry in entries where entry.resolvedAccountID == account.id {
-                modelContext.delete(entry)
-            }
-            modelContext.delete(account)
-            try modelContext.save()
-            if previousSelection == account.id {
-                selectedAccountID = replacement.id
-            }
+            try LedgerMutationStore.apply(
+                WatchLedgerMutation(
+                    ledgerID: UUID(), kind: .deleteAccount, account: account,
+                    baseAccount: account, accountEntries: pendingDeleteEntries
+                ),
+                in: modelContext.container
+            )
             pendingDelete = nil
+            repairSelection()
+        } catch is WatchSyncRejection {
+            pendingDelete = nil
+            errorMessage = AppLocalization.string("The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again.")
         } catch {
-            modelContext.rollback()
-            selectedAccountID = previousSelection
             pendingDelete = nil
             errorMessage = AppLocalization.string("Your accounts were not changed.")
         }

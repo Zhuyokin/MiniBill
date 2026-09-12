@@ -6,8 +6,8 @@ struct QuickEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
-    let accountID: UUID
-    let candidates: [String]
+    @State private var accountID: UUID
+    @State private var candidates: [String]
 
     @State private var kind: LedgerKind = .income
     @State private var amountText = ""
@@ -19,6 +19,11 @@ struct QuickEntrySheet: View {
     @State private var isSaving = false
     @State private var showDiscardConfirmation = false
     @FocusState private var amountIsFocused: Bool
+
+    init(accountID: UUID, candidates: [String]) {
+        _accountID = State(initialValue: accountID)
+        _candidates = State(initialValue: candidates)
+    }
 
     private var hasInput: Bool {
         !amountText.isEmpty || !projectName.isEmpty || !note.isEmpty
@@ -117,7 +122,6 @@ struct QuickEntrySheet: View {
 
     private func save() {
         validationMessage = nil
-        var insertedEntry: LedgerEntry?
         do {
             let cents = try EntryValidator.amountCents(
                 from: amountText,
@@ -132,9 +136,10 @@ struct QuickEntrySheet: View {
             )
             isSaving = true
             let now = Date()
-            let entry = LedgerEntry(
+            let record = LedgerRecord(
+                id: UUID(),
                 accountID: accountID,
-                kindRawValue: kind.rawValue,
+                kind: kind,
                 amountCents: cents,
                 projectName: trimmedProject,
                 note: trimmedNote.isEmpty ? nil : trimmedNote,
@@ -142,11 +147,15 @@ struct QuickEntrySheet: View {
                 createdAt: now,
                 updatedAt: now
             )
-            insertedEntry = entry
-            modelContext.insert(entry)
-            try modelContext.save()
+            try LedgerMutationStore.apply(
+                WatchLedgerMutation(ledgerID: UUID(), kind: .saveEntry, record: record),
+                in: modelContext.container
+            )
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             dismiss()
+        } catch is WatchSyncRejection {
+            isSaving = false
+            validationMessage = AppLocalization.string("The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again.")
         } catch let error as EntryValidationError {
             isSaving = false
             switch error {
@@ -156,10 +165,6 @@ struct QuickEntrySheet: View {
             case .noteTooLong: validationMessage = AppLocalization.string("Note must be 200 characters or fewer.")
             }
         } catch {
-            if let insertedEntry {
-                modelContext.delete(insertedEntry)
-            }
-            modelContext.rollback()
             isSaving = false
             validationMessage = AppLocalization.string("Could not save. Your input is still here; try again.")
         }

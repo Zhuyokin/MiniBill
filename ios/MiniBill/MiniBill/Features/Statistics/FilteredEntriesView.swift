@@ -33,7 +33,7 @@ enum StatisticsDrilldown {
 struct FilteredEntriesView: View {
     @Environment(\.appLanguage) private var language
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
-    @State private var editingEntry: LedgerEntry?
+    @State private var editingEntry: LedgerRecord?
     @State private var editEntryDetent: PresentationDetent = .medium
 
     let selection: StatisticsDrilldown
@@ -65,7 +65,7 @@ struct FilteredEntriesView: View {
                     ForEach(filteredEntries) { entry in
                         Button {
                             editEntryDetent = .medium
-                            editingEntry = entry
+                            editingEntry = LedgerEntryMapper.record(from: entry)
                         } label: {
                             LedgerRow(entry: entry)
                         }
@@ -84,7 +84,7 @@ struct FilteredEntriesView: View {
         .navigationTitle(selection.title(locale: language.locale))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editingEntry) { entry in
-            NavigationStack { EditEntryView(entry: entry) }
+            NavigationStack { EditEntryView(record: entry) }
                 .presentationDetents([.medium, .large], selection: $editEntryDetent)
                 .presentationDragIndicator(.visible)
         }

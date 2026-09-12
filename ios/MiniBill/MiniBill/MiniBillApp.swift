@@ -37,6 +37,7 @@ struct MiniBillApp: App {
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active, launch.container != nil else { return }
+            PhoneWatchSyncService.shared.refresh()
             Task { await reconcileReminderPreferences(reason: "scene activation") }
         }
     }
@@ -95,6 +96,7 @@ private struct LaunchHostView: View {
         }
         .onChange(of: languageCode) { _, _ in
             guard launch.container != nil else { return }
+            PhoneWatchSyncService.shared.refresh()
             Task { await reconcileReminderPreferences(reason: "app language change") }
         }
         .environment(\.locale, language.locale)
@@ -114,7 +116,7 @@ final class LaunchCoordinator: ObservableObject {
 
     func openPersistentLedger() {
         do {
-            let schema = Schema([LedgerEntry.self, LedgerAccount.self])
+            let schema = Schema([LedgerEntry.self, LedgerAccount.self, WatchMutationReceiptEntity.self])
             let configuration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
@@ -131,6 +133,7 @@ final class LaunchCoordinator: ObservableObject {
             }
 #endif
             container = openedContainer
+            PhoneWatchSyncService.shared.start(container: openedContainer)
         } catch {
             container = nil
         }

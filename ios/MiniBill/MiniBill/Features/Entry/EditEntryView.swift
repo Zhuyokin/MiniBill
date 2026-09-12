@@ -6,23 +6,20 @@ struct EditEntryView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
-    let entry: LedgerEntry
-
-    private let initialDraft: EntryDraft
+    @State private var originalRecord: LedgerRecord
     @State private var draft: EntryDraft
     @State private var errorMessage: String?
     @State private var confirmDelete = false
     @State private var confirmDiscard = false
     @FocusState private var amountIsFocused: Bool
 
-    init(entry: LedgerEntry) {
-        self.entry = entry
-        let value = EntryDraft(record: LedgerEntryMapper.record(from: entry))
-        initialDraft = value
+    init(record: LedgerRecord) {
+        let value = EntryDraft(record: record)
+        _originalRecord = State(initialValue: record)
         _draft = State(initialValue: value)
     }
 
-    private var hasChanges: Bool { draft != initialDraft }
+    private var hasChanges: Bool { draft != EntryDraft(record: originalRecord) }
 
     var body: some View {
         Form {
@@ -101,17 +98,7 @@ struct EditEntryView: View {
             Button("Discard", role: .destructive) { dismiss() }
         }
         .confirmationDialog("Delete this entry?", isPresented: $confirmDelete, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                modelContext.delete(entry)
-                do {
-                    try modelContext.save()
-                    UINotificationFeedbackGenerator().notificationOccurred(.warning)
-                    dismiss()
-                } catch {
-                    modelContext.rollback()
-                    errorMessage = AppLocalization.string("Delete failed. The entry was not changed.")
-                }
-            }
+            Button("Delete", role: .destructive, action: deleteEntry)
         } message: {
             Text("Deleting it also updates statistics.")
         }
@@ -119,7 +106,7 @@ struct EditEntryView: View {
 
     private var sharePayload: EntrySharePayload? {
         guard let record = try? draft.validatedRecord(
-            updatedAt: entry.updatedAt,
+            updatedAt: originalRecord.updatedAt,
             decimalSeparator: locale.decimalSeparator ?? "."
         ) else { return nil }
         return EntrySharePayload(record: record)
@@ -131,9 +118,13 @@ struct EditEntryView: View {
                 updatedAt: Date(),
                 decimalSeparator: locale.decimalSeparator ?? "."
             )
-            LedgerEntryMapper.apply(record, to: entry)
-            try modelContext.save()
+            try LedgerMutationStore.apply(
+                WatchLedgerMutation(ledgerID: UUID(), kind: .saveEntry, record: record, baseRecord: originalRecord),
+                in: modelContext.container
+            )
             dismiss()
+        } catch is WatchSyncRejection {
+            errorMessage = AppLocalization.string("The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again.")
         } catch let error as EntryValidationError {
             switch error {
             case .invalidAmount: errorMessage = AppLocalization.string("Enter an amount greater than zero with at most two decimal places.")
@@ -142,15 +133,29 @@ struct EditEntryView: View {
             case .noteTooLong: errorMessage = AppLocalization.string("Note must be 200 characters or fewer.")
             }
         } catch {
-            modelContext.rollback()
             errorMessage = AppLocalization.string("Could not save. Your changes are still here; try again.")
+        }
+    }
+
+    private func deleteEntry() {
+        do {
+            try LedgerMutationStore.apply(
+                WatchLedgerMutation(ledgerID: UUID(), kind: .deleteEntry, record: originalRecord, baseRecord: originalRecord),
+                in: modelContext.container
+            )
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+            dismiss()
+        } catch is WatchSyncRejection {
+            errorMessage = AppLocalization.string("The ledger changed while you were editing. Close this screen, review the latest entries and accounts, then try again.")
+        } catch {
+            errorMessage = AppLocalization.string("Delete failed. The entry was not changed.")
         }
     }
 
     private func validateForSharing() {
         do {
             _ = try draft.validatedRecord(
-                updatedAt: entry.updatedAt,
+                updatedAt: originalRecord.updatedAt,
                 decimalSeparator: locale.decimalSeparator ?? "."
             )
             errorMessage = nil
