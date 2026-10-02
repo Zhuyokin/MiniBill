@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "MiniBill";
+"NSPhotoLibraryAddUsageDescription" = "MiniBill のポスターを写真ライブラリに保存します。";

@@ -168,6 +168,10 @@ struct SettingsView: View {
                 NavigationLink { AboutView(appVersion: appVersion) } label: {
                     Label("About MiniBill", systemImage: "info.circle")
                 }
+                NavigationLink { SharePostersView() } label: {
+                    Label("Share App", systemImage: "square.and.arrow.up")
+                }
+                .accessibilityIdentifier("settings.share-app")
                 LabeledContent {
                     Text(appVersion)
                 } label: {
