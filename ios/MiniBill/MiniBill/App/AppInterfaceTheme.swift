@@ -33,11 +33,23 @@ private struct RootTabHeaderModifier: ViewModifier {
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    AppBrandIcon(size: 32)
-                        .allowsHitTesting(false)
+#if compiler(>=6.2)
+                if #available(iOS 26.0, *) {
+                    logoToolbarItem.sharedBackgroundVisibility(.hidden)
+                } else {
+                    logoToolbarItem
                 }
+#else
+                logoToolbarItem
+#endif
             }
+    }
+
+    private var logoToolbarItem: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            AppBrandIcon(size: 32)
+                .allowsHitTesting(false)
+        }
     }
 }
 
