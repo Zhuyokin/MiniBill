@@ -224,17 +224,18 @@ func pill(_ tag: (symbol: String, text: String), rect: NSRect, isPad: Bool) {
     ), size: fontSize, weight: .semibold, color: deepGreen)
 }
 
-func device(screenshotURL: URL, canvas: Canvas) throws {
+func device(screenshotURL: URL, canvas: Canvas, top: CGFloat? = nil) throws {
     let data = try Data(contentsOf: screenshotURL)
     let bitmap = NSBitmapImageRep(data: data)!
     let screenshot = NSImage(data: data)!
     let ratio = CGFloat(bitmap.pixelsHigh) / CGFloat(bitmap.pixelsWide)
     let border: CGFloat = canvas.isPad ? 28 : 18
-    let availableHeight = canvas.deviceBottom - canvas.deviceTop
+    let deviceTop = top ?? canvas.deviceTop
+    let availableHeight = canvas.deviceBottom - deviceTop
     let innerWidth = (availableHeight - border * 2) / ratio
     let outerWidth = innerWidth + border * 2
     let rect = NSRect(
-        x: (CGFloat(canvas.width) - outerWidth) / 2, y: canvas.deviceTop,
+        x: (CGFloat(canvas.width) - outerWidth) / 2, y: deviceTop,
         width: outerWidth, height: availableHeight
     )
     let outerRadius: CGFloat = canvas.isPad ? 63 : 108
@@ -339,11 +340,107 @@ func render(_ poster: Poster, canvas: Canvas, icon: NSImage) throws {
     print(outputURL.path)
 }
 
+func overviewFeature(
+    symbol: String, title: String, detail: String, rect: NSRect, isPad: Bool
+) {
+    let radius: CGFloat = isPad ? 34 : 28
+    rounded(rect, radius: radius, fill: NSColor(srgbRed: 0.955, green: 0.99, blue: 0.965, alpha: 0.96))
+    let border = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
+    border.lineWidth = isPad ? 2.5 : 2
+    brand.withAlphaComponent(0.18).setStroke()
+    border.stroke()
+
+    let inset: CGFloat = isPad ? 36 : 24
+    let iconSize: CGFloat = isPad ? 100 : 78
+    let iconRect = NSRect(x: rect.minX + inset, y: rect.midY - iconSize / 2, width: iconSize, height: iconSize)
+    rounded(iconRect, radius: isPad ? 26 : 20, fill: brand.withAlphaComponent(0.10))
+    let symbolSize: CGFloat = isPad ? 66 : 50
+    let icon = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)!
+        .withSymbolConfiguration(.init(pointSize: symbolSize, weight: .semibold))!
+        .withSymbolConfiguration(.init(paletteColors: [deepGreen]))!
+    asset(icon, rect: NSRect(
+        x: iconRect.midX - symbolSize / 2, y: iconRect.midY - symbolSize / 2,
+        width: symbolSize, height: symbolSize
+    ))
+    let textX = iconRect.maxX + (isPad ? 28 : 22)
+    let textWidth = rect.maxX - textX - inset
+    label(title, rect: NSRect(
+        x: textX, y: rect.midY - (isPad ? 64 : 51), width: textWidth, height: isPad ? 74 : 60
+    ), size: isPad ? 57 : 43, weight: .bold)
+    label(detail, rect: NSRect(
+        x: textX, y: rect.midY + (isPad ? 14 : 11), width: textWidth, height: isPad ? 58 : 45
+    ), size: isPad ? 39 : 30, weight: .medium, color: muted)
+}
+
+func renderOverview(_ canvas: Canvas, icon: NSImage) throws {
+    let context = CGContext(
+        data: nil, width: canvas.width, height: canvas.height,
+        bitsPerComponent: 8, bytesPerRow: canvas.width * 4,
+        space: CGColorSpace(name: CGColorSpace.sRGB)!,
+        bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+    )!
+    context.translateBy(x: 0, y: CGFloat(canvas.height))
+    context.scaleBy(x: 1, y: -1)
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: true)
+
+    background(canvas)
+    let margin = canvas.margin
+    let iconSize: CGFloat = canvas.isPad ? 150 : 126
+    asset(icon, rect: NSRect(x: margin, y: 76, width: iconSize, height: iconSize), radius: iconSize * 0.22)
+    label("小微账单", rect: NSRect(
+        x: margin + iconSize + 30, y: canvas.isPad ? 95 : 92,
+        width: canvas.contentWidth - iconSize - 30, height: 118
+    ), size: canvas.isPad ? 86 : 74, weight: .bold)
+
+    let titleSize: CGFloat = canvas.isPad ? 174 : 156
+    label("日常收支", rect: NSRect(
+        x: margin - 5, y: canvas.isPad ? 244 : 246,
+        width: canvas.contentWidth + 10, height: canvas.isPad ? 218 : 198
+    ), size: titleSize, weight: .heavy)
+    label("轻松掌握", rect: NSRect(
+        x: margin - 5, y: canvas.isPad ? 432 : 416,
+        width: canvas.contentWidth + 10, height: canvas.isPad ? 218 : 198
+    ), size: titleSize, weight: .heavy, color: deepGreen)
+
+    let features = [
+        ("square.and.pencil", "收支记录", "日常账单，随手记"),
+        ("chart.bar.xaxis", "收支统计", "月年统计，项目排行"),
+        ("square.stack.3d.up", "多账本管理", "独立记账，随时切换"),
+        ("arrow.up.doc", "导入导出", "JSON / CSV 备份")
+    ]
+    let gap: CGFloat = canvas.isPad ? 32 : 24
+    let featureWidth = (canvas.contentWidth - gap) / 2
+    let featureHeight: CGFloat = canvas.isPad ? 190 : 164
+    let featuresTop: CGFloat = canvas.isPad ? 684 : 660
+    for (index, feature) in features.enumerated() {
+        overviewFeature(symbol: feature.0, title: feature.1, detail: feature.2, rect: NSRect(
+            x: margin + CGFloat(index % 2) * (featureWidth + gap),
+            y: featuresTop + CGFloat(index / 2) * (featureHeight + gap),
+            width: featureWidth, height: featureHeight
+        ), isPad: canvas.isPad)
+    }
+
+    try device(
+        screenshotURL: root.appendingPathComponent("screenshots/\(canvas.directory)/home.png"),
+        canvas: canvas, top: canvas.isPad ? 1144 : 1058
+    )
+    NSGraphicsContext.restoreGraphicsState()
+    let directory = root.appendingPathComponent(canvas.directory, isDirectory: true)
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    let url = directory.appendingPathComponent("00-overview-\(canvas.width)x\(canvas.height).png")
+    let output = NSBitmapImageRep(cgImage: context.makeImage()!)
+    try output.representation(using: .png, properties: [:])!.write(to: url)
+    print(url.path)
+}
+
+let posterSlugs = ["00-overview"] + posters.map(\.slug)
+
 func contactSheet(_ canvas: Canvas) throws {
     let gap = 20
     let thumbnailWidth = canvas.isPad ? 432 : 384
     let thumbnailHeight = Int((Double(thumbnailWidth) * Double(canvas.height) / Double(canvas.width)).rounded())
-    let width = posters.count * thumbnailWidth + (posters.count + 1) * gap
+    let width = posterSlugs.count * thumbnailWidth + (posterSlugs.count + 1) * gap
     let height = thumbnailHeight + gap * 2
     let context = CGContext(
         data: nil, width: width, height: height,
@@ -358,8 +455,8 @@ func contactSheet(_ canvas: Canvas) throws {
     NSColor(white: 0.94, alpha: 1).setFill()
     NSRect(x: 0, y: 0, width: width, height: height).fill()
     let directory = root.appendingPathComponent(canvas.directory, isDirectory: true)
-    for (index, poster) in posters.enumerated() {
-        let url = directory.appendingPathComponent("\(poster.slug)-\(canvas.width)x\(canvas.height).png")
+    for (index, slug) in posterSlugs.enumerated() {
+        let url = directory.appendingPathComponent("\(slug)-\(canvas.width)x\(canvas.height).png")
         asset(NSImage(contentsOf: url)!, rect: NSRect(
             x: gap + index * (thumbnailWidth + gap), y: gap,
             width: thumbnailWidth, height: thumbnailHeight
@@ -372,10 +469,30 @@ func contactSheet(_ canvas: Canvas) throws {
     print(url.path)
 }
 
+func archive(_ canvas: Canvas) throws {
+    let url = root.appendingPathComponent("\(canvas.directory)-promotional-\(canvas.width)x\(canvas.height).zip")
+    if FileManager.default.fileExists(atPath: url.path) {
+        try FileManager.default.removeItem(at: url)
+    }
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
+    process.arguments = ["-j", "-q", url.path] + posterSlugs.map { slug in
+        root.appendingPathComponent("\(canvas.directory)/\(slug)-\(canvas.width)x\(canvas.height).png").path
+    }
+    try process.run()
+    process.waitUntilExit()
+    guard process.terminationStatus == 0 else {
+        throw NSError(domain: "PosterArchive", code: Int(process.terminationStatus))
+    }
+    print(url.path)
+}
+
 let icon = NSImage(contentsOf: iconURL)!
 for canvas in canvases where selectedDevice == nil || canvas.directory == selectedDevice {
+    try renderOverview(canvas, icon: icon)
     for poster in posters {
         try render(poster, canvas: canvas, icon: icon)
     }
     try contactSheet(canvas)
+    try archive(canvas)
 }

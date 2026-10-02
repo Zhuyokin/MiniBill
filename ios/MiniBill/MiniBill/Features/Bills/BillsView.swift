@@ -84,7 +84,7 @@ struct BillsView: View {
             .listStyle(.insetGrouped)
             .listSectionSpacing(20)
             .scrollContentBackground(.hidden)
-            .contentMargins(.top, 12, for: .scrollContent)
+            .contentMargins(.top, 6, for: .scrollContent)
             .contentMargins(.horizontal, 16, for: .scrollContent)
             .contentMargins(.bottom, 72, for: .scrollContent)
 

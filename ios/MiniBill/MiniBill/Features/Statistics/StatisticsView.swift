@@ -91,7 +91,9 @@ struct StatisticsView: View {
                     )
                 }
             }
-            .padding(16)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 16)
             .frame(maxWidth: 680)
             .frame(maxWidth: .infinity)
         }

@@ -91,6 +91,7 @@ struct SettingsView: View {
                 )
             } header: {
                 SettingsSectionHeader(title: "Accounts", helpAccessibilityLabel: "Account Help") { helpTopic = .accounts }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
             }
 
             Section {
