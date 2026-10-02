@@ -95,6 +95,19 @@ struct AppRootView: View {
         } detail: {
             rootView(for: selectedTab)
                 .id(selectedTab)
+                .toolbar(removing: .sidebarToggle)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            withAnimation {
+                                splitViewVisibility = splitViewVisibility == .detailOnly ? .all : .detailOnly
+                            }
+                        } label: {
+                            Image(systemName: "sidebar.left")
+                        }
+                        .accessibilityLabel(splitViewVisibility == .detailOnly ? "Show Sidebar" : "Hide Sidebar")
+                    }
+                }
         }
         .navigationSplitViewStyle(.balanced)
     }

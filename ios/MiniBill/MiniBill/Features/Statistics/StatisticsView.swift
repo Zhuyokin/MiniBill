@@ -95,13 +95,9 @@ struct StatisticsView: View {
             .frame(maxWidth: 680)
             .frame(maxWidth: .infinity)
         }
-        .background { LedgerScreenArtwork() }
-        .themedScreen()
-        .navigationBarTitleDisplayMode(.inline)
+        .ledgerScreen()
+        .rootTabHeader()
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                RootTabNavigationTitle("Statistics")
-            }
             ToolbarItem(placement: .topBarTrailing) {
                 AccountSwitcher(selectedAccountID: $selectedAccountID)
             }

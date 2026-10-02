@@ -67,11 +67,39 @@ struct LedgerScreenArtwork: View {
                 color: AppTheme.income.opacity(0.08)
             )
         }
+        .mask {
+            VStack(spacing: 0) {
+                LinearGradient(colors: [.clear, .white], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 120)
+                Color.white
+            }
+        }
         .opacity(style == .skeuomorphic ? 0.3 : (colorScheme == .dark ? 0.6 : 1))
         .clipped()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
+}
+
+private struct LedgerScreenModifier: ViewModifier {
+    @Environment(\.appInterfaceStyle) private var style
+
+    func body(content: Content) -> some View {
+        let screen = content
+            .background { LedgerScreenArtwork() }
+            .themedScreen()
+        if style == .modern {
+            screen
+                .toolbarBackground(AppTheme.background, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+        } else {
+            screen
+        }
+    }
+}
+
+extension View {
+    func ledgerScreen() -> some View { modifier(LedgerScreenModifier()) }
 }
 
 private enum LedgerArtworkDrawing {

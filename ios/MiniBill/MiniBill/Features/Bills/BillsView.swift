@@ -101,10 +101,8 @@ struct BillsView: View {
             .accessibilityLabel("Add Entry")
             .padding(20)
         }
-        .background { LedgerScreenArtwork() }
-        .themedScreen()
-        .navigationTitle("Bills")
-        .navigationBarTitleDisplayMode(.inline)
+        .ledgerScreen()
+        .rootTabHeader()
         .sheet(isPresented: $showMonthPicker) {
             BillMonthPicker(selectedMonth: $selectedMonth)
                 .presentationDetents([.medium])
@@ -124,9 +122,6 @@ struct BillsView: View {
             if isPresented { quickEntryDetent = .medium }
         }
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                AppBrandIcon(size: 32)
-            }
             ToolbarItem(placement: .topBarTrailing) {
                 AccountSwitcher(selectedAccountID: $selectedAccountID)
             }

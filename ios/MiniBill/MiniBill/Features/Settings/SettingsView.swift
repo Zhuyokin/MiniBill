@@ -190,12 +190,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                RootTabNavigationTitle("Settings")
-            }
-        }
+        .rootTabHeader()
         .themedForm()
         .task { await refreshReminderSchedulingState() }
         .onChange(of: scenePhase) { _, phase in

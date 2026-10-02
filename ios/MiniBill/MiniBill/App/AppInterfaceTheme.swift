@@ -27,19 +27,17 @@ extension AppInterfaceStyle {
     }
 }
 
-struct RootTabNavigationTitle: View {
-    let title: LocalizedStringKey
-
-    init(_ title: LocalizedStringKey) {
-        self.title = title
-    }
-
-    var body: some View {
-        Text(title)
-            .font(.system(size: 28, weight: .bold))
-            .lineLimit(1)
-            .minimumScaleFactor(0.72)
-            .accessibilityAddTraits(.isHeader)
+private struct RootTabHeaderModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    AppBrandIcon(size: 32)
+                        .allowsHitTesting(false)
+                }
+            }
     }
 }
 
@@ -401,6 +399,7 @@ struct InterfaceStyleOption: View {
 }
 
 extension View {
+    func rootTabHeader() -> some View { modifier(RootTabHeaderModifier()) }
     func themedScreen() -> some View { modifier(ThemedScreenModifier()) }
     func themedSplash() -> some View { modifier(ThemedSplashModifier()) }
     func retroScreenOnly() -> some View { modifier(RetroScreenOnlyModifier()) }
