@@ -13,33 +13,45 @@ struct BillsView: View {
     @State private var deletionError: String?
     @State private var quickEntryDetent: PresentationDetent = .medium
     @State private var editEntryDetent: PresentationDetent = .medium
+    @State private var selectedMonth = Calendar.current.startOfDay(for: Date())
+    @State private var showMonthPicker = false
 
     private var selectedEntries: [LedgerEntry] {
         entries.filter { $0.resolvedAccountID == selectedAccountID }
     }
     private var records: [LedgerRecord] { selectedEntries.map(LedgerEntryMapper.record) }
     private var summary: MonthlySummary {
-        LedgerAnalytics.summary(records: records, month: Date(), calendar: .current)
+        LedgerAnalytics.summary(records: records, month: selectedMonth, calendar: .current)
     }
-    private var groupedDays: [(Date, [LedgerEntry])] {
-        Dictionary(grouping: selectedEntries) { Calendar.current.startOfDay(for: $0.occurredAt) }
+    private var monthRecords: [LedgerRecord] {
+        LedgerRecordFilter.records(inMonth: selectedMonth, from: records, calendar: .current)
+    }
+    private var groupedDays: [(Date, [LedgerRecord])] {
+        Dictionary(grouping: monthRecords) { Calendar.current.startOfDay(for: $0.occurredAt) }
             .sorted { $0.key > $1.key }
     }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             List {
-                Button { onOpenStatistics(Date()) } label: {
-                    MonthlySummaryCard(summary: summary, showsChevron: true)
-                }
-                .buttonStyle(.plain)
-                .accessibilityHint("Opens monthly statistics")
-                .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                Section {
+                    monthNavigator
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
 
-                if selectedEntries.isEmpty {
-                    ContentUnavailableView("No entries yet", systemImage: "doc.text.magnifyingglass", description: Text("Tap Add Entry to record income or expense."))
+                    Button { onOpenStatistics(selectedMonth) } label: {
+                        MonthlySummaryCard(summary: summary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Opens monthly statistics")
+                    .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                }
+
+                if monthRecords.isEmpty {
+                    ContentUnavailableView("No entries this month", systemImage: "doc.text.magnifyingglass", description: Text("Tap Add Entry to record income or expense."))
                         .frame(maxWidth: .infinity, minHeight: 240)
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -49,34 +61,31 @@ struct BillsView: View {
                             ForEach(items) { entry in
                                 Button {
                                     editEntryDetent = .medium
-                                    editingEntry = LedgerEntryMapper.record(from: entry)
+                                    editingEntry = entry
                                 } label: {
-                                    LedgerRow(entry: entry)
-                                        .themedPanel(cornerRadius: 10)
+                                    LedgerRow(record: entry)
                                 }
                                 .buttonStyle(.plain)
-                                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
+                                .themedListRowBackground()
+                                .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) { pendingDelete = LedgerEntryMapper.record(from: entry) } label: {
+                                    Button(role: .destructive) { pendingDelete = entry } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
                                 }
                             }
                         } header: {
-                            Text(
-                                Calendar.current.isDateInToday(day)
-                                    ? AppLocalization.string("Today", language: language)
-                                    : AppFormat.shortDate(day, locale: language.locale)
-                            )
-                                .font(.headline)
+                            dayHeader(day)
                         }
                     }
                 }
             }
-            .listStyle(.plain)
+            .listStyle(.insetGrouped)
+            .listSectionSpacing(20)
             .scrollContentBackground(.hidden)
+            .contentMargins(.top, 12, for: .scrollContent)
+            .contentMargins(.horizontal, 16, for: .scrollContent)
             .contentMargins(.bottom, 72, for: .scrollContent)
 
             Button {
@@ -92,8 +101,15 @@ struct BillsView: View {
             .accessibilityLabel("Add Entry")
             .padding(20)
         }
+        .background { LedgerScreenArtwork() }
         .themedScreen()
+        .navigationTitle("Bills")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showMonthPicker) {
+            BillMonthPicker(selectedMonth: $selectedMonth)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+        }
         .sheet(isPresented: $showQuickEntry) {
             QuickEntrySheet(accountID: selectedAccountID, candidates: ProjectSuggestionService.candidates(from: records))
                 .presentationDetents([.medium, .large], selection: $quickEntryDetent)
@@ -109,7 +125,7 @@ struct BillsView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                RootTabNavigationTitle("MiniBill")
+                AppBrandIcon(size: 32)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 AccountSwitcher(selectedAccountID: $selectedAccountID)
@@ -143,5 +159,126 @@ struct BillsView: View {
         } message: {
             Text(deletionError ?? "")
         }
+    }
+
+    private var monthNavigator: some View {
+        HStack(spacing: 12) {
+            Button { moveMonth(-1) } label: {
+                Image(systemName: "chevron.left")
+                    .frame(width: 40, height: 40)
+                    .background(AppTheme.muted.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            }
+            .accessibilityLabel("Previous month")
+
+            Button { showMonthPicker = true } label: {
+                HStack(spacing: 8) {
+                    Text(AppFormat.month(selectedMonth, locale: language.locale))
+                        .font(.title3.bold())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                    Image(systemName: "chevron.down").font(.caption.bold())
+                }
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            }
+            .accessibilityLabel("Select month")
+            .accessibilityValue(AppFormat.month(selectedMonth, locale: language.locale))
+
+            Button { moveMonth(1) } label: {
+                Image(systemName: "chevron.right")
+                    .frame(width: 40, height: 40)
+                    .background(AppTheme.muted.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            }
+            .accessibilityLabel("Next month")
+
+            Button("This month") { selectedMonth = Date() }
+                .font(.subheadline.weight(.medium))
+                .fixedSize()
+                .padding(.horizontal, 12)
+                .frame(height: 40)
+                .background(AppTheme.muted.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+        }
+        .foregroundStyle(AppTheme.ink)
+        .buttonStyle(.plain)
+    }
+
+    private func moveMonth(_ offset: Int) {
+        guard let start = Calendar.current.dateInterval(of: .month, for: selectedMonth)?.start,
+              let month = Calendar.current.date(byAdding: .month, value: offset, to: start) else { return }
+        selectedMonth = month
+    }
+
+    private func dayHeader(_ day: Date) -> some View {
+        let net = summary.dailyNet.first(where: { $0.date == day })?.netCents ?? 0
+        return HStack(alignment: .firstTextBaseline) {
+            Text(day.formatted(.dateTime.month().day().weekday(.abbreviated).locale(language.locale)))
+                .font(.subheadline.weight(.semibold))
+            Spacer(minLength: 8)
+            HStack(spacing: 5) {
+                Text("Net Profit").foregroundStyle(AppTheme.muted)
+                Text(AppFormat.money(net, signed: true, locale: language.locale))
+                    .foregroundStyle(AppTheme.strongColor(for: net >= 0 ? .income : .expense))
+            }
+            .font(.caption)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+        }
+        .textCase(nil)
+        .padding(.bottom, 4)
+        .listRowInsets(EdgeInsets(top: 0, leading: 2, bottom: 8, trailing: 2))
+    }
+}
+
+private struct BillMonthPicker: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.appLanguage) private var language
+    @Binding var selectedMonth: Date
+    @State private var year = Calendar.current.component(.year, from: Date())
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                HStack {
+                    Button { year -= 1 } label: {
+                        Image(systemName: "chevron.left").frame(width: 44, height: 44)
+                    }
+                    .accessibilityLabel("Previous year")
+                    Spacer()
+                    Text(String(year)).font(.title2.bold()).monospacedDigit()
+                    Spacer()
+                    Button { year += 1 } label: {
+                        Image(systemName: "chevron.right").frame(width: 44, height: 44)
+                    }
+                    .accessibilityLabel("Next year")
+                }
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 14) {
+                    ForEach(1...12, id: \.self) { month in
+                        if let date = Calendar.current.date(from: DateComponents(year: year, month: month, day: 1)) {
+                            let isSelected = Calendar.current.isDate(date, equalTo: selectedMonth, toGranularity: .month)
+                            Button {
+                                selectedMonth = date
+                                dismiss()
+                            } label: {
+                                Text(date.formatted(.dateTime.month(.abbreviated).locale(language.locale)))
+                                    .font(.body.weight(.semibold))
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                                    .background(isSelected ? AppTheme.brandSoft : AppTheme.surface, in: RoundedRectangle(cornerRadius: 12))
+                            }
+                            .accessibilityAddTraits(isSelected ? .isSelected : [])
+                        }
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 24)
+            .themedScreen()
+            .navigationTitle("Select month")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .onAppear { year = Calendar.current.component(.year, from: selectedMonth) }
     }
 }

@@ -3,86 +3,81 @@ import SwiftUI
 struct MonthlySummaryCard: View {
     @Environment(\.appLanguage) private var language
     let summary: MonthlySummary
-    let showsChevron: Bool
-
-    init(summary: MonthlySummary, showsChevron: Bool = false) {
-        self.summary = summary
-        self.showsChevron = showsChevron
-    }
+    var artwork: LedgerArtworkMotif = .leaves
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(AppFormat.month(summary.month, locale: language.locale))
-                    .font(.subheadline.weight(.semibold))
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Monthly Net Profit")
+                    .font(.subheadline.weight(.medium))
                     .foregroundStyle(AppTheme.muted)
-                Spacer()
-                if showsChevron {
-                    Image(systemName: "chevron.forward")
-                        .foregroundStyle(AppTheme.muted)
-                }
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Net Profit")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.muted)
-                Text(AppFormat.money(summary.netCents, signed: true, locale: language.locale))
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                Text(AppFormat.money(summary.netCents, locale: language.locale))
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(summary.netCents >= 0 ? AppTheme.ink : AppTheme.destructive)
+                    .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
             HStack(spacing: 16) {
-                metric("Income", summary.incomeCents, kind: .income, sign: "+")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Divider().frame(height: 38)
-                metric("Expense", summary.expenseCents, kind: .expense, sign: "−")
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                LedgerSummaryMetric(cents: summary.incomeCents, kind: .income)
+                Divider().frame(height: 42)
+                LedgerSummaryMetric(cents: summary.expenseCents, kind: .expense)
             }
-            compositionBar
+            LedgerBalanceBar(income: summary.incomeCents, expense: summary.expenseCents)
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .themedPanel(cornerRadius: 8)
+        .background { LedgerCardArtwork(motif: artwork) }
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .themedPanel(cornerRadius: 22)
     }
+}
 
-    private func metric(_ title: LocalizedStringKey, _ cents: Int64, kind: LedgerKind, sign: String) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
+struct LedgerSummaryMetric: View {
+    @Environment(\.appLanguage) private var language
+    let cents: Int64
+    let kind: LedgerKind
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
                 Circle()
                     .fill(AppTheme.color(for: kind))
                     .frame(width: 8, height: 8)
-                Text(title)
+                Text(kind == .income ? "Income" : "Expense")
             }
-            .font(.caption)
+            .font(.subheadline)
             .foregroundStyle(AppTheme.muted)
-            Text("\(sign)\(AppFormat.money(cents, locale: language.locale))")
-                .font(.headline)
+            Text(AppFormat.money(cents, locale: language.locale))
+                .font(.system(.title3, design: .rounded, weight: .bold))
                 .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .foregroundStyle(AppTheme.strongColor(for: kind))
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
+}
 
-    @ViewBuilder
-    private var compositionBar: some View {
-        let total = Double(summary.incomeCents) + Double(summary.expenseCents)
-        if total > 0 {
-            GeometryReader { proxy in
-                HStack(spacing: 2) {
-                    Rectangle()
-                        .fill(AppTheme.income)
-                        .frame(width: proxy.size.width * CGFloat(Double(summary.incomeCents) / total))
-                    Rectangle()
-                        .fill(AppTheme.expense)
+struct LedgerBalanceBar: View {
+    let income: Int64
+    let expense: Int64
+
+    var body: some View {
+        GeometryReader { geometry in
+            let total = Double(income) + Double(expense)
+            HStack(spacing: 2) {
+                if income > 0 {
+                    AppTheme.income
+                        .frame(width: (geometry.size.width - (expense > 0 ? 2 : 0)) * Double(income) / total)
                 }
-                .clipShape(Capsule())
+                if expense > 0 { AppTheme.expense }
             }
-            .frame(height: 8)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(
-                "\(AppLocalization.string("Income", language: language)), \(AppFormat.money(summary.incomeCents, locale: language.locale)); "
-                + "\(AppLocalization.string("Expense", language: language)), \(AppFormat.money(summary.expenseCents, locale: language.locale))"
-            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .background(AppTheme.muted.opacity(0.1))
+            .clipShape(Capsule())
         }
+        .frame(height: 6)
+        .accessibilityHidden(true)
     }
 }

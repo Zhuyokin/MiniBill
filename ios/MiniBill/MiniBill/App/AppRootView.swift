@@ -17,7 +17,7 @@ private enum RootTab: String, CaseIterable, Hashable, Identifiable {
 
     var icon: String {
         switch self {
-        case .bills: return "list.bullet.clipboard"
+        case .bills: return "house.fill"
         case .statistics: return "chart.bar.xaxis"
         case .settings: return "gearshape"
         }

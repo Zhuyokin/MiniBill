@@ -22,6 +22,17 @@ public enum LedgerRecordFilter {
     }
 
     public static func records(
+        inMonth month: Date,
+        from records: [LedgerRecord],
+        calendar: Calendar
+    ) -> [LedgerRecord] {
+        guard let interval = calendar.dateInterval(of: .month, for: month) else { return [] }
+        return records
+            .filter { interval.start <= $0.occurredAt && $0.occurredAt < interval.end }
+            .sorted(by: newestFirst)
+    }
+
+    public static func records(
         forProjectKey projectKey: String,
         kind: LedgerKind,
         inMonth month: Date,

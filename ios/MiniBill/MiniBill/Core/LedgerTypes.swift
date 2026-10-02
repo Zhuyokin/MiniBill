@@ -82,7 +82,7 @@ public struct LedgerRecord: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
-public struct MonthlyLedgerTotal: Equatable, Sendable, Identifiable {
+public struct MonthlyLedgerTotal: Codable, Equatable, Sendable, Identifiable {
     public let month: Date
     public let incomeCents: Int64
     public let expenseCents: Int64
@@ -337,5 +337,30 @@ public struct MonthlySharePayload: Codable, Equatable, Sendable {
         dailyNet = summary.dailyNet
         topIncomeProject = summary.incomeProjects.first
         topExpenseProject = summary.expenseProjects.first
+    }
+}
+
+public struct YearlySharePayload: Codable, Equatable, Sendable {
+    public let year: Date
+    public let incomeCents: Int64
+    public let expenseCents: Int64
+    public let netCents: Int64
+    public let recordCount: Int
+    public let months: [MonthlyLedgerTotal]
+
+    public init(months: [MonthlyLedgerTotal], year: Date) {
+        self.year = year
+        self.months = months
+        incomeCents = Self.clampedSum(months.map(\.incomeCents))
+        expenseCents = Self.clampedSum(months.map(\.expenseCents))
+        netCents = incomeCents - expenseCents
+        recordCount = months.reduce(0) { $0 + $1.recordCount }
+    }
+
+    private static func clampedSum(_ amounts: [Int64]) -> Int64 {
+        amounts.reduce(0) { partial, amount in
+            let (sum, overflow) = partial.addingReportingOverflow(amount)
+            return overflow ? Int64.max : sum
+        }
     }
 }

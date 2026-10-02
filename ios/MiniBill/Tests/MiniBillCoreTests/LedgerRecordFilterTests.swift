@@ -43,6 +43,72 @@ final class LedgerRecordFilterTests: XCTestCase {
         XCTAssertEqual(result.map(\.id), [late.id, early.id])
     }
 
+    func testMonthFilterUsesCalendarBoundariesAcrossYears() {
+        var localCalendar = calendar
+        localCalendar.timeZone = TimeZone(secondsFromGMT: 8 * 60 * 60)!
+        let previousMonth = record(
+            id: "00000000-0000-0000-0000-000000000021",
+            kind: .income,
+            project: "Previous",
+            occurredAt: "2026-12-31T15:59:59Z"
+        )
+        let monthStart = record(
+            id: "00000000-0000-0000-0000-000000000022",
+            kind: .income,
+            project: "Start",
+            occurredAt: "2026-12-31T16:00:00Z"
+        )
+        let monthEnd = record(
+            id: "00000000-0000-0000-0000-000000000023",
+            kind: .expense,
+            project: "End",
+            occurredAt: "2027-01-31T15:59:59Z"
+        )
+        let nextMonth = record(
+            id: "00000000-0000-0000-0000-000000000024",
+            kind: .expense,
+            project: "Next",
+            occurredAt: "2027-01-31T16:00:00Z"
+        )
+
+        let result = LedgerRecordFilter.records(
+            inMonth: date("2027-01-15T12:00:00Z"),
+            from: [monthStart, nextMonth, previousMonth, monthEnd],
+            calendar: localCalendar
+        )
+
+        XCTAssertEqual(result.map(\.id), [monthEnd.id, monthStart.id])
+    }
+
+    func testMonthFilterSortsNewestFirstWithStableIDOrderForTies() {
+        let earlier = record(
+            id: "00000000-0000-0000-0000-000000000031",
+            kind: .income,
+            project: "Earlier",
+            occurredAt: "2026-08-03T08:00:00Z"
+        )
+        let firstTie = record(
+            id: "00000000-0000-0000-0000-000000000032",
+            kind: .expense,
+            project: "First",
+            occurredAt: "2026-08-20T08:00:00Z"
+        )
+        let secondTie = record(
+            id: "00000000-0000-0000-0000-000000000033",
+            kind: .income,
+            project: "Second",
+            occurredAt: "2026-08-20T08:00:00Z"
+        )
+
+        let result = LedgerRecordFilter.records(
+            inMonth: date("2026-08-15T12:00:00Z"),
+            from: [secondTie, earlier, firstTie],
+            calendar: calendar
+        )
+
+        XCTAssertEqual(result.map(\.id), [firstTie.id, secondTie.id, earlier.id])
+    }
+
     func testProjectFilterUsesNormalizedNameMonthAndLedgerKind() {
         let olderMatch = record(
             id: "00000000-0000-0000-0000-000000000011",

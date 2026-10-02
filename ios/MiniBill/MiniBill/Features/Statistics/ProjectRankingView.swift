@@ -5,12 +5,9 @@ struct ProjectRankingView: View {
     let title: LocalizedStringKey
     let totals: [ProjectTotal]
     let tint: Color
-    let month: Date
-    let kind: LedgerKind
-    let accountID: UUID
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
                 Circle().fill(tint).frame(width: 9, height: 9)
                 Text(title)
@@ -23,39 +20,45 @@ struct ProjectRankingView: View {
             } else {
                 let maximum = max(totals.first?.totalCents ?? 1, 1)
                 ForEach(Array(totals.enumerated()), id: \.element.id) { index, item in
-                    NavigationLink {
-                        FilteredEntriesView(selection: .project(
-                            month: month,
-                            kind: kind,
-                            normalizedKey: item.normalizedKey,
-                            displayName: item.displayName
-                        ), accountID: accountID)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack {
-                                Text("\(index + 1). \(item.displayName)").lineLimit(1)
-                                Spacer()
-                                Text(AppFormat.money(item.totalCents, locale: language.locale)).monospacedDigit()
-                                Image(systemName: "chevron.forward")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(AppTheme.muted)
+                    HStack(alignment: .top, spacing: 12) {
+                        Text("\(index + 1)")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(AppTheme.muted)
+                            .frame(width: 28, height: 28)
+                            .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 9))
+
+                        VStack(alignment: .leading, spacing: 9) {
+                            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                                Text(item.displayName)
+                                    .font(.subheadline.weight(.medium))
+                                    .lineLimit(2)
+                                Spacer(minLength: 0)
+                                VStack(alignment: .trailing, spacing: 3) {
+                                    Text(AppFormat.money(item.totalCents, locale: language.locale))
+                                        .font(.subheadline.weight(.semibold))
+                                        .monospacedDigit()
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.7)
+                                    Text("\(item.recordCount) entries")
+                                        .font(.caption)
+                                        .foregroundStyle(AppTheme.muted)
+                                }
                             }
                             GeometryReader { proxy in
-                                Capsule().fill(tint.opacity(0.18))
+                                Capsule().fill(tint.opacity(0.1))
                                     .overlay(alignment: .leading) {
                                         Capsule().fill(tint).frame(width: proxy.size.width * CGFloat(item.totalCents) / CGFloat(maximum))
                                     }
                             }
-                            .frame(height: 8)
+                            .frame(height: 5)
+                            .accessibilityHidden(true)
                         }
                     }
-                    .buttonStyle(.plain)
                     .accessibilityElement(children: .combine)
-                    .accessibilityHint("Shows entries for this project")
                 }
             }
         }
-        .padding(16)
-        .themedPanel(cornerRadius: 8)
+        .padding(20)
+        .themedPanel(cornerRadius: 22)
     }
 }

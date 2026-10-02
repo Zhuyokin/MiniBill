@@ -3,6 +3,7 @@ import UIKit
 
 enum ShareCardPayload: Identifiable {
     case month(MonthlySharePayload)
+    case year(YearlySharePayload)
     case entry(EntrySharePayload)
 
     var id: String {
@@ -15,6 +16,14 @@ enum ShareCardPayload: Identifiable {
                 "month", String(value.month.timeIntervalSince1970), String(value.netCents),
                 String(value.incomeCents), String(value.expenseCents), String(value.recordCount),
                 days, topIncome, topExpense
+            ].joined(separator: "|")
+        case .year(let value):
+            let months = value.months.map {
+                "\($0.month.timeIntervalSince1970):\($0.incomeCents):\($0.expenseCents)"
+            }.joined(separator: ",")
+            return [
+                "year", String(value.year.timeIntervalSince1970), String(value.netCents),
+                String(value.incomeCents), String(value.expenseCents), String(value.recordCount), months
             ].joined(separator: "|")
         case .entry(let value):
             return [
@@ -34,6 +43,8 @@ enum ShareImageService {
         switch payload {
         case .month(let value):
             card = AnyView(MonthlyShareCard(payload: value, locale: language.locale))
+        case .year(let value):
+            card = AnyView(YearlyShareCard(payload: value, locale: language.locale))
         case .entry(let value):
             card = AnyView(EntryShareCard(payload: value, locale: language.locale))
         }

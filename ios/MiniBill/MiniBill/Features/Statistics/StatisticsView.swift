@@ -48,9 +48,13 @@ struct StatisticsView: View {
         LedgerAnalytics.kindTotals(records: records, month: selectedMonth, calendar: .current)
     }
 
+    private var yearSummary: YearlySharePayload {
+        YearlySharePayload(months: yearlyTotals, year: selectedMonth)
+    }
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 16) {
                 Picker("Chart View", selection: $chartMode) {
                     ForEach(StatisticsChartMode.allCases) { mode in
                         Text(mode.title).tag(mode)
@@ -61,24 +65,16 @@ struct StatisticsView: View {
                 periodNavigator
 
                 if chartMode == .year {
-                    YearSummaryCard(values: yearlyTotals)
+                    YearSummaryCard(summary: yearSummary)
+                    summaryActions
                     YearlyChart(values: yearlyTotals)
+                    YearlyBreakdownCard(values: yearlyTotals)
                 } else {
-                    MonthlySummaryCard(summary: summary)
-
-                    HStack {
-                        Label("\(summary.recordCount) entries", systemImage: "doc.plaintext")
-                            .font(.subheadline)
-                        Spacer()
-                        ShareImageLink(
-                            payload: .month(MonthlySharePayload(summary: summary)),
-                            title: "Share Month",
-                            systemImage: "square.and.arrow.up"
-                        )
-                    }
+                    MonthlySummaryCard(summary: summary, artwork: chartMode == .type ? .rings : .leaves)
+                    summaryActions
 
                     if chartMode == .month {
-                        DailyNetChart(values: summary.dailyNet, month: summary.month, accountID: selectedAccountID)
+                        DailyNetChart(values: summary.dailyNet, month: summary.month)
                     } else {
                         KindDistributionChart(values: kindTotals)
                     }
@@ -86,18 +82,12 @@ struct StatisticsView: View {
                     ProjectRankingView(
                         title: "Income Projects",
                         totals: summary.incomeProjects,
-                        tint: AppTheme.income,
-                        month: summary.month,
-                        kind: .income,
-                        accountID: selectedAccountID
+                        tint: AppTheme.income
                     )
                     ProjectRankingView(
                         title: "Expense Projects",
                         totals: summary.expenseProjects,
-                        tint: AppTheme.expense,
-                        month: summary.month,
-                        kind: .expense,
-                        accountID: selectedAccountID
+                        tint: AppTheme.expense
                     )
                 }
             }
@@ -105,6 +95,7 @@ struct StatisticsView: View {
             .frame(maxWidth: 680)
             .frame(maxWidth: .infinity)
         }
+        .background { LedgerScreenArtwork() }
         .themedScreen()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -120,15 +111,43 @@ struct StatisticsView: View {
     private var periodNavigator: some View {
         HStack {
             Button { movePeriod(-1) } label: {
-                Image(systemName: "chevron.left").frame(width: 44, height: 44)
+                Image(systemName: "chevron.left")
+                    .frame(width: 44, height: 44)
+                    .background(AppTheme.muted.opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
             }
+            .accessibilityLabel(chartMode == .year ? "Previous year" : "Previous month")
             Spacer()
-            Text(periodTitle).font(.headline)
+            Text(periodTitle)
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
             Spacer()
             Button { movePeriod(1) } label: {
-                Image(systemName: "chevron.right").frame(width: 44, height: 44)
+                Image(systemName: "chevron.right")
+                    .frame(width: 44, height: 44)
+                    .background(AppTheme.muted.opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
+            }
+            .accessibilityLabel(chartMode == .year ? "Next year" : "Next month")
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(AppTheme.ink)
+    }
+
+    private var summaryActions: some View {
+        HStack(spacing: 12) {
+            Label("\(chartMode == .year ? yearSummary.recordCount : summary.recordCount) entries", systemImage: "doc.text")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.ink)
+            Spacer(minLength: 0)
+            if chartMode == .year {
+                ShareImageLink(payload: .year(yearSummary), title: "Share Year", systemImage: "square.and.arrow.up")
+            } else {
+                ShareImageLink(payload: .month(MonthlySharePayload(summary: summary)), title: "Share Month", systemImage: "square.and.arrow.up")
             }
         }
+        .font(.subheadline)
+        .frame(minHeight: 44)
+        .padding(.horizontal, 4)
     }
 
     private var periodTitle: String {
@@ -140,7 +159,8 @@ struct StatisticsView: View {
 
     private func movePeriod(_ value: Int) {
         let component: Calendar.Component = chartMode == .year ? .year : .month
-        if let next = Calendar.current.date(byAdding: component, value: value, to: selectedMonth) {
+        let start = Calendar.current.dateInterval(of: .month, for: selectedMonth)?.start ?? selectedMonth
+        if let next = Calendar.current.date(byAdding: component, value: value, to: start) {
             selectedMonth = next
         }
     }
@@ -150,15 +170,13 @@ private struct DailyNetChart: View {
     @Environment(\.appLanguage) private var language
     let values: [DailyTotal]
     let month: Date
-    let accountID: UUID
-    @State private var selectedDay: Date?
 
     var body: some View {
-        chartCard(title: "Daily Net") {
+        chartCard(title: "Daily Net", systemImage: "chart.xyaxis.line", netLegend: true) {
             if values.isEmpty {
                 emptyState("No entries this month")
             } else if let interval = StatisticsChartScale.monthInterval(containing: month, calendar: .current) {
-                let yDomain = StatisticsChartScale.symmetricYDomain(values: values.map(\.netCents))
+                let centsDomain = StatisticsChartScale.symmetricYDomain(values: values.map(\.netCents))
                 Chart {
                     RuleMark(y: .value("Zero", 0))
                         .foregroundStyle(AppTheme.muted.opacity(0.45))
@@ -167,10 +185,11 @@ private struct DailyNetChart: View {
                         BarMark(
                             x: .value("Date", item.date, unit: .day),
                             yStart: .value("Zero", 0),
-                            yEnd: .value("Net", Double(item.netCents)),
+                            yEnd: .value("Net", Double(item.netCents) / 100),
                             width: .fixed(9)
                         )
                         .foregroundStyle(item.netCents >= 0 ? AppTheme.income : AppTheme.expense)
+                        .cornerRadius(3)
                         .accessibilityLabel(AppFormat.shortDate(item.date, locale: language.locale))
                         .accessibilityValue(AppFormat.money(item.netCents, signed: true, locale: language.locale))
 
@@ -182,7 +201,7 @@ private struct DailyNetChart: View {
                     }
                 }
                 .chartXScale(domain: interval.start...interval.end)
-                .chartYScale(domain: yDomain)
+                .chartYScale(domain: (centsDomain.lowerBound / 100)...(centsDomain.upperBound / 100))
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .day, count: 7)) { value in
                         AxisTick().foregroundStyle(AppTheme.muted.opacity(0.5))
@@ -193,68 +212,55 @@ private struct DailyNetChart: View {
                         }
                     }
                 }
-                .chartYAxis(.hidden)
-                .chartOverlay { proxy in
-                    GeometryReader { geometry in
-                        Rectangle()
-                            .fill(.clear)
-                            .contentShape(Rectangle())
-                            .gesture(SpatialTapGesture().onEnded { event in
-                                selectDay(at: event.location, proxy: proxy, geometry: geometry)
-                            })
-                    }
-                }
-                .frame(height: 180)
-                .accessibilityHint("Shows entries for this day")
-                .navigationDestination(item: $selectedDay) { date in
-                    FilteredEntriesView(selection: .day(date), accountID: accountID)
-                }
+                .chartYAxis { amountAxis }
+                .frame(height: 200)
             }
         }
-    }
-
-    private func selectDay(at location: CGPoint, proxy: ChartProxy, geometry: GeometryProxy) {
-        guard let plotFrame = proxy.plotFrame else { return }
-        let frame = geometry[plotFrame]
-        guard frame.contains(location),
-              let date: Date = proxy.value(atX: location.x - frame.origin.x),
-              let value = values.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) }) else {
-            return
-        }
-        selectedDay = value.date
     }
 }
 
 private struct YearlyChart: View {
+    @Environment(\.appLanguage) private var language
     let values: [MonthlyLedgerTotal]
 
     var body: some View {
-        chartCard(title: "Monthly Income and Expense") {
-            Chart {
-                ForEach(values) { item in
-                    BarMark(
-                        x: .value("Month", item.month, unit: .month),
-                        y: .value("Amount", Double(item.incomeCents))
-                    )
-                    .position(by: .value("Type", "Income"))
-                    .foregroundStyle(by: .value("Type", "Income"))
+        chartCard(title: "Monthly Income and Expense", systemImage: "chart.bar.xaxis") {
+            if values.allSatisfy({ $0.recordCount == 0 }) {
+                emptyState("No entries this year")
+            } else {
+                Chart {
+                    ForEach(values) { item in
+                        BarMark(
+                            x: .value("Month", item.month, unit: .month),
+                            y: .value("Amount", Double(item.incomeCents) / 100)
+                        )
+                        .position(by: .value("Type", "Income"))
+                        .foregroundStyle(by: .value("Type", "Income"))
+                        .cornerRadius(3)
+                        .accessibilityLabel(Text(item.month, format: .dateTime.month(.wide)) + Text(" · ") + Text("Income"))
+                        .accessibilityValue(AppFormat.money(item.incomeCents, locale: language.locale))
 
-                    BarMark(
-                        x: .value("Month", item.month, unit: .month),
-                        y: .value("Amount", Double(item.expenseCents))
-                    )
-                    .position(by: .value("Type", "Expense"))
-                    .foregroundStyle(by: .value("Type", "Expense"))
+                        BarMark(
+                            x: .value("Month", item.month, unit: .month),
+                            y: .value("Amount", Double(item.expenseCents) / 100)
+                        )
+                        .position(by: .value("Type", "Expense"))
+                        .foregroundStyle(by: .value("Type", "Expense"))
+                        .cornerRadius(3)
+                        .accessibilityLabel(Text(item.month, format: .dateTime.month(.wide)) + Text(" · ") + Text("Expense"))
+                        .accessibilityValue(AppFormat.money(item.expenseCents, locale: language.locale))
+                    }
                 }
-            }
-            .chartForegroundStyleScale(["Income": AppTheme.income, "Expense": AppTheme.expense])
-            .chartXAxis {
-                AxisMarks(values: .stride(by: .month)) { value in
-                    AxisValueLabel(format: .dateTime.month(.narrow))
+                .chartForegroundStyleScale(["Income": AppTheme.income, "Expense": AppTheme.expense])
+                .chartLegend(.hidden)
+                .chartXAxis {
+                    AxisMarks(values: values.map(\.month)) { _ in
+                        AxisValueLabel(format: .dateTime.month(.narrow))
+                    }
                 }
+                .chartYAxis { amountAxis }
+                .frame(height: 220)
             }
-            .chartYAxis(.hidden)
-            .frame(height: 220)
         }
     }
 }
@@ -266,16 +272,29 @@ private struct KindDistributionChart: View {
     private var hasData: Bool { values.contains { $0.totalCents > 0 } }
 
     var body: some View {
-        chartCard(title: "Income and Expense by Type") {
+        chartCard(title: "Income and Expense by Type", systemImage: "chart.donut", showsAmountAxis: false) {
             if hasData {
                 Chart(values) { item in
                     SectorMark(
                         angle: .value("Amount", Double(item.totalCents)),
-                        innerRadius: .ratio(0.58),
-                        angularInset: 2
+                        innerRadius: .ratio(0.72),
+                        angularInset: 3
                     )
                     .foregroundStyle(AppTheme.color(for: item.kind))
                     .cornerRadius(5)
+                    .accessibilityLabel(item.kind == .income ? "Income" : "Expense")
+                    .accessibilityValue(AppFormat.money(item.totalCents, locale: language.locale))
+                }
+                .chartBackground { _ in
+                    VStack(spacing: 4) {
+                        Text("\(values.reduce(0) { $0 + $1.recordCount })")
+                            .font(.system(size: 30, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                        Text("Entries")
+                            .font(.caption)
+                            .foregroundStyle(AppTheme.muted)
+                    }
+                    .accessibilityElement(children: .combine)
                 }
                 .frame(height: 210)
 
@@ -290,12 +309,17 @@ private struct KindDistributionChart: View {
                             .font(.caption)
                             Text(AppFormat.money(item.totalCents, locale: language.locale))
                                 .font(.subheadline.bold())
+                                .foregroundStyle(AppTheme.strongColor(for: item.kind))
                                 .monospacedDigit()
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                             Text("\(item.recordCount) entries")
                                 .font(.caption)
                                 .foregroundStyle(AppTheme.muted)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(AppTheme.color(for: item.kind).opacity(0.07), in: RoundedRectangle(cornerRadius: 14))
                     }
                 }
             } else {
@@ -307,60 +331,147 @@ private struct KindDistributionChart: View {
 
 private struct YearSummaryCard: View {
     @Environment(\.appLanguage) private var language
-    let values: [MonthlyLedgerTotal]
-
-    private var income: Int64 { clampedSum(values.map(\.incomeCents)) }
-    private var expense: Int64 { clampedSum(values.map(\.expenseCents)) }
+    let summary: YearlySharePayload
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Year Summary").font(.headline)
-            HStack {
-                metric("Income", value: income, color: AppTheme.incomeStrong)
-                metric("Expense", value: expense, color: AppTheme.expenseStrong)
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Yearly Net Profit")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(AppTheme.muted)
+                Text(AppFormat.money(summary.netCents, locale: language.locale))
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(summary.netCents >= 0 ? AppTheme.ink : AppTheme.destructive)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
-            Label("\(values.map(\.recordCount).reduce(0, +)) entries", systemImage: "doc.plaintext")
-                .font(.caption)
-                .foregroundStyle(AppTheme.muted)
+            HStack(spacing: 16) {
+                LedgerSummaryMetric(cents: summary.incomeCents, kind: .income)
+                Divider().frame(height: 42)
+                LedgerSummaryMetric(cents: summary.expenseCents, kind: .expense)
+            }
+            LedgerBalanceBar(income: summary.incomeCents, expense: summary.expenseCents)
         }
-        .padding(16)
-        .themedPanel(cornerRadius: 8)
-    }
-
-    private func metric(_ title: LocalizedStringKey, value: Int64, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.caption).foregroundStyle(AppTheme.muted)
-            Text(AppFormat.money(value, locale: language.locale))
-                .font(.title3.bold())
-                .foregroundStyle(color)
-                .monospacedDigit()
-        }
+        .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background { LedgerCardArtwork(motif: .bars) }
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .themedPanel(cornerRadius: 22)
+    }
+}
+
+private struct YearlyBreakdownCard: View {
+    @Environment(\.appLanguage) private var language
+    let values: [MonthlyLedgerTotal]
+
+    private var activeMonths: [MonthlyLedgerTotal] {
+        values.filter { $0.recordCount > 0 }.sorted { $0.month > $1.month }
     }
 
-    private func clampedSum(_ values: [Int64]) -> Int64 {
-        values.reduce(0) { partial, value in
-            let (result, overflow) = partial.addingReportingOverflow(value)
-            return overflow ? Int64.max : result
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Label {
+                Text("Monthly Breakdown")
+            } icon: {
+                Image(systemName: "list.bullet.rectangle").foregroundStyle(AppTheme.brand)
+            }
+            .font(.headline)
+
+            if activeMonths.isEmpty {
+                emptyState("No entries this year")
+            } else {
+                ForEach(Array(activeMonths.enumerated()), id: \.element.id) { index, item in
+                    if index > 0 { Divider().opacity(0.5) }
+                    HStack(spacing: 12) {
+                        Text(item.month.formatted(.dateTime.month(.abbreviated).locale(language.locale)))
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .frame(width: 44, height: 44)
+                            .background(AppTheme.brand.opacity(0.08), in: RoundedRectangle(cornerRadius: 15))
+
+                        VStack(alignment: .leading, spacing: 5) {
+                            monthAmount("Income", cents: item.incomeCents, color: AppTheme.income)
+                            monthAmount("Expense", cents: item.expenseCents, color: AppTheme.expense)
+                        }
+                        Spacer(minLength: 0)
+                        VStack(alignment: .trailing, spacing: 5) {
+                            Text(AppFormat.money(item.netCents, signed: true, locale: language.locale))
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(item.netCents >= 0 ? AppTheme.incomeStrong : AppTheme.expenseStrong)
+                            Text("\(item.recordCount) entries")
+                                .font(.caption)
+                                .foregroundStyle(AppTheme.muted)
+                        }
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
         }
+        .padding(20)
+        .themedPanel(cornerRadius: 22)
+    }
+
+    private func monthAmount(_ title: LocalizedStringKey, cents: Int64, color: Color) -> some View {
+        HStack(spacing: 5) {
+            Circle().fill(color).frame(width: 5, height: 5)
+            Text(AppFormat.money(cents, locale: language.locale))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .font(.caption)
+        .foregroundStyle(AppTheme.muted)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(AppFormat.money(cents, locale: language.locale))
     }
 }
 
 private func chartCard<Content: View>(
     title: LocalizedStringKey,
+    systemImage: String,
+    netLegend: Bool = false,
+    showsAmountAxis: Bool = true,
     @ViewBuilder content: () -> Content
 ) -> some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: 18) {
+        Label {
+            Text(title)
+        } icon: {
+            Image(systemName: systemImage).foregroundStyle(AppTheme.brand)
+        }
+        .font(.headline)
+
         HStack {
-            Text(title).font(.headline)
+            if showsAmountAxis {
+                Text("CNY").font(.caption2).foregroundStyle(AppTheme.muted)
+            }
             Spacer()
-            chartLegend("Income", color: AppTheme.income)
-            chartLegend("Expense", color: AppTheme.expense)
+            chartLegend(netLegend ? "Positive Net" : "Income", color: AppTheme.income)
+            chartLegend(netLegend ? "Negative Net" : "Expense", color: AppTheme.expense)
         }
         content()
     }
-    .padding(16)
-    .themedPanel(cornerRadius: 8)
+    .padding(20)
+    .themedPanel(cornerRadius: 22)
+}
+
+private var amountAxis: some AxisContent {
+    AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+        AxisGridLine().foregroundStyle(AppTheme.muted.opacity(0.1))
+        AxisValueLabel {
+            if let amount = value.as(Double.self) {
+                Text(amount, format: .number.notation(.compactName))
+                    .font(.caption2)
+                    .foregroundStyle(AppTheme.muted)
+            }
+        }
+    }
 }
 
 private func chartLegend(_ title: LocalizedStringKey, color: Color) -> some View {

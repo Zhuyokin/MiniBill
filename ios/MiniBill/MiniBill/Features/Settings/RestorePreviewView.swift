@@ -1,15 +1,18 @@
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
 struct RestorePreviewView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appLanguage) private var language
     let preview: RestorePreview
-    let onExportCurrent: () -> Void
+    let onExportCurrent: () throws -> BackupDocument
     let onRestore: () throws -> Void
 
     @State private var confirmReplace = false
     @State private var errorMessage: String?
+    @State private var exportedDocument: BackupDocument?
+    @State private var showExporter = false
 
     var body: some View {
         NavigationStack {
@@ -33,7 +36,14 @@ struct RestorePreviewView: View {
                 }
                 Section("Current Ledger") {
                     LabeledContent("Current Entries", value: "\(preview.currentRecordCount)")
-                    Button("Export Current Ledger First", action: onExportCurrent)
+                    Button("Export Current Ledger First") {
+                        do {
+                            exportedDocument = try onExportCurrent()
+                            showExporter = true
+                        } catch {
+                            errorMessage = AppLocalization.string("Export failed. Choose another location or try again.")
+                        }
+                    }
                 }
                 Section {
                     Button("Replace and Restore", role: .destructive) { confirmReplace = true }
@@ -48,6 +58,17 @@ struct RestorePreviewView: View {
             .themedForm()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+            .fileExporter(
+                isPresented: $showExporter,
+                document: exportedDocument,
+                contentType: .json,
+                defaultFilename: "\(BackupService.filename()).json"
+            ) { result in
+                if case .failure(let error) = result, (error as NSError).code != NSUserCancelledError {
+                    errorMessage = AppLocalization.string("Export failed. Choose another location or try again.")
+                }
+                exportedDocument = nil
+            }
             .confirmationDialog("Replace the current ledger?", isPresented: $confirmReplace, titleVisibility: .visible) {
                 Button("Replace and Restore", role: .destructive) {
                     do {

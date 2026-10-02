@@ -27,16 +27,25 @@ enum BackupService {
         )
     }
 
-    static func document(entries: [LedgerEntry], accounts: [LedgerAccount], selectedAccountID: UUID) throws -> BackupDocument {
-        BackupDocument(data: try BackupCodec.encode(archive(
+    static func document(entries: [LedgerEntry], accounts: [LedgerAccount], selectedAccountID: UUID, format: BackupFileFormat) throws -> BackupDocument {
+        let archive = archive(
             entries: entries,
             accounts: accounts,
             selectedAccountID: selectedAccountID
-        )))
+        )
+        let data = switch format {
+        case .json: try BackupCodec.encode(archive)
+        case .csv: try CSVBackupCodec.encode(archive)
+        }
+        return BackupDocument(data: data)
     }
 
-    static func preview(data: Data, currentRecordCount: Int) throws -> RestorePreview {
-        RestorePreview(archive: try BackupCodec.decodeAndValidate(data), currentRecordCount: currentRecordCount)
+    static func preview(data: Data, currentRecordCount: Int, format: BackupFileFormat) throws -> RestorePreview {
+        let archive = switch format {
+        case .json: try BackupCodec.decodeAndValidate(data)
+        case .csv: try CSVBackupCodec.decodeAndValidate(data)
+        }
+        return RestorePreview(archive: archive, currentRecordCount: currentRecordCount)
     }
 
     @MainActor

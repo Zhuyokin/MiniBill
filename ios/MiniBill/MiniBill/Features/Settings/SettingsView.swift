@@ -47,10 +47,8 @@ private struct SettingsSectionHeader: View {
 }
 
 struct SettingsView: View {
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
-    @Query(sort: \LedgerAccount.createdAt) private var accounts: [LedgerAccount]
     @Binding var selectedAccountID: UUID
 
     @AppStorage(ReminderPreferenceKey.dailyEnabled) private var dailyEnabled = false
@@ -63,11 +61,6 @@ struct SettingsView: View {
     @AppStorage(AppInterfaceStyle.storageKey) private var interfaceStyleValue = AppInterfaceStyle.modern.rawValue
 
     @State private var authorizationStatus: UNAuthorizationStatus = .notDetermined
-    @State private var exportedDocument: BackupDocument?
-    @State private var showExporter = false
-    @State private var showImporter = false
-    @State private var restorePreview: RestorePreview?
-    @State private var errorMessage: String?
     @State private var reminderErrorMessage: String?
     @State private var copiedEmailMessage: String?
     @State private var helpTopic: SettingsHelpTopic?
@@ -151,8 +144,11 @@ struct SettingsView: View {
             }
 
             Section {
-                Button { prepareExport() } label: { Label("Export Backup", systemImage: "arrow.up.doc") }
-                Button { showImporter = true } label: { Label("Restore from Backup", systemImage: "arrow.down.doc") }
+                NavigationLink {
+                    BackupSettingsView(selectedAccountID: $selectedAccountID)
+                } label: {
+                    Label("Backup", systemImage: "externaldrive")
+                }
             } header: {
                 SettingsSectionHeader(title: "Backup", helpAccessibilityLabel: "Backup Help") { helpTopic = .backup }
             }
@@ -193,10 +189,6 @@ struct SettingsView: View {
                     Label("More Apps", systemImage: "square.grid.2x2")
                 }
             }
-
-            if let errorMessage {
-                Section { Text(errorMessage).foregroundStyle(.red) }
-            }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -229,30 +221,6 @@ struct SettingsView: View {
                 title: Text(topic.title),
                 message: Text(topic.message),
                 dismissButton: .default(Text("OK"))
-            )
-        }
-        .fileExporter(
-            isPresented: $showExporter,
-            document: exportedDocument,
-            contentType: .miniBillBackup,
-            defaultFilename: "\(BackupService.filename()).minibill"
-        ) { result in
-            if case .failure(let error) = result, !isCancellation(error) {
-                errorMessage = AppLocalization.string("Export failed. Choose another location or try again.")
-            }
-            exportedDocument = nil
-        }
-        .fileImporter(isPresented: $showImporter, allowedContentTypes: [.miniBillBackup]) { result in
-            importBackup(result)
-        }
-        .sheet(item: $restorePreview) { preview in
-            RestorePreviewView(
-                preview: preview,
-                onExportCurrent: prepareExport,
-                onRestore: {
-                    try BackupService.replace(with: preview.archive, in: modelContext)
-                    selectedAccountID = preview.archive.selectedAccountID
-                }
             )
         }
     }
@@ -330,43 +298,6 @@ struct SettingsView: View {
             reminderErrorMessage = AppLocalization.string("Could not schedule the reminder. Your preference was saved; try again.")
         }
         authorizationStatus = await ReminderService.shared.authorizationStatus()
-    }
-
-    private func prepareExport() {
-        do {
-            exportedDocument = try BackupService.document(
-                entries: entries,
-                accounts: accounts,
-                selectedAccountID: selectedAccountID
-            )
-            showExporter = true
-        } catch {
-            errorMessage = AppLocalization.string("Export failed. Choose another location or try again.")
-        }
-    }
-
-    private func importBackup(_ result: Result<URL, Error>) {
-        switch result {
-        case .success(let url):
-            let accessing = url.startAccessingSecurityScopedResource()
-            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-            do {
-                restorePreview = try BackupService.preview(data: Data(contentsOf: url), currentRecordCount: entries.count)
-            } catch let error as BackupValidationError {
-                switch error {
-                case .schemaTooNew: errorMessage = AppLocalization.string("This backup needs a newer version of MiniBill. Your ledger was not changed.")
-                default: errorMessage = AppLocalization.string("This backup is damaged or invalid. Your ledger was not changed.")
-                }
-            } catch {
-                errorMessage = AppLocalization.string("This backup could not be read. Your ledger was not changed.")
-            }
-        case .failure(let error):
-            if !isCancellation(error) { errorMessage = AppLocalization.string("This backup could not be read. Your ledger was not changed.") }
-        }
-    }
-
-    private func isCancellation(_ error: Error) -> Bool {
-        (error as NSError).code == NSUserCancelledError
     }
 
     private func openSystemSettings() {

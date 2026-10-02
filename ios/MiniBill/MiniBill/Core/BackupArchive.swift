@@ -217,22 +217,22 @@ public enum BackupCodec {
         }
     }
 
-    fileprivate static func amountString(cents: Int64) -> String {
+    static func amountString(cents: Int64) -> String {
         String(format: "%lld.%02lld", cents / 100, cents % 100)
     }
 
-    fileprivate static func cents(amount: String) -> Int64? {
+    static func cents(amount: String) -> Int64? {
         try? EntryValidator.amountCents(from: amount, decimalSeparator: ".")
     }
 
-    private static func iso8601String(from date: Date) -> String {
+    static func iso8601String(from date: Date) -> String {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         return formatter.string(from: date)
     }
 
-    private static func date(fromISO8601 value: String) -> Date? {
+    static func date(fromISO8601 value: String) -> Date? {
         let fractional = ISO8601DateFormatter()
         fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         if let date = fractional.date(from: value) { return date }
