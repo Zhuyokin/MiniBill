@@ -6,9 +6,10 @@ struct BillsView: View {
     @Environment(\.appLanguage) private var language
     @Query(sort: \LedgerEntry.occurredAt, order: .reverse) private var entries: [LedgerEntry]
     @Binding var showQuickEntry: Bool
+    @Binding var quickEntryKind: LedgerKind
+    @Binding var editingEntry: LedgerRecord?
     @Binding var selectedAccountID: UUID
     let onOpenStatistics: (Date) -> Void
-    @State private var editingEntry: LedgerRecord?
     @State private var pendingDelete: LedgerRecord?
     @State private var deletionError: String?
     @State private var quickEntryDetent: PresentationDetent = .medium
@@ -90,6 +91,7 @@ struct BillsView: View {
 
             Button {
                 quickEntryDetent = .medium
+                quickEntryKind = .income
                 showQuickEntry = true
             } label: {
                 Image(systemName: "plus")
@@ -109,7 +111,7 @@ struct BillsView: View {
                 .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showQuickEntry) {
-            QuickEntrySheet(accountID: selectedAccountID, candidates: ProjectSuggestionService.candidates(from: records))
+            QuickEntrySheet(accountID: selectedAccountID, candidates: ProjectSuggestionService.candidates(from: records), initialKind: quickEntryKind)
                 .presentationDetents([.medium, .large], selection: $quickEntryDetent)
                 .presentationDragIndicator(.visible)
         }

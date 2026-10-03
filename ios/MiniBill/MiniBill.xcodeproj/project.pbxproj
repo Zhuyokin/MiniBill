@@ -22,6 +22,16 @@
 		B7174B572552273E1E7A6704 /* LocalizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 194BCED96FF003050270F6E7 /* LocalizationService.swift */; };
 		A96CDB31C47B5D7AA49C9B49 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B707FD61CC9AB9654D649341 /* Localizable.xcstrings */; };
 		BEBE88B441EC8502E911023C /* MiniBillWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1792B93D3BF61CC559A3D6FF /* MiniBillWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		13305187EF9C6C70C2982BA0 /* LedgerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29CBD1666DE25F4924278E15 /* LedgerTypes.swift */; };
+		808524C63996F83ED861081B /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33487F9FD523DF4FB8472D77 /* AppLanguage.swift */; };
+		D9BA04B2ED1F2B40AB521AA5 /* ProjectNameNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1748C71EE38DFDD61448B116 /* ProjectNameNormalizer.swift */; };
+		0C7C3ABFFB1D2256AF022CF2 /* LedgerWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24805B1358A10947F66639F3 /* LedgerWidgetSnapshot.swift */; };
+		F6ABF4140FC723393E177715 /* LedgerWidgetRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F48839CA1BACD89376EE780 /* LedgerWidgetRoute.swift */; };
+		88EF9381B06B7639C6C9DFEF /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4F6BA0C7E2603BB9B8F1F9E /* AppTheme.swift */; };
+		C8D0259318C6077436003D66 /* LocalizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F4BDBEA4D174707D3AA0E44 /* LocalizationService.swift */; };
+		2019C1D7BB275E04139A6C05 /* MiniBillWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BDC6FE9D26CCDD3F3C691B /* MiniBillWidgets.swift */; };
+		272D60E7B1603E927BCB247C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 35602E3A260C9D84F0386311 /* Localizable.xcstrings */; };
+		C6C2D60C14573B537BF2F053 /* MiniBillWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EFEE5556500C717EE8A72326 /* MiniBillWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,6 +41,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 0D9C0A0286A442E7E7C5FE0A;
 			remoteInfo = MiniBillWatch;
+		};
+		ACA7B7DD7FE7E8172D575BB5 /* Widget Proxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 762C2491302366B50069C2C6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 47AF98188F57A64E89BBA9FF;
+			remoteInfo = MiniBillWidgets;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -46,6 +63,17 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		56466BF33F0257DE1C95F18C /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C6C2D60C14573B537BF2F053 /* MiniBillWidgets.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -53,6 +81,11 @@
 			isa = PBXTargetDependency;
 			target = 0D9C0A0286A442E7E7C5FE0A /* MiniBillWatch */;
 			targetProxy = A9DBE8A0BED6375F772BA10B /* PBXContainerItemProxy */;
+		};
+		29160D1767B2428B6F25454E /* Widget Dependency */ = {
+			isa = PBXTargetDependency;
+			target = 47AF98188F57A64E89BBA9FF /* MiniBillWidgets */;
+			targetProxy = ACA7B7DD7FE7E8172D575BB5 /* Widget Proxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -73,6 +106,18 @@
 		194BCED96FF003050270F6E7 /* LocalizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocalizationService.swift; path = Services/LocalizationService.swift; sourceTree = "<group>"; };
 		B707FD61CC9AB9654D649341 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Resources/Localizable.xcstrings; sourceTree = "<group>"; };
 		1792B93D3BF61CC559A3D6FF /* MiniBillWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniBillWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		29CBD1666DE25F4924278E15 /* LedgerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LedgerTypes.swift; path = Core/LedgerTypes.swift; sourceTree = "<group>"; };
+		33487F9FD523DF4FB8472D77 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppLanguage.swift; path = Core/AppLanguage.swift; sourceTree = "<group>"; };
+		1748C71EE38DFDD61448B116 /* ProjectNameNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProjectNameNormalizer.swift; path = Core/ProjectNameNormalizer.swift; sourceTree = "<group>"; };
+		24805B1358A10947F66639F3 /* LedgerWidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LedgerWidgetSnapshot.swift; path = Core/LedgerWidgetSnapshot.swift; sourceTree = "<group>"; };
+		5F48839CA1BACD89376EE780 /* LedgerWidgetRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LedgerWidgetRoute.swift; path = Core/LedgerWidgetRoute.swift; sourceTree = "<group>"; };
+		D4F6BA0C7E2603BB9B8F1F9E /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppTheme.swift; path = App/AppTheme.swift; sourceTree = "<group>"; };
+		7F4BDBEA4D174707D3AA0E44 /* LocalizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocalizationService.swift; path = Services/LocalizationService.swift; sourceTree = "<group>"; };
+		C2BDC6FE9D26CCDD3F3C691B /* MiniBillWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniBillWidgets.swift; sourceTree = "<group>"; };
+		ED01A49B85A3CBA6FCA254DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1FCD8C579B1B9005AFD5BBD8 /* MiniBillWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MiniBillWidgets.entitlements; sourceTree = "<group>"; };
+		35602E3A260C9D84F0386311 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Resources/Localizable.xcstrings; sourceTree = "<group>"; };
+		EFEE5556500C717EE8A72326 /* MiniBillWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MiniBillWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -103,6 +148,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6917378273108E7171F10671 /* Widget Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -112,6 +164,8 @@
 				762C249B302366B50069C2C6 /* MiniBill */,
 				CA912A445FA9947A62F6A8A5 /* MiniBillWatch */,
 				4E577AB67098170BDE94AE93 /* Watch Shared Sources */,
+				D8126CD5D2E600254DA58F46 /* Widget Group */,
+				2FF1C7A161961298487D8D6A /* Widget Shared Sources */,
 				762C249A302366B50069C2C6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -121,6 +175,7 @@
 			children = (
 				762C2499302366B50069C2C6 /* MiniBill.app */,
 				1792B93D3BF61CC559A3D6FF /* MiniBillWatch.app */,
+				EFEE5556500C717EE8A72326 /* MiniBillWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -147,6 +202,32 @@
 			path = MiniBill;
 			sourceTree = "<group>";
 		};
+		D8126CD5D2E600254DA58F46 /* Widget Group */ = {
+			isa = PBXGroup;
+			children = (
+				C2BDC6FE9D26CCDD3F3C691B /* MiniBillWidgets.swift */,
+				ED01A49B85A3CBA6FCA254DD /* Info.plist */,
+				1FCD8C579B1B9005AFD5BBD8 /* MiniBillWidgets.entitlements */,
+			);
+			path = MiniBillWidgets;
+			sourceTree = "<group>";
+		};
+		2FF1C7A161961298487D8D6A /* Widget Shared Sources */ = {
+			isa = PBXGroup;
+			children = (
+				29CBD1666DE25F4924278E15 /* LedgerTypes.swift */,
+				33487F9FD523DF4FB8472D77 /* AppLanguage.swift */,
+				1748C71EE38DFDD61448B116 /* ProjectNameNormalizer.swift */,
+				24805B1358A10947F66639F3 /* LedgerWidgetSnapshot.swift */,
+				5F48839CA1BACD89376EE780 /* LedgerWidgetRoute.swift */,
+				D4F6BA0C7E2603BB9B8F1F9E /* AppTheme.swift */,
+				7F4BDBEA4D174707D3AA0E44 /* LocalizationService.swift */,
+				35602E3A260C9D84F0386311 /* Localizable.xcstrings */,
+			);
+			name = "Widget Shared Sources";
+			path = MiniBill;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -158,11 +239,13 @@
 				762C2496302366B50069C2C6 /* Frameworks */,
 				762C2497302366B50069C2C6 /* Resources */,
 				FB1F962CF77A1A8BD0A25520 /* Embed Watch Content */,
+				56466BF33F0257DE1C95F18C /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				1750A52A7A996F76D4B1F59A /* PBXTargetDependency */,
+				29160D1767B2428B6F25454E /* Widget Dependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				762C249B302366B50069C2C6 /* MiniBill */,
@@ -196,6 +279,25 @@
 			productReference = 1792B93D3BF61CC559A3D6FF /* MiniBillWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
+		47AF98188F57A64E89BBA9FF /* MiniBillWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B123D98A29B9F971DF5A0899 /* Widget Configurations */;
+			buildPhases = (
+				E5CEE4DA383B8E0913EE1B66 /* Widget Sources */,
+				6917378273108E7171F10671 /* Widget Frameworks */,
+				F47207ABC282B4A8E151CCA5 /* Widget Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MiniBillWidgets;
+			packageProductDependencies = (
+			);
+			productName = MiniBillWidgets;
+			productReference = EFEE5556500C717EE8A72326 /* MiniBillWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -211,6 +313,19 @@
 					};
 					762C2498302366B50069C2C6 = {
 						CreatedOnToolsVersion = 16.2;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					47AF98188F57A64E89BBA9FF = {
+						CreatedOnToolsVersion = 16.2;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -235,6 +350,7 @@
 			targets = (
 				762C2498302366B50069C2C6 /* MiniBill */,
 				0D9C0A0286A442E7E7C5FE0A /* MiniBillWatch */,
+				47AF98188F57A64E89BBA9FF /* MiniBillWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -252,6 +368,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				A96CDB31C47B5D7AA49C9B49 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F47207ABC282B4A8E151CCA5 /* Widget Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				272D60E7B1603E927BCB247C /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,6 +406,21 @@
 				470283133AA73BCF9CA62468 /* StatisticsChartScale.swift in Sources */,
 				9841B0C7522CDD336A3D7316 /* WatchLedgerSync.swift in Sources */,
 				B7174B572552273E1E7A6704 /* LocalizationService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E5CEE4DA383B8E0913EE1B66 /* Widget Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2019C1D7BB275E04139A6C05 /* MiniBillWidgets.swift in Sources */,
+				13305187EF9C6C70C2982BA0 /* LedgerTypes.swift in Sources */,
+				808524C63996F83ED861081B /* AppLanguage.swift in Sources */,
+				D9BA04B2ED1F2B40AB521AA5 /* ProjectNameNormalizer.swift in Sources */,
+				0C7C3ABFFB1D2256AF022CF2 /* LedgerWidgetSnapshot.swift in Sources */,
+				F6ABF4140FC723393E177715 /* LedgerWidgetRoute.swift in Sources */,
+				88EF9381B06B7639C6C9DFEF /* AppTheme.swift in Sources */,
+				C8D0259318C6077436003D66 /* LocalizationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,7 +571,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.masdey.minibill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -466,7 +605,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.masdey.minibill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -494,7 +633,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.masdey.minibill.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -526,7 +665,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.masdey.minibill.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -536,6 +675,64 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		ED6100D739E348EE7BB4079F /* Widget Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = MiniBillWidgets/MiniBillWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 96DQ7VQS3P;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MiniBillWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MiniBill;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.7;
+				PRODUCT_BUNDLE_IDENTIFIER = com.masdey.minibill.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+			name = Debug;
+		};
+		E7AD36DB8EE811907D357CAC /* Widget Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = MiniBillWidgets/MiniBillWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 96DQ7VQS3P;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MiniBillWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MiniBill;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.7;
+				PRODUCT_BUNDLE_IDENTIFIER = com.masdey.minibill.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 			};
 			name = Release;
 		};
@@ -565,6 +762,15 @@
 			buildConfigurations = (
 				23624D2E86330C6B813237DC /* Debug */,
 				9B2792A6989E2E2469943617 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B123D98A29B9F971DF5A0899 /* Widget Configurations */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ED6100D739E348EE7BB4079F /* Widget Debug */,
+				E7AD36DB8EE811907D357CAC /* Widget Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

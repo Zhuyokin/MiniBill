@@ -4,6 +4,7 @@ import UserNotifications
 enum NotificationRoute: Equatable {
     case quickEntry
     case statistics
+    case widget(LedgerWidgetRoute)
 }
 
 final class NotificationRouter: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
@@ -14,6 +15,11 @@ final class NotificationRouter: NSObject, ObservableObject, UNUserNotificationCe
     private override init() {
         super.init()
         UNUserNotificationCenter.current().delegate = self
+    }
+
+    func open(_ url: URL) {
+        guard let widgetRoute = LedgerWidgetRoute(url: url) else { return }
+        route = .widget(widgetRoute)
     }
 
     func consume() {

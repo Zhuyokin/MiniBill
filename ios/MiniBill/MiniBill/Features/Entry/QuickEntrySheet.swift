@@ -20,7 +20,8 @@ struct QuickEntrySheet: View {
     @State private var showDiscardConfirmation = false
     @FocusState private var amountIsFocused: Bool
 
-    init(accountID: UUID, candidates: [String]) {
+    init(accountID: UUID, candidates: [String], initialKind: LedgerKind = .income) {
+        _kind = State(initialValue: initialKind)
         _accountID = State(initialValue: accountID)
         _candidates = State(initialValue: candidates)
     }

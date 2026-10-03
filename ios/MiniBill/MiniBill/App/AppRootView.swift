@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 private enum RootTab: String, CaseIterable, Hashable, Identifiable {
     case bills
@@ -30,6 +31,9 @@ struct AppRootView: View {
     @State private var selectedTab: RootTab = .bills
     @State private var selectedStatisticsMonth = Date()
     @State private var showQuickEntry = false
+    @State private var quickEntryKind: LedgerKind = .income
+    @State private var editingEntry: LedgerRecord?
+    @Query private var accounts: [LedgerAccount]
     @State private var splitViewVisibility: NavigationSplitViewVisibility = .all
     @AppStorage(LedgerAccountDefaults.selectionStorageKey) private var selectedAccountValue = LedgerAccountDefaults.id.uuidString
 
@@ -51,6 +55,9 @@ struct AppRootView: View {
         }
         .onAppear(perform: consumeRoute)
         .onChange(of: router.route) { _, _ in consumeRoute() }
+        .onChange(of: selectedAccountValue) { _, _ in
+            LedgerWidgetSyncService.shared.refresh()
+        }
     }
 
     private var phoneTabs: some View {
@@ -119,6 +126,8 @@ struct AppRootView: View {
             NavigationStack {
                 BillsView(
                     showQuickEntry: $showQuickEntry,
+                    quickEntryKind: $quickEntryKind,
+                    editingEntry: $editingEntry,
                     selectedAccountID: selectedAccountID,
                     onOpenStatistics: { month in
                         selectedStatisticsMonth = month
@@ -144,11 +153,36 @@ struct AppRootView: View {
         guard let route = router.route else { return }
         switch route {
         case .quickEntry:
+            if !showQuickEntry { quickEntryKind = .income }
             selectedTab = .bills
             showQuickEntry = true
         case .statistics:
             selectedStatisticsMonth = Date()
             selectedTab = .statistics
+        case .widget(let widgetRoute):
+            // Keep an open entry draft intact when another widget link arrives.
+            guard !showQuickEntry, editingEntry == nil else { router.consume(); return }
+            switch widgetRoute {
+            case .overview(let accountID):
+                guard accounts.contains(where: { $0.id == accountID }) else {
+                    selectedTab = .bills
+                    router.consume()
+                    return
+                }
+                selectedAccountValue = accountID.uuidString
+                selectedStatisticsMonth = Date()
+                selectedTab = .statistics
+            case .entry(let accountID, let kind):
+                guard accounts.contains(where: { $0.id == accountID }) else {
+                    selectedTab = .bills
+                    router.consume()
+                    return
+                }
+                selectedAccountValue = accountID.uuidString
+                quickEntryKind = kind
+                selectedTab = .bills
+                showQuickEntry = true
+            }
         }
         router.consume()
     }

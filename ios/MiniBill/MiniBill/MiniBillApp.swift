@@ -38,6 +38,7 @@ struct MiniBillApp: App {
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active, launch.container != nil else { return }
             PhoneWatchSyncService.shared.refresh()
+            LedgerWidgetSyncService.shared.refresh()
             Task { await reconcileReminderPreferences(reason: "scene activation") }
         }
     }
@@ -88,17 +89,21 @@ private struct LaunchHostView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
             guard launch.container != nil else { return }
+            LedgerWidgetSyncService.shared.refresh(forceReload: true)
             Task { await reconcileReminderPreferences(reason: "significant time change") }
         }
         .onReceive(NotificationCenter.default.publisher(for: .NSSystemTimeZoneDidChange)) { _ in
             guard launch.container != nil else { return }
+            LedgerWidgetSyncService.shared.refresh(forceReload: true)
             Task { await reconcileReminderPreferences(reason: "system time-zone change") }
         }
         .onChange(of: languageCode) { _, _ in
             guard launch.container != nil else { return }
             PhoneWatchSyncService.shared.refresh()
+            LedgerWidgetSyncService.shared.refresh()
             Task { await reconcileReminderPreferences(reason: "app language change") }
         }
+        .onOpenURL { router.open($0) }
         .environment(\.locale, language.locale)
         .environment(\.appLanguage, language)
         .environment(\.appInterfaceStyle, interfaceStyle)
@@ -134,6 +139,7 @@ final class LaunchCoordinator: ObservableObject {
 #endif
             container = openedContainer
             PhoneWatchSyncService.shared.start(container: openedContainer)
+            LedgerWidgetSyncService.shared.start(container: openedContainer)
         } catch {
             container = nil
         }
